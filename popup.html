@@ -1,0 +1,121 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>GTmetrix Analyzer</title>
+	<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+	<link rel="stylesheet" href="/popup.css">
+	<script type="text/javascript" src="/node_modules/jquery/dist/jquery.js"></script>
+
+    <script src="/node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
+    <script src="/node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js"></script>
+    <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
+    <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="/node_modules/bootstrap/dist/js/bootbox.min.js"></script>
+
+	<script type="text/javascript" src="/popup.js"></script>
+  </head>
+  <body>
+
+  <div class="p0">
+    <div class="container">
+
+      <form class="form-signin" id="form_login">
+        <h2 class="form-signin-heading p1">Sign in</h2>
+        <label for="inputEmail" class="sr-only">Email address</label>
+        <input type="email" id="inputEmail" class="form-control p2" name="email" placeholder="Email address" value="dmitriy.dn.ua@gmail.com" required autofocus>
+        <label for="inputPassword" class="sr-only">Password</label>
+        <input type="password" id="inputPassword" class="form-control p3" name="password" placeholder="Password" value="1" required>
+        <div class="checkbox">
+          <label>
+            <input type="checkbox" value="remember-me"> Remember me
+          </label>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block p4" type="submit">Sign in</button>
+      </form>
+
+    </div>
+
+    <div class="p5">
+      <nav class="navbar navbar-default">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">PickUp</a>
+          </div>
+          <ul class="nav navbar-nav p8">
+            <li class="active"><a href="#" data-name="all_task">List task</a></li>
+            <li><a href="#" data-name="all_likes">All likes</a></li>
+            <li><a href="#" data-name="all_black_list">Black list</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="#" class="p6"><span style="margin: 0 5px 0 0;" class="glyphicon glyphicon-log-out"></span>Log out</a></li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="all_task p9">
+      <table class='build_task_table bootstraptable'></table>
+
+      <div class="p21">
+        <table class='build_task_id_table bootstraptable'></table>
+      </div>
+
+      <!-- Create new task -->
+      <div class="p11">
+        <form class="p12">
+          <input name="action" value="create_task" type="hidden">
+
+          <div class="form-group">
+            <label for="name">Name task:</label>
+            <input type="name" class="form-control" id="name" name="name_task">
+          </div>
+
+          <div class="form-group">
+            <label for="type_network">Select network:</label>
+            <select class="form-control" id="type_network" name="type_network">
+              <option value="0">Vk</option>
+              <option value="1">Facebook</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="max_photo_click">Max photo open for one user:</label>
+            <input type="name" class="form-control" id="max_photo_click" name="max_photo_click" value="50">
+          </div>
+
+          <div class="form-group">
+            <label for="time_deplay_next_photo_click">Time deplay before click next photo:</label>
+            <input type="name" class="form-control" id="time_deplay_next_photo_click" name="time_deplay_next_photo_click" value="1">
+          </div>
+
+          <div class="form-group">
+            <label for="percentage_photo_click">The percentage of clicks photo:</label>
+            <input type="name" class="form-control" id="percentage_photo_click" name="percentage_photo_click" value="50">
+          </div>
+
+          <div class="form-group">
+            <label for="minimum_number_click">The minimum number of clicks for one user:</label>
+            <input type="name" class="form-control" id="minimum_number_click" name="minimum_number_click" value="2">
+          </div>
+
+          <button type="submit" class="btn btn-default p13">Create task</button>
+          <button type="submit" class="btn btn-default p14">Cancel</button>
+        </form>
+      </div>
+
+    </div>
+
+    <div class="all_likes p9">
+        2
+    </div>
+
+    <div class="all_black_list p9">
+        3
+    </div>
+
+  </div>
+
+  </body>
+</html>

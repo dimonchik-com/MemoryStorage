@@ -1,0 +1,20 @@
+.p0{min-width: 800px; height: 500px;}
+.p1{font-size: 16px; margin: 10px 0 10px 0; font-weight: bold;}
+.p2{margin: 0 0 5px 0;}
+.p3{margin: 0 0 5px 0;}
+.p4{padding: 5px; margin: 0 0 10px 0; font-size: 16px;}
+.p-error{border: 1px solid red;}
+.p5,.all_task,.all_likes,.all_black_list,.p9{display: none;}
+.p9{margin: 0 2px;}
+.p10,.p19{position: relative;top: 11px;}
+.p11{display: none;}
+.p13{margin: 0 2px 0 0;}
+.all_task .build_task_table td+td{max-width: 200px;}
+.p14{margin: 0 2px 0 0;}
+.p18 a{margin: 0 5px 0 0;}
+.p18 a:last-child{margin: 0 0px 0 0;}
+.p19{display: none;}
+.p18 .p20{margin: 0 7px 0 0;}
+.p21{display: none;}
+
+/* p21 */
