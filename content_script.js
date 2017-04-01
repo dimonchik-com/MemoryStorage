@@ -1,9 +1,50 @@
 function EnglishTip() {
+
+    function injectScript(src) {
+        return new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.async = true;
+            script.src = src;
+            script.addEventListener('load', resolve);
+            script.addEventListener('error', () => reject('Error loading script.'));
+            script.addEventListener('abort', () => reject('Script loading aborted.'));
+            document.head.appendChild(script);
+        });
+    }
+
+    injectScript('https://www.gstatic.com/firebasejs/3.7.1/firebase.js')
+        .then(() => {
+            var script = document.createElement( "script" );
+            script.text = `
+                var config = {
+                    apiKey: "AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E",
+                    authDomain: "englishtip-516bc.firebaseapp.com",
+                    databaseURL: "https://englishtip-516bc.firebaseio.com/",
+                    storageBucket: "<gs://englishtip-516bc.appspot.com"
+                };
+                firebase.initializeApp(config);
+                
+                var database = firebase.database();
+                
+                database.ref('/vocabulary').once('value').then(function(snapshot) {
+                    console.log(snapshot.val());
+                });
+            `;
+            document.body.insertBefore(script, document.body.childNodes[0]);
+        }).catch(error => {
+        console.log(error);
+    });
+
     var vocabulary = [{"id":"441","en":"neighbor","ru":"сосед"}, {"id":"442","en":"they","ru":"они"}, {"id":"443","en":"gray","ru":"серый"}, {"id":"444","en":"pray","ru":"молиться"}, {"id":"445","en":"survey","ru":"обзор"}, {"id":"446","en":"convey","ru":"передовать, доносить"}, {"id":"447","en":"ceiling","ru":"потолок"}, {"id":"448","en":"either","ru":"один из двух, либо, тоже"}, {"id":"449","en":"eye","ru":"глаза"}, {"id":"450","en":"height","ru":"высота"}, {"id":"451","en":"heir","ru":"наследник"}, {"id":"452","en":"key","ru":"ключ"}, {"id":"453","en":"neither","ru":"никто"}, {"id":"454","en":"perceive","ru":"воспринимать"}, {"id":"455","en":"receive","ru":"получать"}, {"id":"456","en":"seize","ru":"захватить"}, {"id":"457","en":"their","ru":"их"}, {"id":"458","en":"foreign","ru":"иностранный"}, {"id":"459","en":"hockey","ru":"хоккей"}, {"id":"460","en":"money","ru":"деньги"}, {"id":"461","en":"monkey","ru":"обезьяна"}];
 
     vocabulary.map(function (element) {
-        element.iteration = 0;
-        element.time_reaction = [];
+        if(!element.iteration) {
+            element.iteration = 0;
+        }
+
+        if(!element.time_reaction) {
+            element.time_reaction = [];
+        }
     });
 
     var config = {sorting: 0, time: 0, last_word: null, range_area:{start:451, end:460}};
