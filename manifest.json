@@ -12,7 +12,7 @@
   "permissions":["tabs","storage"],
   "content_scripts": [ {
     "matches": [ "http://*/*", "https://*/*"],
-    "js": ["content_script.js"]
+    "js": ["bunch.js"]
   } ],
   "icons": { "16": "englishtip-16.png", "48": "englishtip-48.png", "128": "englishtip-128.png" }
 }
