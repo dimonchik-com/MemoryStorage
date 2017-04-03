@@ -7,7 +7,7 @@ gulp.task('clean', function() {
 });
 
 var paths_frontend=["script_frontend/firebase.js","script_frontend/md5.js","script_frontend/content_script.js"];
-var paths_backend=["script_frontend/firebase.js","script_backend/popup.js"];
+var paths_backend=["script_backend/popup.js"];
 
 gulp.task('scripts_frontend', ['clean'], function() {
     return gulp.src(paths_frontend)
