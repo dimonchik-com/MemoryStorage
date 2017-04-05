@@ -672,15 +672,13 @@ function EnglishTip(vocabulary, config) {
         var css = document.createElement("style");
         css.type = "text/css";
         css.innerHTML = `
-#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 5px 0; font-size:13px; font-family:Arial; width: 80px; text-align: center;}
-#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 5px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
+#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 80px; text-align: center;}
+#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
-#wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:black; color: #fff; margin:5px 0px 5px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
-#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 5px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
-#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 5px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
-
-`;
+#wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
+#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
+#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}`;
         css.id="englishtip_css";
         document.body.appendChild(css);
     }

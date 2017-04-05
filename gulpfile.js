@@ -22,7 +22,7 @@ gulp.task('scripts_backend', ['clean'], function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(paths_frontend, ['scripts_frontend','scripts_backend']);
+    gulp.watch([paths_frontend,paths_backend], ['scripts_frontend','scripts_backend']);
 });
 
 gulp.task('default',['scripts_frontend','scripts_backend','watch']);
