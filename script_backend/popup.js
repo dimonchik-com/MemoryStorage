@@ -5,22 +5,8 @@ var config = {
 };
 firebase.initializeApp(config);
 
-function initApp() {
-    // Listen for auth state changes.
-    // [START authstatelistener]
-    firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-			console.log(user);
-        } else {
-            startSignIn();
-        }
-    });
-}
+var user_data={vocabulary:[],config:{range_area:{start:0,end:0}},sorting:0}
 
-/**
- * Start the auth flow and authorizes to Firebase.
- * @param{boolean} interactive True if the OAuth flow should request with an interactive mode.
- */
 function startAuth(interactive) {
     chrome.identity.getAuthToken({interactive: !!interactive}, function(token) {
         if (chrome.runtime.lastError && !interactive) {
@@ -44,100 +30,82 @@ function startAuth(interactive) {
     });
 }
 
-/**
- * Starts the sign-in process.
- */
 function startSignIn() {
-    if (firebase.auth().currentUser) {
-        firebase.auth().signOut();
-    } else {
+    if (!firebase.auth().currentUser) {
         startAuth(true);
     }
 }
 
-window.onload = function() {
-    initApp();
-};
-
-
 $( document ).ready(function() {
 
-    // $("#form_login").hide();
-    // $(".p5").show();
-    // $(".p0").css({"min-width":"800px","height":"600px"});
-    // $(".p8 a:first").click();
+    firebase.auth().onAuthStateChanged(function(user) {
+        if (user) {
+            $(".wednesday_05_04_01").hide();
+            $(".p0,.p5").show();
+            $(".p0").addClass("wednesday_05_04_03");
+            $(".p8 a:first").click();
+        } else {
+			$(".wednesday_05_04_02").hide();
+            $(".wednesday_05_04_01 button").show();
+		}
+    });
+
+	$("body").on("click",".wednesday_05_04_01 button", function () {
+        startSignIn();
+    });
 
 	// Log out
 	$("body").on("click",".p5 .p6", function () {
-		chrome.storage.local.remove('pickup_session', function (result) {
-			$("#form_login").show();
-			$(".p5,.p9").hide();
-			$(".p0").css({"min-width":"200px","height":"auto"});
-		});
+        firebase.auth().signOut();
+
+        $(".wednesday_05_04_01").show();
+        $(".p0,.p5").hide();
+        $(".p0").removeClass("wednesday_05_04_03");
+
+		// chrome.storage.local.remove('pickup_session', function (result) {
+		// 	$("#form_login").show();
+		// 	$(".p5,.p9").hide();
+		// 	$(".p0").css({"min-width":"200px","height":"auto"});
+		// });
 	});
 
 	// add new task
 	$("body").on("click",".p10", function () {
-		$(".p12 input[name=id]").remove();
-		$(".p12 input[name=name_task]").val("");
-		$(".p13").text("Create task");
 		$(".all_task .build_task_table").bootstrapTable('destroy');
 		$(".p11").show();
+
+		var max_id=user_data.vocabulary.reduce(function(old_val, new_val){
+			if(new_val.id>old_val) {
+				return new_val.id;
+			} else {
+				return old_val;
+			}
+		},0);
+
+        $("input[name=new_id]").val(parseInt(max_id)+1);
 	});
 
 	// create new task
 	$("body").on("click",".p13", function () {
 		get_storage(function (result) {
-			$("input[name='pickup_session']").remove();
-			$(".p12").append("<input type='hidden' name='pickup_session' value='"+result.pickup_session+"'>");
-			$.ajax({
-				method: "POST",
-				url: "http://localhost/pickup/create_new_task",
-				data: $(".p12").serialize()
-			}).done(function(respons) {
-				$(".p14").click();
+            var new_id=$("input[name=new_id]").val();
+            var new_word=$("input[name=new_word]").val();
+            var new_translate=$("input[name=new_translate]").val();
+			user_data.vocabulary.push({
+                id:new_id,
+				en:new_word,
+				ru:new_translate,
+                time_reaction:[],
+                iteration:0,
+				total_iteration:0
+			});
+
+			set_strage(function(){
+				$(".p12 input").val("")
+                $(".p11").hide();
+                $(".p8 a:first").click();
 			});
 		});
-		return false;
-	});
-
-	// remove task
-	$("body").on("click",".p15", function () {
-		var id=$(this).parent().attr("data-id");
-		bootbox.confirm("Are you sure you want to delete the task?", function(action) {
-			if(action) {
-				get_storage(function (result) {
-					$.ajax({
-						method: "POST",
-						url: "http://localhost/pickup/remove_task",
-						data: {list_remove_task: [id], pickup_session: result.pickup_session}
-					}).done(function (respons) {
-						$(".all_task .build_task_table").bootstrapTable('refresh');
-					});
-				});
-			}
-		});
-		return false;
-	});
-
-	// edit task
-	$("body").on("click",".p16", function () {
-		var id=$(this).parent().attr("data-id");
-		var p17=$(this).closest("tr").find(".p17").text();
-		$(".p12 input[name=name_task]").val(p17);
-
-		$(".all_task .build_task_table").bootstrapTable('destroy');
-		$(".p12 input[name=id]").remove();
-		$(".p12").append("<input type='hidden' name='id' value='"+id+"'>");
-		$(".p13").text("Save");
-		$(".p11").show();
-		return false;
-	});
-
-	// cancel new or update task
-	$("body").on("click",".p14", function () {
-		$(".p11").hide();
-		$(".p8 a:first").click();
 		return false;
 	});
 
@@ -147,7 +115,7 @@ $( document ).ready(function() {
 		$(".p8 li").removeClass("active");
 		$(this).parent().addClass("active");
 
-		$(".p9").hide();
+		$(".config").hide();
 		$("."+name_tab).show();
 		$(".p9 .bootstraptable").bootstrapTable('destroy');
 
@@ -155,11 +123,8 @@ $( document ).ready(function() {
             case "all_task":
                 all_task();
                 break;
-            case "all_likes":
-                all_likes();
-                break;
             case "all_black_list":
-                all_black_list();
+
                 break;
         }
 	});
@@ -195,7 +160,6 @@ $( document ).ready(function() {
 				});
 			}
 		});
-
 	});
 
 	// add event click if miss checkbox
@@ -206,13 +170,38 @@ $( document ).ready(function() {
 		}
 	});
 
-	// show detal task
-	$("body").on("click", ".p17",function () {
-		var task_id=$(this).attr("id");
-		$(".p9 .bootstraptable").bootstrapTable('destroy');
-		create_certain_task(task_id);
-		return false;
-	});
+    // cancel new or update task
+    $("body").on("click",".p14", function () {
+        $(".p11").hide();
+        $(".p8 a:first").click();
+        return false;
+    });
+
+    var current_click_class;
+    $("body").on("click",".wednesday_05_04_05,.wednesday_05_04_07", function () {
+        current_click_class=$(this).hasClass("wednesday_05_04_05")?"en":"ru";
+        $(".wednesday_05_04_06").remove();
+        var ofsset=$(this).parent().offset();
+        var w=$(this).parent().width();
+        var html=get_tooltip((ofsset.top-75), (ofsset.left+w/2-130));
+        $(".p0").append(html);
+        return false;
+    });
+
+    $("body").on("click",".editable-cancel", function () {
+        $(".wednesday_05_04_06").hide();
+        return false;
+    });
+
+    $("body").on("click",".editable-submit", function () {
+        $(".wednesday_05_04_06").hide();
+        return false;
+    });
+
+    function get_tooltip(top, left) {
+        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm" style="padding-right: 24px;"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
+        return html;
+    }
 
 });
 
@@ -221,9 +210,18 @@ $( document ).ready(function() {
  * @param callback
  */
 function get_storage(callback) {
-	chrome.storage.local.get('pickup_session', function (result) {
-		return callback(result);
+	chrome.storage.local.get('english_tip', function (result) {
+		if(result.hasOwnProperty("english_tip")) {
+            user_data = result.english_tip;
+        }
+		return callback(result.english_tip);
 	});
+}
+
+function set_strage(callback){
+    chrome.storage.local.set({'english_tip': user_data}, function() {
+        return callback();
+    });
 }
 
 /**
@@ -231,9 +229,13 @@ function get_storage(callback) {
  */
 function all_task() {
     get_storage(function (result) {
-        if(result.pickup_session) {
+
+			result.vocabulary.sort(function(a,b){
+				return b.id-a.id;
+			});
+
             $(".all_task .build_task_table").bootstrapTable({
-                url: "http://localhost/pickup/get_list_task?pickup_session="+result.pickup_session,
+            	data:result.vocabulary,
                 columns: [
                     {
                         field: 'state',
@@ -242,68 +244,49 @@ function all_task() {
                         align: 'center'
                     },
                     {
-                        field: 'name',
-                        title: 'Name',
-                        align: 'left',
-                        formatter :function (data, all_row) {
-                            return "<a href='' id='"+all_row.id+"' class='p17'>"+data+"</a>";
-                        }
-                    },
-                    {
-                        field: 'statistic',
-                        title: 'Statistics',
+                        field: 'id',
+                        title: 'ID',
+                        sortable: true,
                         align: 'center',
                         formatter :function (data) {
-							if(data=="") {
-								data="0%";
-							}
                             return data;
                         }
                     },
+                    {
+                        field: 'en',
+                        title: 'English',
+                        align: 'center',
+                        editable: true,
+                        formatter :function (data) {
+                            return '<a href="#" class="wednesday_05_04_05">'+data+'</a>';
+                        }
+                    },
 					{
-						field: 'status',
-						title: 'Status',
+						field: 'ru',
+						title: 'Translation',
 						align: 'center',
 						formatter :function (data) {
-							var html="";
-							if(data==0) {
-								html="Disabled";
-							} else if(data==1) {
-								html="Enable";
-							}
-							return html;
+                            return '<a href="#" class="wednesday_05_04_07">'+data+'</a>';
 						}
 					},
 					{
-						field: 'type_network',
-						title: 'Network',
+						field: 'reaction',
+						title: 'Reaction',
 						align: 'center',
 						formatter :function (data) {
-							var html="";
-							if(data==0) {
-								html="Vk";
-							} else if(data==1) {
-								html="Facebook";
-							}
-							return html;
+                            return data;
 						}
 					},
                     {
-                        field: 'action',
-                        title: 'Action',
+                        field: 'count_show_time',
+                        title: 'Count show',
                         align: 'center',
-                        formatter :function (data, all_row) {
-							data='<div data-id="'+all_row.id+'" class="p18">' +
-								'<a class="edit p20" href="javascript:void(0)" title="Show"><i class="glyphicon glyphicon-eye-open"></i></a>' +
-								'<a class="edit p16" href="javascript:void(0)" title="Edit"><i class="glyphicon glyphicon-edit"></i></a>' +
-								'<a class="remove p15" href="javascript:void(0)" title="Remove"><i class="glyphicon glyphicon-remove"></i></a>' +
-								'</div>';
+                        formatter :function (data) {
                             return data;
                         }
                     }
                 ],
                 search: true,
-                sidePagination: "server",
                 pagination: true,
                 pageSize: 10,
                 showRefresh: true,
@@ -311,89 +294,8 @@ function all_task() {
                 cookieIdTable: "all_task",
 				height: 529
             });
-            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Add new task</button> <button type="button" class="btn btn-danger p19">Delete</button>');
-        }
+            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
     });
-}
-
-function create_certain_task(task_id) {
-	get_storage(function (result) {
-		if(result.pickup_session) {
-			$(".p21").show();
-			$(".all_task .build_task_id_table").bootstrapTable({
-				url: "http://localhost/pickup/get_list_task?pickup_session="+result.pickup_session,
-				columns: [
-					{
-						field: 'state',
-						checkbox: true,
-						title: '',
-						align: 'center'
-					},
-					{
-						field: 'name',
-						title: 'Image',
-						align: 'left',
-						formatter :function (data, all_row) {
-							return "<a href='' id='"+all_row.id+"' class='p17'>"+data+"</a>";
-						}
-					},
-					{
-						field: 'id_user',
-						title: 'User id',
-						align: 'center',
-						formatter :function (data) {
-							if(data=="") {
-								data="0%";
-							}
-							return data;
-						}
-					},
-					{
-						field: 'id_user',
-						title: 'Network',
-						align: 'center',
-						formatter :function (data) {
-							if(data=="") {
-								data="0%";
-							}
-							return data;
-						}
-					},
-					{
-						field: 'status',
-						title: 'Status',
-						align: 'center',
-						formatter :function (data) {
-							var html="";
-							if(data==0) {
-								html="Disabled";
-							} else if(data==1) {
-								html="Enable";
-							}
-							return html;
-						}
-					}
-				],
-				search: true,
-				sidePagination: "server",
-				pagination: true,
-				pageSize: 10,
-				showRefresh: true,
-				pageList: [10, 25, 50, 'All'],
-				cookieIdTable: "all_task",
-				height: 529
-			});
-			$(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Add new task</button> <button type="button" class="btn btn-danger p19">Delete</button>');
-		}
-	});
-}
-
-function all_likes() {
-
-}
-
-function all_black_list() {
-
 }
 
 // Функция для отправки сообщений

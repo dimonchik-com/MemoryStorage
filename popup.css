@@ -1,11 +1,10 @@
-.p0{min-width: 800px; height: 500px;}
+.p0{min-width: 200px;}
 .p1{font-size: 16px; margin: 10px 0 10px 0; font-weight: bold;}
 .p2{margin: 0 0 5px 0;}
 .p3{margin: 0 0 5px 0;}
-.p4{padding: 5px; margin: 0 0 10px 0; font-size: 16px;}
+.p4{padding: 5px; margin: 0 0 0px 0; font-size: 16px;}
 .p-error{border: 1px solid red;}
-.p5,.all_task,.all_likes,.all_black_list,.p9{display: none;}
-.p9{margin: 0 2px;}
+.p0,.p5,.all_task,.all_likes,.all_black_list,.config{display: none;}
 .p10,.p19{position: relative;top: 11px;}
 .p11{display: none;}
 .p13{margin: 0 2px 0 0;}
@@ -16,5 +15,9 @@
 .p19{display: none;}
 .p18 .p20{margin: 0 7px 0 0;}
 .p21{display: none;}
-
-/* p21 */
+.wednesday_05_04_01{margin: 20px 10px 20px 10px; min-width: 150px;}
+.wednesday_05_04_01 button{display: none;}
+.wednesday_05_04_02{text-align: center;}
+.wednesday_05_04_03{min-width:800px; height:600px}
+.wednesday_05_04_04{margin: 0 7px 0 7px;}
+.wednesday_05_04_05,.wednesday_05_04_07{text-decoration: none; border-bottom: dashed 1px #0088cc; color: #333;}
