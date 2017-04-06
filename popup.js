@@ -230,12 +230,16 @@ function set_strage(callback){
 function all_task() {
     get_storage(function (result) {
 
-			result.vocabulary.sort(function(a,b){
-				return b.id-a.id;
-			});
+            var vocabulary;
+            if(result) {
+                result.vocabulary.sort(function (a, b) {
+                    return b.id - a.id;
+                });
+                vocabulary=result.vocabulary;
+            }
 
             $(".all_task .build_task_table").bootstrapTable({
-            	data:result.vocabulary,
+            	data:vocabulary,
                 columns: [
                     {
                         field: 'state',
