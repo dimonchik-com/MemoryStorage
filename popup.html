@@ -14,6 +14,10 @@
 
     <link href="/bower_components/x-editable/dist/jquery-editable/css/jquery-editable.css" rel="stylesheet"/>
 
+    <link href="/node_modules/ion-rangeslider/css/ion.rangeSlider.css" rel="stylesheet"/>
+    <link href="/node_modules/ion-rangeslider/css/ion.rangeSlider.skinSimple.css" rel="stylesheet"/>
+    <script src="/node_modules/ion-rangeslider/js/ion.rangeSlider.js"></script>
+
     <link rel="stylesheet" href="/node_modules/bootstrap-table/dist/bootstrap-table.min.css">
     <script src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
     <script src="/node_modules/bootstrap/dist/js/bootbox.min.js"></script>
@@ -81,7 +85,7 @@
 
       <form class="wednesday_05_04_08">
         <div class="form-group">
-          <label for="name">Sort:</label>
+          <label for="name">The direction of the sort:</label>
           <select class="form-control">
             <option>Forward</option>
             <option>Reverse</option>
@@ -90,16 +94,12 @@
         </div>
 
         <div class="form-group">
-          <label for="type_network">Start index:</label>
-          <input type="name" value="0" class="form-control" id="name" name="new_word">
+          <label for="type_network">Range index:</label>
+          <div class="wednesday_05_04_10">
+            <input id="range_03"></input>
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="max_photo_click">End index:</label>
-          <input type="name" value="end" class="form-control" name="new_translate">
-        </div>
-
-        <button type="submit" class="btn btn-default p13">Save</button>
       </form>
 
     </div>

@@ -7,35 +7,6 @@ firebase.initializeApp(config);
 
 var user_data={vocabulary:[],config:{range_area:{start:0,end:0}},sorting:0}
 
-function startAuth(interactive) {
-    chrome.identity.getAuthToken({interactive: !!interactive}, function(token) {
-        if (chrome.runtime.lastError && !interactive) {
-            console.log('It was not possible to get a token programmatically.');
-        } else if(chrome.runtime.lastError) {
-            console.error(chrome.runtime.lastError);
-        } else if (token) {
-            // Authrorize Firebase with the OAuth Access Token.
-            var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
-            firebase.auth().signInWithCredential(credential).catch(function(error) {
-                // The OAuth token might have been invalidated. Lets' remove it from cache.
-                if (error.code === 'auth/invalid-credential') {
-                    chrome.identity.removeCachedAuthToken({token: token}, function() {
-                        startAuth(interactive);
-                    });
-                }
-            });
-        } else {
-            console.error('The OAuth Token was null');
-        }
-    });
-}
-
-function startSignIn() {
-    if (!firebase.auth().currentUser) {
-        startAuth(true);
-    }
-}
-
 $( document ).ready(function() {
 
     firebase.auth().onAuthStateChanged(function(user) {
@@ -61,12 +32,6 @@ $( document ).ready(function() {
         $(".wednesday_05_04_01").show();
         $(".p0,.p5").hide();
         $(".p0").removeClass("wednesday_05_04_03");
-
-		// chrome.storage.local.remove('pickup_session', function (result) {
-		// 	$("#form_login").show();
-		// 	$(".p5,.p9").hide();
-		// 	$(".p0").css({"min-width":"200px","height":"auto"});
-		// });
 	});
 
 	// add new task
@@ -123,8 +88,8 @@ $( document ).ready(function() {
             case "all_task":
                 all_task();
                 break;
-            case "all_black_list":
-
+            case "config":
+                config_tab();
                 break;
         }
 	});
@@ -150,13 +115,13 @@ $( document ).ready(function() {
 		bootbox.confirm("Are you sure you want to delete the tasks?", function(action) {
 			if(action) {
 				get_storage(function (result) {
-					$.ajax({
-						method: "POST",
-						url: "http://localhost/pickup/remove_task",
-						data: {list_remove_task: list_remove_task, pickup_session: result.pickup_session}
-					}).done(function (respons) {
-						$(".all_task .build_task_table").bootstrapTable('refresh');
-					});
+                    for(var i in result.vocabulary) {
+                        if(list_remove_task.indexOf(result.vocabulary[i].id)!=-1 || !result.vocabulary[i].id) {
+                            result.vocabulary.splice(i,1);
+                        }
+                    }
+                    console.log(result.vocabulary);
+                    set_strage();
 				});
 			}
 		});
@@ -183,7 +148,9 @@ $( document ).ready(function() {
         $(".wednesday_05_04_06").remove();
         var ofsset=$(this).parent().offset();
         var w=$(this).parent().width();
-        var html=get_tooltip((ofsset.top-75), (ofsset.left+w/2-130));
+        var word=$(this).text();
+        var id=$(this).attr("id");
+        var html=get_tooltip(id, word,(ofsset.top-75), (ofsset.left+w/2-130));
         $(".p0").append(html);
         return false;
     });
@@ -194,16 +161,50 @@ $( document ).ready(function() {
     });
 
     $("body").on("click",".editable-submit", function () {
-        $(".wednesday_05_04_06").hide();
+        var id=$(".wednesday_05_04_09").attr("id");
+        var val=$(".wednesday_05_04_09").val();
+
+        update_word_in_vacabulary(id, val, current_click_class);
+
+        $(".wednesday_05_04_06").remove();
         return false;
     });
 
-    function get_tooltip(top, left) {
-        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm" style="padding-right: 24px;"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
+    function get_tooltip(id, word, top, left) {
+        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
         return html;
     }
 
 });
+
+function startAuth(interactive) {
+    chrome.identity.getAuthToken({interactive: !!interactive}, function(token) {
+        if (chrome.runtime.lastError && !interactive) {
+            console.log('It was not possible to get a token programmatically.');
+        } else if(chrome.runtime.lastError) {
+            console.error(chrome.runtime.lastError);
+        } else if (token) {
+            // Authrorize Firebase with the OAuth Access Token.
+            var credential = firebase.auth.GoogleAuthProvider.credential(null, token);
+            firebase.auth().signInWithCredential(credential).catch(function(error) {
+                // The OAuth token might have been invalidated. Lets' remove it from cache.
+                if (error.code === 'auth/invalid-credential') {
+                    chrome.identity.removeCachedAuthToken({token: token}, function() {
+                        startAuth(interactive);
+                    });
+                }
+            });
+        } else {
+            console.error('The OAuth Token was null');
+        }
+    });
+}
+
+function startSignIn() {
+    if (!firebase.auth().currentUser) {
+        startAuth(true);
+    }
+}
 
 /**
  * Function for get session id
@@ -219,27 +220,33 @@ function get_storage(callback) {
 }
 
 function set_strage(callback){
+    if(user_data) {
+        user_data.vocabulary.sort(function (a, b) {
+            return b.id - a.id;
+        });
+    }
+
     chrome.storage.local.set({'english_tip': user_data}, function() {
         return callback();
     });
 }
 
-/**
- * Show all task
- */
+function update_word_in_vacabulary(id, val, current_click_class) {
+    for(var i in user_data.vocabulary) {
+        if(user_data.vocabulary[i].id==id) {
+            user_data.vocabulary[i][current_click_class]=val;
+            break;
+        }
+    }
+    $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
+    set_strage();
+}
+
 function all_task() {
     get_storage(function (result) {
 
-            var vocabulary;
-            if(result) {
-                result.vocabulary.sort(function (a, b) {
-                    return b.id - a.id;
-                });
-                vocabulary=result.vocabulary;
-            }
-
             $(".all_task .build_task_table").bootstrapTable({
-            	data:vocabulary,
+            	data:(result)?result.vocabulary:"",
                 columns: [
                     {
                         field: 'state',
@@ -252,25 +259,25 @@ function all_task() {
                         title: 'ID',
                         sortable: true,
                         align: 'center',
-                        formatter :function (data) {
-                            return data;
+                        formatter:function (data) {
+                            return "<div class='p17' id='"+data+"'>"+data+"</div>";
                         }
                     },
                     {
                         field: 'en',
-                        title: 'English',
+                        title: 'Source word',
                         align: 'center',
                         editable: true,
-                        formatter :function (data) {
-                            return '<a href="#" class="wednesday_05_04_05">'+data+'</a>';
+                        formatter :function (data, all_data) {
+                            return '<a href="#" class="wednesday_05_04_05" id="'+all_data.id+'">'+data+'</a>';
                         }
                     },
 					{
 						field: 'ru',
-						title: 'Translation',
+						title: 'Translation word',
 						align: 'center',
-						formatter :function (data) {
-                            return '<a href="#" class="wednesday_05_04_07">'+data+'</a>';
+						formatter :function (data, all_data) {
+                            return '<a href="#" class="wednesday_05_04_07" id="'+all_data.id+'">'+data+'</a>';
 						}
 					},
 					{
@@ -299,6 +306,39 @@ function all_task() {
 				height: 529
             });
             $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
+    });
+}
+
+function config_tab() {
+    var min_index=user_data.vocabulary.reduce(function(old_val, new_val){
+        if(new_val.id>old_val.id) {
+            return old_val.id;
+        } else {
+            return new_val.id;
+        }
+    });
+
+    console.log(min_index);
+
+    $("#range_03").ionRangeSlider({
+        type: "double",
+        grid: true,
+        min: min_index,
+        max: user_data.vocabulary.reduce(function(old_val, new_val){
+            if(new_val.id>old_val) {
+                return new_val.id;
+            } else {
+                return old_val;
+            }
+        },0),
+        from: user_data.config.range_area.start ? user_data.config.range_area.start : min_index,
+        to: user_data.config.range_area.end ? user_data.config.range_area.end : null,
+        prefix: "",
+        onFinish:function(a){
+            user_data.config.range_area.start=a.from;
+            user_data.config.range_area.end=a.to;
+            set_strage();
+        }
     });
 }
 
