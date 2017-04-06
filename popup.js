@@ -5,7 +5,8 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var user_data={vocabulary:[],config:{range_area:{start:0,end:0}},sorting:0}
+var user_data={vocabulary:[],config:{range_area:{start:0,end:0},sorting:0}};
+
 
 $( document ).ready(function() {
 
@@ -65,11 +66,15 @@ $( document ).ready(function() {
 				total_iteration:0
 			});
 
-			set_strage(function(){
-				$(".p12 input").val("")
-                $(".p11").hide();
-                $(".p8 a:first").click();
-			});
+            var range=get_range();
+            user_data.config.range_area.start=range.min_index;
+            user_data.config.range_area.end=range.max_index;
+
+            // set_storage(function(){
+			// 	$(".p12 input").val("")
+             //    $(".p11").hide();
+             //    $(".p8 a:first").click();
+			// });
 		});
 		return false;
 	});
@@ -120,8 +125,7 @@ $( document ).ready(function() {
                             result.vocabulary.splice(i,1);
                         }
                     }
-                    console.log(result.vocabulary);
-                    set_strage();
+                    set_storage();
 				});
 			}
 		});
@@ -219,7 +223,7 @@ function get_storage(callback) {
 	});
 }
 
-function set_strage(callback){
+function set_storage(callback){
     if(user_data) {
         user_data.vocabulary.sort(function (a, b) {
             return b.id - a.id;
@@ -239,7 +243,7 @@ function update_word_in_vacabulary(id, val, current_click_class) {
         }
     }
     $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
-    set_strage();
+    set_storage();
 }
 
 function all_task() {
@@ -309,35 +313,44 @@ function all_task() {
     });
 }
 
-function config_tab() {
+function get_range() {
     var min_index=user_data.vocabulary.reduce(function(old_val, new_val){
-        if(new_val.id>old_val.id) {
-            return old_val.id;
+        console.log(parseInt(new_val.id)+"="+parseInt(old_val.id));
+        if(parseInt(new_val.id)>parseInt(old_val.id)) {
+            return parseInt(old_val.id);
         } else {
-            return new_val.id;
+            return parseInt(new_val.id);
         }
     });
 
+    console.log(user_data.vocabulary);
     console.log(min_index);
+
+    var max_index=user_data.vocabulary.reduce(function(old_val, new_val){
+        if(parseInt(new_val.id)>parseInt(old_val)) {
+            return parseInt(new_val.id);
+        } else {
+            return parseInt(old_val);
+        }
+    },0);
+    return {min_index:min_index,max_index:max_index};
+}
+
+function config_tab() {
+    var range=get_range();
 
     $("#range_03").ionRangeSlider({
         type: "double",
         grid: true,
-        min: min_index,
-        max: user_data.vocabulary.reduce(function(old_val, new_val){
-            if(new_val.id>old_val) {
-                return new_val.id;
-            } else {
-                return old_val;
-            }
-        },0),
-        from: user_data.config.range_area.start ? user_data.config.range_area.start : min_index,
+        min: range.min_index,
+        max: range.max_index,
+        from: user_data.config.range_area.start ? user_data.config.range_area.start : range.min_index,
         to: user_data.config.range_area.end ? user_data.config.range_area.end : null,
         prefix: "",
         onFinish:function(a){
             user_data.config.range_area.start=a.from;
             user_data.config.range_area.end=a.to;
-            set_strage();
+            set_storage();
         }
     });
 }

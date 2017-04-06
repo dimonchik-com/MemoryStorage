@@ -2,43 +2,11 @@
 
 function EnglishTip(vocabulary, config) {
 
-    var save_vacabulary={time:0,repeat:1, ignore_update:0};
-
-    // global observer
-    database.ref('/').on('value', function(snapshot) {
-        database.ref('/').once('value').then(function(snapshot) {
-            var all_data=snapshot.val();
-
-            var one=md5(JSON.stringify(all_data.config)+"-"+all_data.vocabulary.length);
-
-            delete config.last_word;
-            delete config.time;
-
-            var two=md5(JSON.stringify(config)+"-"+vocabulary.length);
-
-            if(one!=two) {
-                all_data.vocabulary.map(function (element) {
-                    element.iteration = 0;
-                });
-            }
-
-            all_data.vocabulary.map(function (element) {
-                if(!element.iteration) {
-                    element.iteration = 0;
-                }
-
-                if(!element.time_reaction) {
-                    element.time_reaction = [];
-                }
-            });
-
-            config=all_data.config;
-            if (all_data.vocabulary) {
-                vocabulary = all_data.vocabulary;
-                create_world(false);
-            }
-        });
+    chrome.storage.onChanged.addListener(function (changes, namespace) {
+        update_data_from_storage();
     });
+
+    var save_vacabulary={time:0,repeat:1, ignore_update:0};
 
     setInterval(function () {
         var main_id = document.getElementById('wednesday_29_03_0');
@@ -170,6 +138,8 @@ function EnglishTip(vocabulary, config) {
             return obj;
         }
 
+
+
         var ar_index=get_index(config.range_area.start, config.range_area.end);
         vocabulary_copy=vocabulary_copy.splice(ar_index.start, (config.range_area.end-config.range_area.start)+1);
 
@@ -252,7 +222,7 @@ function EnglishTip(vocabulary, config) {
 
             var copy_config=JSON.parse(JSON.stringify(config));
 
-            database.ref('/vocabulary').set(vocabulary);
+            //database.ref('/vocabulary').set(vocabulary);
 
             save_vacabulary.time=new Date().getTime();
             save_vacabulary.repeat=1;
@@ -264,21 +234,53 @@ function EnglishTip(vocabulary, config) {
         }
     }
 
+    function update_data_from_storage() {
+        chrome.storage.local.get('english_tip', function (all_data) {
+            data=data.english_tip;
+            if (all_data.vocabulary) {
+                vocabulary = all_data.vocabulary;
+            }
+
+            var all_data=snapshot.val();
+
+            var one=md5(JSON.stringify(all_data.config)+"-"+all_data.vocabulary.length);
+
+            delete config.last_word;
+            delete config.time;
+
+            var two=md5(JSON.stringify(config)+"-"+vocabulary.length);
+
+            if(one!=two) {
+                all_data.vocabulary.map(function (element) {
+                    element.iteration = 0;
+                });
+            }
+
+            all_data.vocabulary.map(function (element) {
+                if(!element.iteration) {
+                    element.iteration = 0;
+                }
+
+                if(!element.time_reaction) {
+                    element.time_reaction = [];
+                }
+            });
+
+            config=all_data.config;
+            if (all_data.vocabulary) {
+                vocabulary = all_data.vocabulary;
+                create_world(false);
+            }
+        });
+    }
+
 }
 
 
-var config = {
-    apiKey: "AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E",
-    authDomain: "englishtip-516bc.firebaseapp.com",
-    databaseURL: "https://englishtip-516bc.firebaseio.com/",
-    storageBucket: "<gs://englishtip-516bc.appspot.com"
-};
-firebase.initializeApp(config);
 
-var database = firebase.database();
-
-database.ref('/').once('value').then(function(snapshot) {
-    var all_data=snapshot.val();
-
-    EnglishTip(all_data.vocabulary, all_data.config);
+chrome.storage.local.get('english_tip', function (data) {
+    data=data.english_tip;
+    if (data.vocabulary) {
+        EnglishTip(data.vocabulary, data.config);
+    }
 });
