@@ -3,6 +3,10 @@
 function EnglishTip(vocabulary, config) {
 
     chrome.storage.onChanged.addListener(function (changes, namespace) {
+        if(save_vacabulary.ignore_update) {
+            save_vacabulary.ignore_update=0;
+            return false;
+        }
         update_data_from_storage();
     });
 
@@ -123,10 +127,14 @@ function EnglishTip(vocabulary, config) {
 
         var vocabulary_copy=JSON.parse(JSON.stringify(vocabulary));
 
-        function get_index(start_index, end_index) {
+        vocabulary_copy.sort(function (a,b) {
+            return a.id-b.id;
+        });
+
+        function get_index(vocabulary_copy, start_index, end_index) {
             var obj={start:0};
-            for(i in vocabulary) {
-                if(vocabulary[i].id==start_index) {
+            for(i in vocabulary_copy) {
+                if(vocabulary_copy[i].id==start_index) {
                     obj.start=i;
                     continue;
                 }
@@ -138,7 +146,7 @@ function EnglishTip(vocabulary, config) {
             return obj;
         }
 
-        var ar_index=get_index(config.range_area.start, config.range_area.end);
+        var ar_index=get_index(vocabulary_copy,config.range_area.start, config.range_area.end);
         vocabulary_copy=vocabulary_copy.splice(ar_index.start, (config.range_area.end-config.range_area.start)+1);
 
         vocabulary_copy.map(function (element) {
@@ -161,16 +169,16 @@ function EnglishTip(vocabulary, config) {
             }
         });
 
+        console.log(list_elemet);
+
         var ret_element;
         if (config.sorting == 0) {
             ret_element = list_elemet[0];
         } else if (config.sorting == 1) {
-            ret_element = list_elemet[~~(Math.random() * list_elemet.length)];
+            ret_element = list_elemet[list_elemet.length - 1];
         } else if (config.sorting == 2) {
-            ret_element = list_elemet[ret_element.length - 1];
+            ret_element = list_elemet[~~(Math.random() * list_elemet.length)];
         }
-
-
 
         for(var i in vocabulary) {
             if(vocabulary[i].id==ret_element.id) {
@@ -220,7 +228,10 @@ function EnglishTip(vocabulary, config) {
 
             var copy_config=JSON.parse(JSON.stringify(config));
 
-            //database.ref('/vocabulary').set(vocabulary);
+            save_vacabulary.ignore_update=1;
+            chrome.storage.local.set({'english_tip': {vocabulary:vocabulary,config:config}}, function() {
+
+            });
 
             save_vacabulary.time=new Date().getTime();
             save_vacabulary.repeat=1;
@@ -234,12 +245,10 @@ function EnglishTip(vocabulary, config) {
 
     function update_data_from_storage() {
         chrome.storage.local.get('english_tip', function (all_data) {
-            data=data.english_tip;
+            all_data=all_data.english_tip;
             if (all_data.vocabulary) {
                 vocabulary = all_data.vocabulary;
             }
-
-            var all_data=snapshot.val();
 
             var one=md5(JSON.stringify(all_data.config)+"-"+all_data.vocabulary.length);
 

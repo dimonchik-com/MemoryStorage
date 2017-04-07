@@ -62,11 +62,13 @@
               <div class="form-group">
                 <label for="name">ID:</label>
                 <input type="name" class="form-control" id="name" name="new_id">
+                <div class="friday_04_07_0">Duplicate</div>
               </div>
 
               <div class="form-group">
                 <label for="type_network">Source word:</label>
                 <input type="name" class="form-control" id="name" name="new_word">
+                <div class="friday_04_07_1">Duplicate</div>
               </div>
 
               <div class="form-group">
@@ -86,10 +88,10 @@
       <form class="wednesday_05_04_08">
         <div class="form-group">
           <label for="name">The direction of the sort:</label>
-          <select class="form-control">
-            <option>Forward</option>
-            <option>Reverse</option>
-            <option>Random</option>
+          <select class="form-control friday_04_07_2">
+            <option value="0">Forward</option>
+            <option value="1">Reverse</option>
+            <option value="2">Random</option>
           </select>
         </div>
 
@@ -98,6 +100,40 @@
           <div class="wednesday_05_04_10">
             <input id="range_03"></input>
           </div>
+        </div>
+
+        <div class="form-group">
+          <label for="type_network">What show first?:</label>
+          <select class="form-control friday_04_07_3">
+            <option value="0">Source word / Translation word</option>
+            <option value="1">Translation word / Source word</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="type_network">Show id word?:</label>
+          <select class="form-control friday_04_07_4">
+            <option value="0">Yes</option>
+            <option value="1">No</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="type_network">Position?:</label>
+          <select class="form-control friday_04_07_4">
+            <option value="0">The top left corner</option>
+            <option value="1">The top right corner</option>
+            <option value="2">The bottom left corner</option>
+            <option value="3">The bottom right corner</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="type_network">The break between classes:</label>
+          <div class="wednesday_05_04_10">
+            <input type="text" class="form-control"></input>
+          </div>
+          <p style="margin: 10px 0 0 0;">The time interval through which you have to continue the lesson. Specified in minutes. You can use the formula. <br>For example: (3*60) What means that every three hours you will need to continue learning. </p>
         </div>
 
       </form>

@@ -57,6 +57,22 @@ $( document ).ready(function() {
             var new_id=$("input[name=new_id]").val();
             var new_word=$("input[name=new_word]").val();
             var new_translate=$("input[name=new_translate]").val();
+
+            var error=0;
+            for(var i in user_data.vocabulary) {
+                if(user_data.vocabulary[i].id==new_id) {
+                    $(".friday_04_07_0").show();
+                    error=1;
+                }
+
+                if(user_data.vocabulary[i].en==new_word) {
+                    $(".friday_04_07_1").show();
+                    error=1;
+                }
+            }
+
+            if(error) return false;
+
 			user_data.vocabulary.push({
                 id:new_id,
 				en:new_word,
@@ -65,10 +81,6 @@ $( document ).ready(function() {
                 iteration:0,
 				total_iteration:0
 			});
-
-            var range=get_range();
-            user_data.config.range_area.start=range.min_index;
-            user_data.config.range_area.end=range.max_index;
 
             set_storage(function(){
 				$(".p12 input").val("");
@@ -89,11 +101,14 @@ $( document ).ready(function() {
 		$("."+name_tab).show();
 		$(".p9 .bootstraptable").bootstrapTable('destroy');
 
+
         switch (name_tab) {
             case "all_task":
+                $(".p9").show();
                 all_task();
                 break;
             case "config":
+                $(".p9").hide();
                 config_tab();
                 break;
         }
@@ -127,6 +142,7 @@ $( document ).ready(function() {
                     }
                     set_storage();
                     $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
+                    $(".p19").hide();
 				});
 			}
 		});
@@ -173,6 +189,12 @@ $( document ).ready(function() {
 
         $(".wednesday_05_04_06").remove();
         return false;
+    });
+
+    $('.friday_04_07_2').on('change', function (e) {
+        var sorting=$(this).val();
+        user_data.config.sorting=sorting;
+        set_storage();
     });
 
     function get_tooltip(id, word, top, left) {
@@ -250,6 +272,7 @@ function update_word_in_vacabulary(id, val, current_click_class) {
 }
 
 function all_task() {
+    $(".friday_04_07_0,.friday_04_07_1").hide();
     get_storage(function (result) {
 
             $(".all_task .build_task_table").bootstrapTable({
@@ -341,7 +364,12 @@ function get_range() {
 function config_tab() {
     var range=get_range();
 
-    console.log(range);
+    var slider=$("#range_03").data("ionRangeSlider");
+    if(slider) {
+        slider.destroy();
+    }
+
+    $(".friday_04_07_2").val(user_data.config.sorting);
 
     $("#range_03").ionRangeSlider({
         type: "double",
