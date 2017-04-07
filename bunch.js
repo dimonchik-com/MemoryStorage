@@ -753,8 +753,6 @@ function EnglishTip(vocabulary, config) {
             return obj;
         }
 
-
-
         var ar_index=get_index(config.range_area.start, config.range_area.end);
         vocabulary_copy=vocabulary_copy.splice(ar_index.start, (config.range_area.end-config.range_area.start)+1);
 
@@ -890,8 +888,6 @@ function EnglishTip(vocabulary, config) {
     }
 
 }
-
-
 
 chrome.storage.local.get('english_tip', function (data) {
     data=data.english_tip;

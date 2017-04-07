@@ -70,11 +70,11 @@ $( document ).ready(function() {
             user_data.config.range_area.start=range.min_index;
             user_data.config.range_area.end=range.max_index;
 
-            // set_storage(function(){
-			// 	$(".p12 input").val("")
-             //    $(".p11").hide();
-             //    $(".p8 a:first").click();
-			// });
+            set_storage(function(){
+				$(".p12 input").val("");
+                $(".p11").hide();
+                $(".p8 a:first").click();
+			});
 		});
 		return false;
 	});
@@ -126,6 +126,7 @@ $( document ).ready(function() {
                         }
                     }
                     set_storage();
+                    $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
 				});
 			}
 		});
@@ -231,7 +232,9 @@ function set_storage(callback){
     }
 
     chrome.storage.local.set({'english_tip': user_data}, function() {
-        return callback();
+        if(callback) {
+            return callback();
+        }
     });
 }
 
@@ -315,29 +318,30 @@ function all_task() {
 
 function get_range() {
     var min_index=user_data.vocabulary.reduce(function(old_val, new_val){
-        console.log(parseInt(new_val.id)+"="+parseInt(old_val.id));
-        if(parseInt(new_val.id)>parseInt(old_val.id)) {
-            return parseInt(old_val.id);
+        if(new_val.id>old_val.id) {
+            return old_val;
         } else {
-            return parseInt(new_val.id);
+            return new_val;
         }
     });
-
-    console.log(user_data.vocabulary);
-    console.log(min_index);
+    min_index=min_index.id;
 
     var max_index=user_data.vocabulary.reduce(function(old_val, new_val){
-        if(parseInt(new_val.id)>parseInt(old_val)) {
-            return parseInt(new_val.id);
+        if(new_val.id>old_val.id) {
+            return new_val;
         } else {
-            return parseInt(old_val);
+            return old_val;
         }
-    },0);
+    });
+    max_index=max_index.id;
+
     return {min_index:min_index,max_index:max_index};
 }
 
 function config_tab() {
     var range=get_range();
+
+    console.log(range);
 
     $("#range_03").ionRangeSlider({
         type: "double",
