@@ -5,8 +5,7 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var user_data={vocabulary:[],config:{range_area:{start:0,end:0},sorting:0}};
-
+var user_data={ current_category:"", top_category:{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0}, child:{}} };
 
 $( document ).ready(function() {
 
@@ -41,14 +40,14 @@ $( document ).ready(function() {
 		$(".p11").show();
 
 		var max_id=user_data.vocabulary.reduce(function(old_val, new_val){
-			if(new_val.id>old_val) {
-				return new_val.id;
+			if(parseInt(new_val.id)>parseInt(old_val.id)) {
+			    return new_val;
 			} else {
 				return old_val;
 			}
-		},0);
+		});
 
-        $("input[name=new_id]").val(parseInt(max_id)+1);
+        $("input[name=new_id]").val(parseInt(max_id.id)+1);
 	});
 
 	// create new task
@@ -108,11 +107,16 @@ $( document ).ready(function() {
                 all_task();
                 break;
             case "config":
-                $(".p9").hide();
-                config_tab();
+
                 break;
         }
 	});
+
+    $("body").on("click", ".saturday_04_02",function () {
+        $(".p9").hide();
+        $(".config").show();
+        config_tab();
+    });
 
 	// event check or uncheck
 	$(".build_task_table").on('check.bs.table uncheck.bs.table check-all.bs.table uncheck-all.bs.table', function () {
@@ -135,14 +139,16 @@ $( document ).ready(function() {
 		bootbox.confirm("Are you sure you want to delete the tasks?", function(action) {
 			if(action) {
 				get_storage(function (result) {
-                    for(var i in result.vocabulary) {
+				    var i=result.vocabulary.length;
+                    while(i--) {
                         if(list_remove_task.indexOf(result.vocabulary[i].id)!=-1 || !result.vocabulary[i].id) {
                             result.vocabulary.splice(i,1);
                         }
                     }
-                    set_storage();
-                    $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
-                    $(".p19").hide();
+                    set_storage(function () {
+                        $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
+                        $(".p19").hide();
+                    });
 				});
 			}
 		});
@@ -195,6 +201,16 @@ $( document ).ready(function() {
         var sorting=$(this).val();
         user_data.config.sorting=sorting;
         set_storage();
+    });
+
+    $('body').on('click', ".saturday_04_04", function (e) {
+        console.log(1);
+        return false;
+    });
+
+    $('body').on('click', ".saturday_04_01", function (e) {
+        console.log(2);
+        return false;
     });
 
     function get_tooltip(id, word, top, left) {
@@ -336,12 +352,14 @@ function all_task() {
 				height: 529
             });
             $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
+            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config panel</button>');
     });
 }
 
 function get_range() {
+    if(!user_data.vocabulary.length) return {min_index:0,max_index:0};
     var min_index=user_data.vocabulary.reduce(function(old_val, new_val){
-        if(new_val.id>old_val.id) {
+        if(parseInt(new_val.id)>parseInt(old_val.id)) {
             return old_val;
         } else {
             return new_val;
@@ -350,7 +368,7 @@ function get_range() {
     min_index=min_index.id;
 
     var max_index=user_data.vocabulary.reduce(function(old_val, new_val){
-        if(new_val.id>old_val.id) {
+        if(parseInt(new_val.id)>parseInt(old_val.id)) {
             return new_val;
         } else {
             return old_val;

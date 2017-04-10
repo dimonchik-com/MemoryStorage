@@ -53,6 +53,7 @@ function EnglishTip(vocabulary, config) {
     var show_on_element = 0;
 
     function create_world(save_action) {
+        if(!all_data.vocabulary.length) return false;
         init_style();
         remove_element(["wednesday_29_03_0"]);
         config.time = new Date().getTime();
@@ -168,8 +169,6 @@ function EnglishTip(vocabulary, config) {
                 list_elemet.push(element);
             }
         });
-
-        console.log(list_elemet);
 
         var ret_element;
         if (config.sorting == 0) {

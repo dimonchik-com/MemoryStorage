@@ -23,3 +23,10 @@
 .wednesday_05_04_05,.wednesday_05_04_07{text-decoration: none; border-bottom: dashed 1px #0088cc; color: #333;}
 .wednesday_05_04_10{margin: 0 2px 0 2px;}
 .friday_04_07_0,.friday_04_07_1{margin: 10px 0 0 0; color: red; display: none;}
+.container-fluid{padding-left: 5px;}
+.saturday_04_01{display: inline-block; margin: 16px 0 0 0;}
+.saturday_04_01:hover{text-underline: none;}
+.saturday_04_02{float: right; position: relative; top: 10px; margin: 0 6px 0 0;}
+.saturday_04_03{margin-right: -20px;}
+.saturday_04_04{position: absolute; right: 0px; margin: 0 10px 0 0;}
+.p8{margin: 0px 10px 0px 0px;}
