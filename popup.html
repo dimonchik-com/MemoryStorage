@@ -37,7 +37,7 @@
       <nav class="navbar navbar-default">
         <div class="container-fluid">
           <ul class="nav navbar-nav p8">
-            <li class="active"><a href="#" data-name="all_task">Vocabulary</a></li>
+
           </ul>
           <a href="" class="glyphicon glyphicon-plus saturday_04_01"></a>
           <ul class="nav navbar-nav navbar-right saturday_04_03">
@@ -49,7 +49,8 @@
 
     <div class="wednesday_05_04_04">
 
-        <div class="all_task p9">
+        <div class="all_task">
+
           <table class='build_task_table bootstraptable'></table>
 
           <div class="p11">
@@ -78,65 +79,121 @@
             </form>
           </div>
 
-     </div>
-
-    <div class="config">
-
-      <form class="wednesday_05_04_08">
-        <div class="form-group">
-          <a href="" class="saturday_04_04">To go back</a>
-          <label for="name">The direction of the sort:</label>
-          <select class="form-control friday_04_07_2">
-            <option value="0">Forward</option>
-            <option value="1">Reverse</option>
-            <option value="2">Random</option>
-          </select>
         </div>
 
-        <div class="form-group">
-          <label for="type_network">Range index:</label>
-          <div class="wednesday_05_04_10">
-            <input id="range_03"></input>
-          </div>
+        <div class="config">
+
+          <form class="wednesday_05_04_08">
+            <div class="form-group">
+              <a href="" class="saturday_04_04">To go back</a>
+              <label for="name">The direction of the sort:</label>
+              <select class="form-control friday_04_07_2">
+                <option value="0">Forward</option>
+                <option value="1">Reverse</option>
+                <option value="2">Random</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="type_network">Range index:</label>
+              <div class="wednesday_05_04_10">
+                <input id="range_03"></input>
+              </div>
+            </div>
+
+            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+              <tr>
+                <td width="50%">
+                    <div class="form-group" style="margin-right: 8px;">
+                      <label for="type_network">What show first?:</label>
+                      <select class="form-control friday_04_07_3">
+                        <option value="0">Source word / Translation word</option>
+                        <option value="1">Translation word / Source word</option>
+                      </select>
+                    </div>
+                </td>
+                <td width="50%">
+                  <div class="form-group">
+                    <label for="type_network">Show id word?:</label>
+                    <select class="form-control friday_04_07_4">
+                      <option value="0">Yes</option>
+                      <option value="1">No</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+            </table>
+
+            <div class="form-group">
+              <label for="type_network">Position?:</label>
+              <select class="form-control friday_04_07_4">
+                <option value="0">The top left corner</option>
+                <option value="1">The top right corner</option>
+                <option value="2">The bottom left corner</option>
+                <option value="3">The bottom right corner</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="type_network">The time break between classes:</label>
+              <div class="wednesday_05_04_10">
+                <input type="text" class="form-control"></input>
+              </div>
+              <p style="margin: 10px 0 0 0;">The time interval through which you have to continue the lesson. Specified in minutes.</p>
+            </div>
+
+            <div class="form-group">
+              <label for="type_network">Number of words:</label>
+              <div class="wednesday_05_04_10">
+                <input type="text" class="form-control"></input>
+              </div>
+              <p style="margin: 10px 0 0 0;">The minimum number of words that you should repeat.</p>
+            </div>
+
+          </form>
+
         </div>
 
-        <div class="form-group">
-          <label for="type_network">What show first?:</label>
-          <select class="form-control friday_04_07_3">
-            <option value="0">Source word / Translation word</option>
-            <option value="1">Translation word / Source word</option>
-          </select>
+        <div class="new_category">
+          <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <tr>
+              <td>
+                <div class="tuersday_04_13_3">
+                  Category level
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <select class="form-control tuersday_04_13_4">
+                  <option value="top">Top level</option>
+                </select>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div style="margin:10px 0 0 0;">The name of the category</div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <div>
+                    <input type="text" value="" name="" class="form-control tuersday_04_13_0">
+                </div>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <button type="button" class="btn btn-default tuersday_04_13_1">Add category</button>&nbsp;&nbsp;
+                <button type="button" class="btn btn-default tuersday_04_13_2">Cancel</button>
+              </td>
+            </tr>
+          </table>
         </div>
-
-        <div class="form-group">
-          <label for="type_network">Show id word?:</label>
-          <select class="form-control friday_04_07_4">
-            <option value="0">Yes</option>
-            <option value="1">No</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="type_network">Position?:</label>
-          <select class="form-control friday_04_07_4">
-            <option value="0">The top left corner</option>
-            <option value="1">The top right corner</option>
-            <option value="2">The bottom left corner</option>
-            <option value="3">The bottom right corner</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label for="type_network">The time break between classes:</label>
-          <div class="wednesday_05_04_10">
-            <input type="text" class="form-control"></input>
-          </div>
-          <p style="margin: 10px 0 0 0;">The time interval through which you have to continue the lesson. Specified in minutes. You can use the formula. <br>For example: (3*60) What means that every three hours you will need to continue learning. </p>
-        </div>
-
-      </form>
-
-    </div>
 
     </div>
 

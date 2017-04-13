@@ -5,7 +5,7 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var user_data={ current_category:"", top_category:{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0}, child:{}} };
+var user_data={ current_category:0, category:[{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:0, name:"Vocabulary"}, child:{}}], top_id:1 };
 
 $( document ).ready(function() {
 
@@ -39,15 +39,23 @@ $( document ).ready(function() {
 		$(".all_task .build_task_table").bootstrapTable('destroy');
 		$(".p11").show();
 
-		var max_id=user_data.vocabulary.reduce(function(old_val, new_val){
-			if(parseInt(new_val.id)>parseInt(old_val.id)) {
-			    return new_val;
-			} else {
-				return old_val;
-			}
-		});
+        var result=get_current_category();
 
-        $("input[name=new_id]").val(parseInt(max_id.id)+1);
+        var max_id;
+        if(result.vocabulary.length) {
+            max_id = result.vocabulary.reduce(function (old_val, new_val) {
+                if (parseInt(new_val.id) > parseInt(old_val.id)) {
+                    return new_val;
+                } else {
+                    return old_val;
+                }
+            });
+            max_id=parseInt(max_id.id)+1;
+        } else {
+            max_id=0;
+        }
+
+        $("input[name=new_id]").val(max_id);
 	});
 
 	// create new task
@@ -58,13 +66,13 @@ $( document ).ready(function() {
             var new_translate=$("input[name=new_translate]").val();
 
             var error=0;
-            for(var i in user_data.vocabulary) {
-                if(user_data.vocabulary[i].id==new_id) {
+            for(var i in result.vocabulary) {
+                if(result.vocabulary[i].id==new_id) {
                     $(".friday_04_07_0").show();
                     error=1;
                 }
 
-                if(user_data.vocabulary[i].en==new_word) {
+                if(result.vocabulary[i].en==new_word) {
                     $(".friday_04_07_1").show();
                     error=1;
                 }
@@ -72,7 +80,7 @@ $( document ).ready(function() {
 
             if(error) return false;
 
-			user_data.vocabulary.push({
+            result.vocabulary.push({
                 id:new_id,
 				en:new_word,
 				ru:new_translate,
@@ -96,24 +104,20 @@ $( document ).ready(function() {
 		$(".p8 li").removeClass("active");
 		$(this).parent().addClass("active");
 
-		$(".config").hide();
-		$("."+name_tab).show();
-		$(".p9 .bootstraptable").bootstrapTable('destroy');
+        user_data.current_category=name_tab;
 
+        set_storage(function () {
+            $(".config,.new_category").hide();
+            $(".all_task .bootstraptable").bootstrapTable('destroy');
 
-        switch (name_tab) {
-            case "all_task":
-                $(".p9").show();
-                all_task();
-                break;
-            case "config":
+            $(".all_task").show();
+            all_task();
+        });
 
-                break;
-        }
 	});
 
     $("body").on("click", ".saturday_04_02",function () {
-        $(".p9").hide();
+        $(".all_task").hide();
         $(".config").show();
         config_tab();
     });
@@ -146,7 +150,7 @@ $( document ).ready(function() {
                         }
                     }
                     set_storage(function () {
-                        $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
+                        $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
                         $(".p19").hide();
                     });
 				});
@@ -198,8 +202,9 @@ $( document ).ready(function() {
     });
 
     $('.friday_04_07_2').on('change', function (e) {
+        var result=get_current_category();
         var sorting=$(this).val();
-        user_data.config.sorting=sorting;
+        result.config.sorting=sorting;
         set_storage();
     });
 
@@ -209,7 +214,28 @@ $( document ).ready(function() {
     });
 
     $('body').on('click', ".saturday_04_01", function (e) {
-        console.log(2);
+        $(".all_task, .config").hide();
+        $(".new_category").show();
+
+        $(".tuersday_04_13_5").remove();
+
+        for(var i in user_data.category) {
+            $(".tuersday_04_13_4").append('<option class="tuersday_04_13_5">'+user_data.category[i].config.name+'</option>');
+        }
+
+        return false;
+    });
+
+    $('body').on('click', ".tuersday_04_13_1", function (e) {
+        var new_category=$(".tuersday_04_13_0").val();
+        if(!new_category.length) {
+            $(".tuersday_04_13_0").parent().addClass("has-error");
+        } else {
+            user_data.category.push({vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:user_data.top_id++, name:new_category}, child:{}});
+            set_storage(function () {
+                build_menu();
+            });
+        }
         return false;
     });
 
@@ -218,6 +244,9 @@ $( document ).ready(function() {
         return html;
     }
 
+    get_storage(function () {
+
+    });
 });
 
 function startAuth(interactive) {
@@ -258,13 +287,17 @@ function get_storage(callback) {
 		if(result.hasOwnProperty("english_tip")) {
             user_data = result.english_tip;
         }
-		return callback(result.english_tip);
+
+        build_menu();
+
+		return callback(get_current_category());
 	});
 }
 
 function set_storage(callback){
-    if(user_data) {
-        user_data.vocabulary.sort(function (a, b) {
+    var current_category=get_current_category();
+    if(current_category) {
+        current_category.vocabulary.sort(function (a, b) {
             return b.id - a.id;
         });
     }
@@ -277,13 +310,15 @@ function set_storage(callback){
 }
 
 function update_word_in_vacabulary(id, val, current_click_class) {
-    for(var i in user_data.vocabulary) {
-        if(user_data.vocabulary[i].id==id) {
-            user_data.vocabulary[i][current_click_class]=val;
+    var result=get_current_category();
+
+    for(var i in result.vocabulary) {
+        if(result.vocabulary[i].id==id) {
+            result.vocabulary[i][current_click_class]=val;
             break;
         }
     }
-    $(".all_task .build_task_table").bootstrapTable("load", user_data.vocabulary);
+    $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
     set_storage();
 }
 
@@ -357,8 +392,9 @@ function all_task() {
 }
 
 function get_range() {
-    if(!user_data.vocabulary.length) return {min_index:0,max_index:0};
-    var min_index=user_data.vocabulary.reduce(function(old_val, new_val){
+    var result=get_current_category();
+    if(!result.vocabulary.length) return {min_index:0,max_index:0};
+    var min_index=result.vocabulary.reduce(function(old_val, new_val){
         if(parseInt(new_val.id)>parseInt(old_val.id)) {
             return old_val;
         } else {
@@ -367,7 +403,7 @@ function get_range() {
     });
     min_index=min_index.id;
 
-    var max_index=user_data.vocabulary.reduce(function(old_val, new_val){
+    var max_index=result.vocabulary.reduce(function(old_val, new_val){
         if(parseInt(new_val.id)>parseInt(old_val.id)) {
             return new_val;
         } else {
@@ -381,28 +417,50 @@ function get_range() {
 
 function config_tab() {
     var range=get_range();
+    var result=get_current_category();
 
     var slider=$("#range_03").data("ionRangeSlider");
     if(slider) {
         slider.destroy();
     }
 
-    $(".friday_04_07_2").val(user_data.config.sorting);
+    $(".friday_04_07_2").val(result.config.sorting);
 
     $("#range_03").ionRangeSlider({
         type: "double",
         grid: true,
         min: range.min_index,
         max: range.max_index,
-        from: user_data.config.range_area.start ? user_data.config.range_area.start : range.min_index,
-        to: user_data.config.range_area.end ? user_data.config.range_area.end : null,
+        from: result.config.range_area.start ? result.config.range_area.start : range.min_index,
+        to: result.config.range_area.end ? result.config.range_area.end : null,
         prefix: "",
         onFinish:function(a){
-            user_data.config.range_area.start=a.from;
-            user_data.config.range_area.end=a.to;
+            result.config.range_area.start=a.from;
+            result.config.range_area.end=a.to;
             set_storage();
         }
     });
+}
+
+function get_current_category() {
+    var link_category;
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            if(user_data.category[i].config.id==user_data.current_category) {
+                link_category=user_data.category[i];
+                break;
+            }
+        }
+    }
+    return link_category;
+}
+
+function build_menu() {
+    $(".p8").html("");
+    for(var i in user_data.category) {
+        var active=(user_data.category[i].config.id==user_data.current_category) ? "active": "";
+        $(".p8").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].config.id+'">'+user_data.category[i].config.name+'</a></li>');
+    }
 }
 
 // Функция для отправки сообщений
