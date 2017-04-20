@@ -5,16 +5,31 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var user_data={ current_category:0, category:[{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:0, name:"Vocabulary"}, child:{}}], top_id:1 };
+var user_data={ current_category:1, category:[{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:1, parent_id:0, name:"Vocabulary"}, child:[]}, {vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:2,  parent_id:0, name:"Other"}, child:[]}], top_id:3 };
 
 $( document ).ready(function() {
 
     firebase.auth().onAuthStateChanged(function(user) {
         if (user) {
-            $(".wednesday_05_04_01").hide();
-            $(".p0,.p5").show();
-            $(".p0").addClass("wednesday_05_04_03");
-            $(".p8 a:first").click();
+
+            var userId = firebase.auth().currentUser.uid;
+            firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+                if(snapshot.val()) {
+                    user_data=snapshot.val();
+                    get_storage(function () {
+                        start_play();
+                    });
+                } else {
+                    user_data.displayName=user.displayName;
+                    user_data.email=user.email;
+                    firebase.database().ref('users/' + user.uid).set(user_data, function (result) {
+                        get_storage(function () {
+                            start_play();
+                        });
+                    });
+                }
+            });
+
         } else {
 			$(".wednesday_05_04_02").hide();
             $(".wednesday_05_04_01 button").show();
@@ -92,7 +107,7 @@ $( document ).ready(function() {
             set_storage(function(){
 				$(".p12 input").val("");
                 $(".p11").hide();
-                $(".p8 a:first").click();
+                $(".p8 a[data-name="+user_data.current_category+"]").click();
 			});
 		});
 		return false;
@@ -101,19 +116,20 @@ $( document ).ready(function() {
 	// build different task by action
 	$(".p8").on("click", "a",function () {
 		var name_tab=$(this).attr("data-name");
-		$(".p8 li").removeClass("active");
-		$(this).parent().addClass("active");
+        user_data.current_category=name_tab
 
-        user_data.current_category=name_tab;
+        if(name_tab==2) {
+            $("a[data-name=2]").next().find("li:first a").click();
+            return false;
+        }
 
         set_storage(function () {
-            $(".config,.new_category").hide();
+            $(".config,.new_category,.all_task,.p11").hide();
             $(".all_task .bootstraptable").bootstrapTable('destroy');
 
             $(".all_task").show();
             all_task();
         });
-
 	});
 
     $("body").on("click", ".saturday_04_02",function () {
@@ -166,13 +182,6 @@ $( document ).ready(function() {
 		}
 	});
 
-    // cancel new or update task
-    $("body").on("click",".p14", function () {
-        $(".p11").hide();
-        $(".p8 a:first").click();
-        return false;
-    });
-
     var current_click_class;
     $("body").on("click",".wednesday_05_04_05,.wednesday_05_04_07", function () {
         current_click_class=$(this).hasClass("wednesday_05_04_05")?"en":"ru";
@@ -208,35 +217,99 @@ $( document ).ready(function() {
         set_storage();
     });
 
-    $('body').on('click', ".saturday_04_04", function (e) {
-        console.log(1);
+    $('body').on('click', ".saturday_04_04,.tuersday_04_13_2,.p14", function (e) {
+        $(".p8 a[data-name="+user_data.current_category+"]").click();
         return false;
     });
 
     $('body').on('click', ".saturday_04_01", function (e) {
-        $(".all_task, .config").hide();
+        $(".all_task, .config, .mondey_04_17_0").hide();
+        $(".tuersday_04_13_1").text("Save");
         $(".new_category").show();
+        $(".tuersday_04_13_0").val("");
 
-        $(".tuersday_04_13_5").remove();
-
-        for(var i in user_data.category) {
-            $(".tuersday_04_13_4").append('<option class="tuersday_04_13_5">'+user_data.category[i].config.name+'</option>');
-        }
+        update_category_in_select_list();
 
         return false;
     });
 
     $('body').on('click', ".tuersday_04_13_1", function (e) {
-        var new_category=$(".tuersday_04_13_0").val();
-        if(!new_category.length) {
+        var name_category=$(".tuersday_04_13_0").val();
+        var parent_category=$(".tuersday_04_13_4").val();
+
+        if(!name_category.length) {
             $(".tuersday_04_13_0").parent().addClass("has-error");
         } else {
-            user_data.category.push({vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:user_data.top_id++, name:new_category}, child:{}});
-            set_storage(function () {
-                build_menu();
-            });
+            if($(".mondey_04_17_0").is(":visible")){
+                var current_category=get_current_category();
+                delete_current_category();
+                current_category.config.parent_id=parent_category;
+                current_category.config.name=name_category;
+
+                if(current_category.config.parent_id==0) {
+                    user_data.category.splice(user_data.category.length-1,0, current_category);
+                } else {
+                    var category=get_cutegory_by_id(current_category.config.parent_id);
+                    category.child.splice(category.child.length-1,0, current_category);
+                }
+            } else {
+                var parent_category=get_parent_categoty(parent_category);
+                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category}, child:[]};
+
+                parent_category.category.splice(parent_category.category.length-1,0, blank_category);
+
+                user_data.current_category=user_data.top_id;
+                set_storage(function () {
+                    build_menu();
+                    $(".p8 a[data-name="+(user_data.current_category-1)+"]").click();
+                    $(".tuersday_04_13_0").val("");
+                });
+            }
         }
         return false;
+    });
+
+    $('body').on('click', ".friday_04_14_02", function (e) {
+        update_category_in_select_list();
+
+        $(".all_task, .config").hide();
+        $(".new_category, .mondey_04_17_0").show();
+
+        var current_category = get_current_category();
+
+        $(".tuersday_04_13_4").val(current_category.config.parent_id);
+        $(".tuersday_04_13_0").val(current_category.config.name);
+        $(".tuersday_04_13_1").text("Save change");
+
+        return false;
+    });
+
+    $('body').on('click', ".mondey_04_17_0", function (e) {
+        bootbox.confirm("Are you sure you want to delete this category? This action cannot be undone! <br>When you delete a parent category, all sub categories will be deleted also!", function(action) {
+            if(action) {
+                delete_current_category();
+            }
+        });
+    });
+
+    $(document).on("mouseenter", ".p8 li", function(e) {
+        $(this).find('ul').show();
+    });
+
+    $(document).on("mouseleave", ".p8 li", function(e) {
+        $(this).find('ul').hide();
+    });
+
+    $("ol.nav").sortable({
+        group: 'nav',
+        nested: false,
+        vertical: false,
+        exclude: 'li ul li',
+        onDrop: function ($item, container, _super) {
+            container.el.removeClass("active");
+            resort_menu();
+            _super($item, container);
+        }
     });
 
     function get_tooltip(id, word, top, left) {
@@ -244,10 +317,35 @@ $( document ).ready(function() {
         return html;
     }
 
-    get_storage(function () {
-
-    });
 });
+
+function resort_menu() {
+    var sort_list=[];
+
+    $(".p8 li:not(li ul li)").each(function () {
+       var id=$(this).find("a").attr("data-name");
+       sort_list.push(id);
+    });
+
+    if(sort_list.length) {
+        get_storage(function () {
+            var new_array=[];
+
+            for(var i in sort_list) {
+                for(var i_two in user_data.category) {
+                    if(sort_list[i]==user_data.category[i_two].config.id) {
+                        var slice=user_data.category.splice(i_two, 1);
+                        new_array.push(slice[0]);
+                        break;
+                    }
+                }
+            }
+
+            user_data.category=new_array;
+            set_storage();
+        });
+    }
+}
 
 function startAuth(interactive) {
     chrome.identity.getAuthToken({interactive: !!interactive}, function(token) {
@@ -284,7 +382,7 @@ function startSignIn() {
  */
 function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
-		if(result.hasOwnProperty("english_tip")) {
+        if(result.hasOwnProperty("english_tip")) {
             user_data = result.english_tip;
         }
 
@@ -301,6 +399,8 @@ function set_storage(callback){
             return b.id - a.id;
         });
     }
+
+    //remove_strange_word_state();
 
     chrome.storage.local.set({'english_tip': user_data}, function() {
         if(callback) {
@@ -388,12 +488,14 @@ function all_task() {
             });
             $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
             $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config panel</button>');
+
     });
 }
 
 function get_range() {
     var result=get_current_category();
     if(!result.vocabulary.length) return {min_index:0,max_index:0};
+
     var min_index=result.vocabulary.reduce(function(old_val, new_val){
         if(parseInt(new_val.id)>parseInt(old_val.id)) {
             return old_val;
@@ -442,6 +544,21 @@ function config_tab() {
     });
 }
 
+function get_parent_categoty(parent_category) {
+    var ref;
+    if(parent_category==0) {
+        ref={category:user_data.category, id_categoty:0};
+    } else {
+        for(var i in user_data.category) {
+            if(parent_category==user_data.category[i].config.id) {
+                ref={category:user_data.category[i].child, id_categoty:user_data.category[i].config.id};
+            }
+        }
+    }
+
+    return ref;
+}
+
 function get_current_category() {
     var link_category;
     if(user_data.category.length) {
@@ -450,17 +567,93 @@ function get_current_category() {
                 link_category=user_data.category[i];
                 break;
             }
+            if(user_data.category[i].child.length) {
+                for(var i_two in user_data.category[i].child) {
+                    if(user_data.category[i].child[i_two].config.id==user_data.current_category) {
+                        link_category=user_data.category[i].child[i_two];
+                        break;
+                    }
+                }
+            }
         }
     }
+
     return link_category;
+}
+
+function get_cutegory_by_id(id) {
+    if(user_data.category.length) {
+        for (var i in user_data.category) {
+            if(user_data.category[i].config.id==id) {
+                return link_category=user_data.category[i];
+            }
+        }
+    }
 }
 
 function build_menu() {
     $(".p8").html("");
+
     for(var i in user_data.category) {
-        var active=(user_data.category[i].config.id==user_data.current_category) ? "active": "";
+        var active=(user_data.category[i].config.id==user_data.current_category) ? "active": ""
+
+        if(user_data.category[i].config.id==2 && !user_data.category[i].child.length) {
+            continue;
+        }
+
         $(".p8").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].config.id+'">'+user_data.category[i].config.name+'</a></li>');
+
+        if(user_data.category[i].child.length) {
+            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").attr({"data-toggle":"dropdown"});
+            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").append('<span class="caret"></span>');
+            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().append('<ul class="dropdown-menu"></ul>');
+            for(var i_two in user_data.category[i].child) {
+                var active=(user_data.category[i].child[i_two].config.id==user_data.current_category) ? "active": "";
+                if(active) {
+                    $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().addClass("active");
+                }
+                $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().find("ul").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].child[i_two].config.id+'">'+user_data.category[i].child[i_two].config.name+'</a></li>');
+            }
+        }
     }
+}
+
+function delete_current_category() {
+    for(var i in user_data.category) {
+        if(user_data.category[i].config.id==user_data.current_category) {
+            user_data.category.splice(i,1);
+            break;
+        }
+
+        if(user_data.category[i].child.length) {
+            for(var i_two in user_data.category[i].child) {
+                if(user_data.category[i].child[i_two].config.id==user_data.current_category) {
+                    user_data.category[i].child.splice(i_two,1);
+                }
+            }
+        }
+    }
+
+    user_data.current_category=user_data.category[0].config.id;
+
+    set_storage(function() {
+        $(".p8 a[data-name="+user_data.current_category+"]").click();
+    });
+}
+
+function update_category_in_select_list() {
+    $(".tuersday_04_13_5").remove();
+
+    for(var i=user_data.category.length-1; i>=0; i--) {
+        $(".tuersday_04_13_4 option:first").after('<option class="tuersday_04_13_5" value="' + user_data.category[i].config.id + '">' + user_data.category[i].config.name + '</option>');
+    }
+}
+
+function start_play() {
+    $(".wednesday_05_04_01").hide();
+    $(".p0,.p5").show();
+    $(".p0").addClass("wednesday_05_04_03");
+    $(".p8 a[data-name="+user_data.current_category+"]").click();
 }
 
 // Функция для отправки сообщений
