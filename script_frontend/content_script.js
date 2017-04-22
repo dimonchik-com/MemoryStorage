@@ -1,4 +1,4 @@
-
+var user_data;
 
 function EnglishTip(vocabulary, config) {
 
@@ -53,7 +53,7 @@ function EnglishTip(vocabulary, config) {
     var show_on_element = 0;
 
     function create_world(save_action) {
-        if(!all_data.vocabulary.length) return false;
+
         init_style();
         remove_element(["wednesday_29_03_0"]);
         config.time = new Date().getTime();
@@ -228,7 +228,7 @@ function EnglishTip(vocabulary, config) {
             var copy_config=JSON.parse(JSON.stringify(config));
 
             save_vacabulary.ignore_update=1;
-            chrome.storage.local.set({'english_tip': {vocabulary:vocabulary,config:config}}, function() {
+            chrome.storage.local.set({'english_tip': user_data}, function() {
 
             });
 
@@ -283,8 +283,44 @@ function EnglishTip(vocabulary, config) {
 }
 
 chrome.storage.local.get('english_tip', function (data) {
-    data=data.english_tip;
-    if (data.vocabulary) {
-        EnglishTip(data.vocabulary, data.config);
+    user_data=data.english_tip;
+
+    var carrent_category=get_current_category();
+    if (carrent_category.vocabulary) {
+        EnglishTip(carrent_category.vocabulary, carrent_category.config);
     }
 });
+
+chrome.storage.onChanged.addListener(function(changes, namespace) {
+    console.log(changes, namespace);
+});
+
+function get_current_category() {
+    var link_category;
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            if(user_data.category[i].config.id==user_data.current_category) {
+                link_category=user_data.category[i];
+                break;
+            }
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
+                            link_category = user_data.category[i].child[i_two];
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    if(!link_category.hasOwnProperty('vocabulary')) {
+        link_category.vocabulary=[];
+    }
+
+    return link_category;
+}

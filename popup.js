@@ -711,6 +711,7 @@ $( document ).ready(function() {
                     user_data=snapshot.val();
                     get_storage(function () {
                         start_play();
+                        save_data_in_firebase();
                     });
                 } else {
                     user_data.displayName=user.displayName;
@@ -718,6 +719,7 @@ $( document ).ready(function() {
                     firebase.database().ref('users/' + user.uid).set(user_data, function (result) {
                         get_storage(function () {
                             start_play();
+                            save_data_in_firebase();
                         });
                     });
                 }
@@ -940,7 +942,7 @@ $( document ).ready(function() {
                 current_category.config.name=name_category;
 
                 if(current_category.config.parent_id==0) {
-                    user_data.category.splice(user_data.category.length-1,0, current_category);
+                    user_data.category.splice(user_data.category.length-1,0, current_category)
                 } else {
                     var category=get_cutegory_by_id(current_category.config.parent_id);
                     category.child.splice(category.child.length-1,0, current_category);
@@ -949,12 +951,14 @@ $( document ).ready(function() {
                 var parent_category=get_parent_categoty(parent_category);
                 var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category}, child:[]};
 
+                console.log(parent_category);
                 parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
-                user_data.current_category=user_data.top_id;
+                user_data.current_category=blank_category.config.id;
+
                 set_storage(function () {
                     build_menu();
-                    $(".p8 a[data-name="+(user_data.current_category-1)+"]").click();
+                    $(".p8 a[data-name="+user_data.current_category+"]").click();
                     $(".tuersday_04_13_0").val("");
                 });
             }
@@ -1009,7 +1013,6 @@ $( document ).ready(function() {
         var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
         return html;
     }
-
 });
 
 function resort_menu() {
@@ -1093,12 +1096,17 @@ function set_storage(callback){
         });
     }
 
-    //remove_strange_word_state();
-
     chrome.storage.local.set({'english_tip': user_data}, function() {
         if(callback) {
             return callback();
         }
+    });
+}
+
+function save_data_in_firebase() {
+    var userId = firebase.auth().currentUser.uid;
+    firebase.database().ref('users/' + userId).set(user_data, function() {
+        return callback();
     });
 }
 
@@ -1173,7 +1181,7 @@ function all_task() {
                 ],
                 search: true,
                 pagination: true,
-                pageSize: 10,
+                pageSize: 25,
                 showRefresh: true,
                 pageList: [10, 25, 50, 'All'],
                 cookieIdTable: "all_task",
@@ -1240,10 +1248,16 @@ function config_tab() {
 function get_parent_categoty(parent_category) {
     var ref;
     if(parent_category==0) {
+        if(!user_data.hasOwnProperty("category")) {
+            user_data.category=[];
+        }
         ref={category:user_data.category, id_categoty:0};
     } else {
         for(var i in user_data.category) {
             if(parent_category==user_data.category[i].config.id) {
+                if(!user_data.category[i].hasOwnProperty("child")) {
+                    user_data.category[i].child=[];
+                }
                 ref={category:user_data.category[i].child, id_categoty:user_data.category[i].config.id};
             }
         }
@@ -1260,15 +1274,23 @@ function get_current_category() {
                 link_category=user_data.category[i];
                 break;
             }
-            if(user_data.category[i].child.length) {
-                for(var i_two in user_data.category[i].child) {
-                    if(user_data.category[i].child[i_two].config.id==user_data.current_category) {
-                        link_category=user_data.category[i].child[i_two];
-                        break;
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
+                            link_category = user_data.category[i].child[i_two];
+                            break;
+                        }
                     }
                 }
             }
+
         }
+    }
+
+    if(!link_category.hasOwnProperty('vocabulary')) {
+        link_category.vocabulary=[];
     }
 
     return link_category;
@@ -1290,22 +1312,26 @@ function build_menu() {
     for(var i in user_data.category) {
         var active=(user_data.category[i].config.id==user_data.current_category) ? "active": ""
 
-        if(user_data.category[i].config.id==2 && !user_data.category[i].child.length) {
+        if(user_data.category[i].config.id==2 && user_data.category[i].hasOwnProperty('child')) {
+            if(!user_data.category[i].child.length) continue;
+        } else if(user_data.category[i].config.id==2) {
             continue;
         }
 
         $(".p8").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].config.id+'">'+user_data.category[i].config.name+'</a></li>');
 
-        if(user_data.category[i].child.length) {
-            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").attr({"data-toggle":"dropdown"});
-            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").append('<span class="caret"></span>');
-            $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().append('<ul class="dropdown-menu"></ul>');
-            for(var i_two in user_data.category[i].child) {
-                var active=(user_data.category[i].child[i_two].config.id==user_data.current_category) ? "active": "";
-                if(active) {
-                    $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().addClass("active");
+        if(user_data.category[i].hasOwnProperty("child")) {
+            if (user_data.category[i].child.length) {
+                $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").attr({"data-toggle": "dropdown"});
+                $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").append('<span class="caret"></span>');
+                $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().append('<ul class="dropdown-menu"></ul>');
+                for (var i_two in user_data.category[i].child) {
+                    var active = (user_data.category[i].child[i_two].config.id == user_data.current_category) ? "active" : "";
+                    if (active) {
+                        $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().addClass("active");
+                    }
+                    $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().find("ul").append('<li class="' + active + '"><a href="#" data-name="' + user_data.category[i].child[i_two].config.id + '">' + user_data.category[i].child[i_two].config.name + '</a></li>');
                 }
-                $(".p8 li a[data-name='"+user_data.category[i].config.id+"']").parent().find("ul").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].child[i_two].config.id+'">'+user_data.category[i].child[i_two].config.name+'</a></li>');
             }
         }
     }
@@ -1318,13 +1344,16 @@ function delete_current_category() {
             break;
         }
 
-        if(user_data.category[i].child.length) {
-            for(var i_two in user_data.category[i].child) {
-                if(user_data.category[i].child[i_two].config.id==user_data.current_category) {
-                    user_data.category[i].child.splice(i_two,1);
+        if(user_data.category[i].hasOwnProperty("child")) {
+            if (user_data.category[i].child.length) {
+                for (var i_two in user_data.category[i].child) {
+                    if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
+                        user_data.category[i].child.splice(i_two, 1);
+                    }
                 }
             }
         }
+
     }
 
     user_data.current_category=user_data.category[0].config.id;
