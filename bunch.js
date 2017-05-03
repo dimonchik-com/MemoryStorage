@@ -616,12 +616,14 @@ firebase.SDK_VERSION = "3.7.1";
 var user_data;
 
 function EnglishTip(vocabulary, config) {
-
+    
+    // update data from storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
         if(save_vacabulary.ignore_update) {
             save_vacabulary.ignore_update=0;
             return false;
         }
+
         update_data_from_storage();
     });
 
@@ -632,6 +634,14 @@ function EnglishTip(vocabulary, config) {
         if (main_id == null && vocabulary) {
             create_world();
         }
+
+        // check current time
+        var current_timestamp=new Date().getTime();
+
+        if(current_timestamp>config.time) {
+            console.log(12345);
+        }
+
     }, 1000);
 
     function init_style() {
@@ -668,11 +678,16 @@ function EnglishTip(vocabulary, config) {
     var show_on_element = 0;
 
     function create_world(save_action) {
-
         init_style();
         remove_element(["wednesday_29_03_0"]);
         config.time = new Date().getTime();
         var word = get_next_world();
+
+        if(!word) {
+            console.log("Wrong word!");
+            return false;
+        }
+
         var frag = create('<div id="wednesday_29_03_0">' + word.id + '</div>');
         document.body.insertBefore(frag, document.body.childNodes[0]);
 
@@ -786,11 +801,11 @@ function EnglishTip(vocabulary, config) {
         });
 
         var ret_element;
-        if (config.sorting == 0) {
+        if (config.dir_sorting == 0) {
             ret_element = list_elemet[0];
-        } else if (config.sorting == 1) {
+        } else if (config.dir_sorting == 1) {
             ret_element = list_elemet[list_elemet.length - 1];
-        } else if (config.sorting == 2) {
+        } else if (config.dir_sorting == 2) {
             ret_element = list_elemet[~~(Math.random() * list_elemet.length)];
         }
 
@@ -827,11 +842,15 @@ function EnglishTip(vocabulary, config) {
         var time_diff = (t - config.time) / 1000;
 
         if(!config.last_word.time_reaction) {
-            config.last_word.time_reaction = [];
+            config.last_word.time_reaction = [time_diff];
+        } else if(time_diff<=15) {
+            config.last_word.time_reaction.push(time_diff);
+            config.last_word.time_reaction=config.last_word.time_reaction.splice(-50);
         }
 
         config.last_word.time_reaction.push(time_diff.toFixed(2));
         config.last_word.iteration++;
+        config.last_word.total_iteration++;
     }
     
     function save_data() {
@@ -859,7 +878,10 @@ function EnglishTip(vocabulary, config) {
 
     function update_data_from_storage() {
         chrome.storage.local.get('english_tip', function (all_data) {
-            all_data=all_data.english_tip;
+
+            user_data=all_data.english_tip;
+            all_data=get_current_category();
+
             if (all_data.vocabulary) {
                 vocabulary = all_data.vocabulary;
             }
@@ -904,10 +926,6 @@ chrome.storage.local.get('english_tip', function (data) {
     if (carrent_category.vocabulary) {
         EnglishTip(carrent_category.vocabulary, carrent_category.config);
     }
-});
-
-chrome.storage.onChanged.addListener(function(changes, namespace) {
-    console.log(changes, namespace);
 });
 
 function get_current_category() {

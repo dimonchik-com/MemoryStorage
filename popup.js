@@ -698,7 +698,58 @@ var config = {
 };
 firebase.initializeApp(config);
 
-var user_data={ current_category:1, category:[{vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:1, parent_id:0, name:"Vocabulary"}, child:[]}, {vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:2,  parent_id:0, name:"Other"}, child:[]}], top_id:3 };
+var user_data={
+    current_category:"1",
+    category:[
+        {
+            vocabulary:[
+
+            ],
+            config:{
+                range_area:{
+                    start:0,
+                    end:0
+                },
+                dir_sorting:0,
+                id:1,
+                parent_id:0,
+                name:"Vocabulary",
+                dir_translation:"source_translation",
+                template_word:"id_word",
+                position_template:"right",
+                time_break:"10",
+                number_repeat:"All"
+            },
+            child:[
+
+            ]
+        },
+        {
+            vocabulary:[
+
+            ],
+            config:{
+                range_area:{
+                    start:0,
+                    end:0
+                },
+                dir_sorting:0,
+                id:2,
+                parent_id:0,
+                name:"Other",
+                dir_translation:"source_translation",
+                template_word:"id_word",
+                position_template:"right",
+                time_break:"10",
+                number_repeat:"All"
+            },
+            child:[
+
+            ]
+        }
+    ],
+    top_id:3
+};
 
 $( document ).ready(function() {
 
@@ -878,14 +929,22 @@ $( document ).ready(function() {
 	});
 
     var current_click_class;
-    $("body").on("click",".wednesday_05_04_05,.wednesday_05_04_07", function () {
+    $("body").on("click",".wednesday_05_04_05,.wednesday_05_04_07,.thursday_27_04_1", function () {
         current_click_class=$(this).hasClass("wednesday_05_04_05")?"en":"ru";
+
+        var offset_left=130, wednesday="";
+        if($(".thursday_27_04_1").hasClass("thursday_27_04_1")) {
+            offset_left=70;
+            wednesday=" wednesday_03_05_1 ";
+            current_click_class="id";
+        }
+
         $(".wednesday_05_04_06").remove();
         var ofsset=$(this).parent().offset();
         var w=$(this).parent().width();
         var word=$(this).text();
         var id=$(this).attr("id");
-        var html=get_tooltip(id, word,(ofsset.top-75), (ofsset.left+w/2-130));
+        var html=get_tooltip(id, word,(ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday);
         $(".p0").append(html);
         return false;
     });
@@ -905,10 +964,28 @@ $( document ).ready(function() {
         return false;
     });
 
-    $('.friday_04_07_2').on('change', function (e) {
+    // Change form data
+    $('.wednesday_05_04_08 select,.wednesday_05_04_08 input').on('change', function (e) {
         var result=get_current_category();
-        var sorting=$(this).val();
-        result.config.sorting=sorting;
+
+        var dir_sorting=$('.wednesday_05_04_08 select[name=dir_sorting]').val();
+        result.config.dir_sorting=dir_sorting;
+
+        var dir_translation=$('.wednesday_05_04_08 select[name=dir_translation]').val();
+        result.config.dir_translation=dir_translation;
+
+        var template_word=$('.wednesday_05_04_08 select[name=template_word]').val();
+        result.config.template_word=template_word;
+
+        var position_template=$('.wednesday_05_04_08 select[name=position_template]').val();
+        result.config.position_template=position_template;
+
+        var time_break=$('.wednesday_05_04_08 input[name=time_break]').val();
+        result.config.time_break=time_break;
+
+        var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
+        result.config.number_repeat=number_repeat;
+
         set_storage();
     });
 
@@ -949,9 +1026,8 @@ $( document ).ready(function() {
                 }
             } else {
                 var parent_category=get_parent_categoty(parent_category);
-                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category}, child:[]};
+                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},dir_sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category}, child:[]};
 
-                console.log(parent_category);
                 parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
                 user_data.current_category=blank_category.config.id;
@@ -1009,8 +1085,8 @@ $( document ).ready(function() {
         }
     });
 
-    function get_tooltip(id, word, top, left) {
-        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
+    function get_tooltip(id, word, top, left, wednesday) {
+        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow '+wednesday+'"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
         return html;
     }
 });
@@ -1105,8 +1181,8 @@ function set_storage(callback){
 
 function save_data_in_firebase() {
     var userId = firebase.auth().currentUser.uid;
-    firebase.database().ref('users/' + userId).set(user_data, function() {
-        return callback();
+    firebase.database().ref('users/' + userId).set(user_data, function(result) {
+        console.log(result);
     });
 }
 
@@ -1141,8 +1217,9 @@ function all_task() {
                         title: 'ID',
                         sortable: true,
                         align: 'center',
+                        editable: true,
                         formatter:function (data) {
-                            return "<div class='p17' id='"+data+"'>"+data+"</div>";
+                            return '<a href="#" class="thursday_27_04_1" id="'+data+'">'+data+'</a>';
                         }
                     },
                     {
@@ -1166,12 +1243,19 @@ function all_task() {
 						field: 'reaction',
 						title: 'Reaction',
 						align: 'center',
-						formatter :function (data) {
+						formatter :function (data, all_data) {
+						    if(all_data.time_reaction.length) {
+                                var sum = all_data.time_reaction.reduce(function (a, b) {
+                                    return parseFloat(a) + parseFloat(b);
+                                }, 0);
+                                data=sum/all_data.time_reaction.length;
+                                data=data.toFixed(2);
+                            }
                             return data;
 						}
 					},
                     {
-                        field: 'count_show_time',
+                        field: 'total_iteration',
                         title: 'Count show',
                         align: 'center',
                         formatter :function (data) {
@@ -1218,6 +1302,7 @@ function get_range() {
     return {min_index:min_index,max_index:max_index};
 }
 
+// Set default values
 function config_tab() {
     var range=get_range();
     var result=get_current_category();
@@ -1227,7 +1312,14 @@ function config_tab() {
         slider.destroy();
     }
 
-    $(".friday_04_07_2").val(result.config.sorting);
+    $('.wednesday_05_04_08 select[name=dir_sorting]').val(result.config.dir_sorting);
+    $('.wednesday_05_04_08 select[name=dir_translation]').val(result.config.dir_translation);
+    $('.wednesday_05_04_08 select[name=template_word]').val(result.config.template_word);
+    $('.wednesday_05_04_08 select[name=position_template]').val(result.config.position_template);
+    $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
+    $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
+
+    $(".thursday_27_04_0").html("Last time activite: "+new Date(result.config.time).toLocaleString());
 
     $("#range_03").ionRangeSlider({
         type: "double",
