@@ -372,6 +372,19 @@ $( document ).ready(function() {
         });
     });
 
+    $("body").on('click','.thursday_11_05_01 a', function () {
+       var val=$(this).attr("value");
+       user_data.status_enable=val;
+
+       console.log(user_data.status_enable);
+
+       $(".thursday_11_05_02").removeClass("thursday_11_05_02");
+       $(this).addClass("thursday_11_05_02");
+
+       set_storage();
+       return false;
+    });
+
     $(document).on("mouseenter", ".p8 li", function(e) {
         $(this).find('ul').show();
     });
@@ -775,6 +788,7 @@ function start_play() {
     $(".p0,.p5").show();
     $(".p0").addClass("wednesday_05_04_03");
     $(".p8 a[data-name="+user_data.current_category+"]").click();
+    $(".thursday_11_05_01 a[value="+user_data.status_enable+"]").click();
 }
 
 // Функция для отправки сообщений

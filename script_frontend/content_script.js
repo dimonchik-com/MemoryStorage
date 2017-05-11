@@ -16,7 +16,7 @@ function EnglishTip(vocabulary, config) {
 
     setInterval(function () {
         var main_id = document.getElementById('wednesday_29_03_0');
-        if (main_id == null && vocabulary) {
+        if (main_id == null && vocabulary && !parseInt(user_data.status_enable)) {
             create_world();
         }
 
@@ -24,7 +24,7 @@ function EnglishTip(vocabulary, config) {
         var current_timestamp=new Date().getTime();
 
         if(current_timestamp>config.time) {
-            console.log(12345);
+            //console.log(12345);
         }
 
     }, 1000);
@@ -265,6 +265,12 @@ function EnglishTip(vocabulary, config) {
         chrome.storage.local.get('english_tip', function (all_data) {
 
             user_data=all_data.english_tip;
+
+            if(!parseInt(user_data.status_enable)) {
+                remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
+                return false;
+            }
+
             all_data=get_current_category();
 
             if (all_data.vocabulary) {
