@@ -16,7 +16,8 @@ function EnglishTip(vocabulary, config) {
 
     setInterval(function () {
         var main_id = document.getElementById('wednesday_29_03_0');
-        if (main_id == null && vocabulary && !parseInt(user_data.status_enable)) {
+
+        if (main_id == null && vocabulary && parseInt(user_data.status_enable)) {
             create_world();
         }
 
@@ -39,7 +40,7 @@ function EnglishTip(vocabulary, config) {
         var css = document.createElement("style");
         css.type = "text/css";
         css.innerHTML = `
-#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 80px; text-align: center;}
+#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center;}
 #wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
@@ -47,6 +48,7 @@ function EnglishTip(vocabulary, config) {
 #wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
 #wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}`;
         css.id="englishtip_css";
+        remove_element(["englishtip_css"]);
         document.body.appendChild(css);
     }
 
@@ -73,7 +75,14 @@ function EnglishTip(vocabulary, config) {
             return false;
         }
 
-        var frag = create('<div id="wednesday_29_03_0">' + word.id + '</div>');
+        var word_id="";
+        if(config.template_word=="id_word") {
+            word_id=word.id+" - "+word.en;
+        } else {
+            word_id=word.id;
+        }
+
+        var frag = create('<div id="wednesday_29_03_0">' + word_id + '</div>');
         document.body.insertBefore(frag, document.body.childNodes[0]);
 
         document.getElementById('wednesday_29_03_0').onmouseout = function (e) {
@@ -88,16 +97,22 @@ function EnglishTip(vocabulary, config) {
         document.getElementById('wednesday_29_03_0').onmouseover = function (e) {
             if (show_on_element) return 1;
             show_on_element = 1;
-            var frag = create('<div id="wednesday_29_03_1"><div id="wednesday_29_03_2">V</div> <div id="wednesday_29_03_3">X</div></div>');
+
+            var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
+
+            var frag = create('<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px;">X</div></div>');
             insertAfter(document.body.childNodes[0], frag);
 
             // success
             document.getElementById('wednesday_29_03_2').onclick = function (e) {
                 time_end();
                 show_on_element = 1;
+
+                var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
+
                 remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
 
-                var seccess_word=create('<div id="wednesday_29_03_4">'+config.last_word.en+'</div>');
+                var seccess_word=create('<div id="wednesday_29_03_4" style="width:'+width_background+'px;">'+config.last_word.en+'</div>');
                 setTimeout(function () {
                     remove_element(["wednesday_29_03_4"]);
                 }, 1000);
@@ -110,7 +125,9 @@ function EnglishTip(vocabulary, config) {
             document.getElementById('wednesday_29_03_3').onclick = function (e) {
                 show_on_element = 1;
 
-                var fail_word=create('<div id="wednesday_29_03_5">'+config.last_word.en+'</div>');
+                var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
+
+                var fail_word=create('<div id="wednesday_29_03_5" style="width:'+width_background+'px;">'+config.last_word.en+'</div>');
                 setTimeout(function () {
                     remove_element(["wednesday_29_03_5"]);
                 }, 2500);
