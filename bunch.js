@@ -648,13 +648,7 @@ function EnglishTip(vocabulary, config) {
     function init_style() {
         var englishtip_css = document.getElementById('wednesday_29_03_0');
 
-        if(englishtip_css) {
-            return 1;
-        }
-
-        var css = document.createElement("style");
-        css.type = "text/css";
-        css.innerHTML = `
+        var position_template = `
 #wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center;}
 #wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
@@ -662,6 +656,18 @@ function EnglishTip(vocabulary, config) {
 #wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
 #wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
 #wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 0px 5px 0px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}`;
+
+        if(config.position_template=="top_left") {
+            position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; left: 0px; right: auto; margin-top: 0px;}";
+        } else if(config.position_template=="top_right") {
+            position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; margin-top: 0px;}";
+        } else if(config.position_template=="bottom_left") {
+            position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{left: 0px; right: auto; margin-top: 0px;}";
+        }
+
+        var css = document.createElement("style");
+        css.type = "text/css";
+        css.innerHTML = position_template;
         css.id="englishtip_css";
         remove_element(["englishtip_css"]);
         document.body.appendChild(css);
@@ -690,10 +696,19 @@ function EnglishTip(vocabulary, config) {
             return false;
         }
 
-        var word_id="";
+        var word_id=""; var word_text="";
+
+        if(config.dir_translation=="source_translation" || config.dir_translation=="source_source") {
+            word_text=word.en;
+        } else if(config.dir_translation=="translation_source") {
+            word_text=word.ru;
+        }
+
         if(config.template_word=="id_word") {
-            word_id=word.id+" - "+word.en;
-        } else {
+            word_id=word.id+" - "+word_text;
+        } else if(config.template_word=="word") {
+            word_id=word_text;
+        } else if(config.template_word=="only_id") {
             word_id=word.id;
         }
 
@@ -715,7 +730,14 @@ function EnglishTip(vocabulary, config) {
 
             var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
 
-            var frag = create('<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px;">X</div></div>');
+            var position_left="";
+            if(config.position_template=="top_left") {
+                position_left = "margin-left: "+(width_background/2)+"px;";
+            } else if(config.position_template=="bottom_left") {
+                position_left = "margin-left: "+(width_background/2)+"px;";
+            }
+
+            var frag = create('<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px; '+position_left+'">X</div></div>');
             insertAfter(document.body.childNodes[0], frag);
 
             // success
@@ -727,7 +749,14 @@ function EnglishTip(vocabulary, config) {
 
                 remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
 
-                var seccess_word=create('<div id="wednesday_29_03_4" style="width:'+width_background+'px;">'+config.last_word.en+'</div>');
+                var translate_word="";
+                if(config.dir_translation=="source_translation") {
+                    translate_word=config.last_word.ru;
+                } else if(config.dir_translation=="translation_source" || config.dir_translation=="source_source") {
+                    translate_word=config.last_word.en;
+                }
+
+                var seccess_word=create('<div id="wednesday_29_03_4" style="width:'+width_background+'px;">'+translate_word+'</div>');
                 setTimeout(function () {
                     remove_element(["wednesday_29_03_4"]);
                 }, 1000);
@@ -742,7 +771,14 @@ function EnglishTip(vocabulary, config) {
 
                 var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
 
-                var fail_word=create('<div id="wednesday_29_03_5" style="width:'+width_background+'px;">'+config.last_word.en+'</div>');
+                var translate_word="";
+                if(config.dir_translation=="source_translation") {
+                    translate_word=config.last_word.ru;
+                } else if(config.dir_translation=="translation_source" || config.dir_translation=="source_source") {
+                    translate_word=config.last_word.en;
+                }
+
+                var fail_word=create('<div id="wednesday_29_03_5" style="width:'+width_background+'px;">'+translate_word+'</div>');
                 setTimeout(function () {
                     remove_element(["wednesday_29_03_5"]);
                 }, 2500);
@@ -763,6 +799,12 @@ function EnglishTip(vocabulary, config) {
                 remove_element("wednesday_29_03_1");
                 show_on_element = 0;
             }
+        }
+
+        var wednesday_tany=document.getElementById("wednesday_29_03_4");
+        if (wednesday_tany) {
+            var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
+            wednesday_tany.style.width=width_background+"px";
         }
 
         if(save_action==undefined) {
@@ -795,6 +837,7 @@ function EnglishTip(vocabulary, config) {
         }
 
         var ar_index=get_index(vocabulary_copy,config.range_area.start, config.range_area.end);
+
         vocabulary_copy=vocabulary_copy.splice(ar_index.start, (config.range_area.end-config.range_area.start)+1);
 
         vocabulary_copy.map(function (element) {
@@ -879,6 +922,7 @@ function EnglishTip(vocabulary, config) {
             var copy_config=JSON.parse(JSON.stringify(config));
 
             save_vacabulary.ignore_update=1;
+
             chrome.storage.local.set({'english_tip': user_data}, function() {
 
             });
@@ -895,7 +939,6 @@ function EnglishTip(vocabulary, config) {
 
     function update_data_from_storage() {
         chrome.storage.local.get('english_tip', function (all_data) {
-
             user_data=all_data.english_tip;
 
             if(!parseInt(user_data.status_enable)) {
@@ -914,13 +957,13 @@ function EnglishTip(vocabulary, config) {
             delete config.last_word;
             delete config.time;
 
-            var two=md5(JSON.stringify(config)+"-"+vocabulary.length);
-
-            if(one!=two) {
-                all_data.vocabulary.map(function (element) {
-                    element.iteration = 0;
-                });
-            }
+            // var two=md5(JSON.stringify(config)+"-"+vocabulary.length);
+            //
+            // if(one!=two) {
+            //     all_data.vocabulary.map(function (element) {
+            //         element.iteration = 0;
+            //     });
+            // }
 
             all_data.vocabulary.map(function (element) {
                 if(!element.iteration) {
@@ -946,6 +989,7 @@ chrome.storage.local.get('english_tip', function (data) {
     user_data=data.english_tip;
 
     var carrent_category=get_current_category();
+
     if (carrent_category.vocabulary) {
         EnglishTip(carrent_category.vocabulary, carrent_category.config);
     }
