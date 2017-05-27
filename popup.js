@@ -716,9 +716,9 @@ var user_data={
                 name:"Vocabulary",
                 dir_translation:"source_translation",
                 template_word:"id_word",
-                position_template:"right",
-                time_break:"10",
-                number_repeat:"All"
+                time_break:30,
+                number_repeat:10,
+                position_template: "bottom_right"
             },
             child:[
 
@@ -739,9 +739,9 @@ var user_data={
                 name:"Other",
                 dir_translation:"source_translation",
                 template_word:"id_word",
-                position_template:"right",
-                time_break:"10",
-                number_repeat:"All"
+                time_break:30,
+                number_repeat:10,
+                position_template: "bottom_right"
             },
             child:[
 
@@ -928,12 +928,13 @@ $( document ).ready(function() {
 		}
 	});
 
-    var current_click_class;
+    var current_click_class, current_click_element;
     $("body").on("click",".wednesday_05_04_05,.wednesday_05_04_07,.thursday_27_04_1", function () {
         current_click_class=$(this).hasClass("wednesday_05_04_05")?"en":"ru";
+        current_click_element=this;
 
         var offset_left=130, wednesday="";
-        if($(".thursday_27_04_1").hasClass("thursday_27_04_1")) {
+        if($(this).hasClass("thursday_27_04_1")) {
             offset_left=70;
             wednesday=" wednesday_03_05_1 ";
             current_click_class="id";
@@ -943,6 +944,9 @@ $( document ).ready(function() {
         var ofsset=$(this).parent().offset();
         var w=$(this).parent().width();
         var word=$(this).text();
+        if(word=="-") {
+            word="";
+        }
         var id=$(this).attr("id");
         var html=get_tooltip(id, word,(ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday);
         $(".p0").append(html);
@@ -958,14 +962,16 @@ $( document ).ready(function() {
         var id=$(".wednesday_05_04_09").attr("id");
         var val=$(".wednesday_05_04_09").val();
 
-        update_word_in_vacabulary(id, val, current_click_class);
+        $(current_click_element).text(val);
+
+        update_word_in_vacabulary(id, val, current_click_class, false);
 
         $(".wednesday_05_04_06").remove();
         return false;
     });
 
     // Change form data
-    $('.wednesday_05_04_08 select,.wednesday_05_04_08 input').on('change', function (e) {
+    $('.wednesday_05_04_08 select,.wednesday_05_04_08 input').on('change keyup', function (e) {
         var result=get_current_category();
 
         var dir_sorting=$('.wednesday_05_04_08 select[name=dir_sorting]').val();
@@ -1026,7 +1032,7 @@ $( document ).ready(function() {
                 }
             } else {
                 var parent_category=get_parent_categoty(parent_category);
-                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},dir_sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category}, child:[]};
+                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},dir_sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category, position_template: "bottom_right", time_break: 30, number_repeat: 10, dir_translation: "source_translation", template_word: "id_word"}, child:[]};
 
                 parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
@@ -1068,8 +1074,6 @@ $( document ).ready(function() {
     $("body").on('click','.thursday_11_05_01 a', function () {
        var val=$(this).attr("value");
        user_data.status_enable=val;
-
-       console.log(user_data.status_enable);
 
        $(".thursday_11_05_02").removeClass("thursday_11_05_02");
        $(this).addClass("thursday_11_05_02");
@@ -1199,7 +1203,7 @@ function save_data_in_firebase() {
     });
 }
 
-function update_word_in_vacabulary(id, val, current_click_class) {
+function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
     var result=get_current_category();
 
     for(var i in result.vocabulary) {
@@ -1208,14 +1212,18 @@ function update_word_in_vacabulary(id, val, current_click_class) {
             break;
         }
     }
-    $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
+
+    if(rebut) {
+        $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
+    }
     set_storage();
 }
 
 function all_task() {
     $(".friday_04_07_0,.friday_04_07_1").hide();
     get_storage(function (result) {
-
+            var pageSize=(result.config.pageSize)?result.config.pageSize:25;
+            var pageNumber=(result.config.pageNumber)?result.config.pageNumber:1;
             $(".all_task .build_task_table").bootstrapTable({
             	data:(result)?result.vocabulary:"",
                 columns: [
@@ -1249,6 +1257,9 @@ function all_task() {
 						title: 'Translation word',
 						align: 'center',
 						formatter :function (data, all_data) {
+						    if(data.replace(/\s/g,'')==""){
+                                data="-";
+                            }
                             return '<a href="#" class="wednesday_05_04_07" id="'+all_data.id+'">'+data+'</a>';
 						}
 					},
@@ -1257,12 +1268,14 @@ function all_task() {
 						title: 'Reaction',
 						align: 'center',
 						formatter :function (data, all_data) {
-						    if(all_data.time_reaction.length) {
-                                var sum = all_data.time_reaction.reduce(function (a, b) {
-                                    return parseFloat(a) + parseFloat(b);
-                                }, 0);
-                                data=sum/all_data.time_reaction.length;
-                                data=data.toFixed(2);
+						    if(all_data.time_reaction!=undefined) {
+                                if (all_data.time_reaction.length) {
+                                    var sum = all_data.time_reaction.reduce(function (a, b) {
+                                        return parseFloat(a) + parseFloat(b);
+                                    }, 0);
+                                    data = sum / all_data.time_reaction.length;
+                                    data = data.toFixed(2);
+                                }
                             }
                             return data;
 						}
@@ -1278,15 +1291,34 @@ function all_task() {
                 ],
                 search: true,
                 pagination: true,
-                pageSize: 25,
+                pageSize: pageSize,
                 showRefresh: true,
                 pageList: [10, 25, 50, 'All'],
+                pageNumber:pageNumber,
                 cookieIdTable: "all_task",
-				height: 529
-            });
-            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
-            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config panel</button>');
+				height: 529,
+                onPageChange:function(){
+                    result.config.pageSize=this.pageSize;
+                    result.config.pageNumber=this.pageNumber;
+                    set_storage();
+                },
+                customScroll:function(top){
 
+                    clearTimeout($.data(this, 'scrollTimer'));
+                    $.data(this, 'scrollTimer', setTimeout(function() {
+                        result.config.scrollTop=top;
+                        set_storage();
+                    }, 500));
+
+                }
+            });
+
+           if(result.config.scrollTop>0) {
+               $(".fixed-table-body").scrollTop(result.config.scrollTop);
+           }
+
+            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
+            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
     });
 }
 
@@ -1444,6 +1476,7 @@ function build_menu() {
 
 function delete_current_category() {
     for(var i in user_data.category) {
+
         if(user_data.category[i].config.id==user_data.current_category) {
             user_data.category.splice(i,1);
             break;
