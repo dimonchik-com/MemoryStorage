@@ -296,6 +296,10 @@ $( document ).ready(function() {
         var time_break=$('.wednesday_05_04_08 input[name=time_break]').val();
         result.config.time_break=time_break;
 
+        if($(this).has("input[name=time_break]")) {
+            console.log(1);
+        }
+
         var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
         result.config.number_repeat=number_repeat;
 
@@ -387,6 +391,29 @@ $( document ).ready(function() {
 
        set_storage();
        return false;
+    });
+
+    $("body").on("click",".thirsday_08_06_02", function () {
+        bootbox.confirm("Are you sure you want to reschedule the class?", function(action) {
+            if(action) {
+                var result=get_current_category();
+                result.config.time_last_traning=new Date().getTime()+(result.config.time_break*60*1000);
+
+                set_storage();
+            }
+        });
+       return false;
+    });
+
+    $("body").on("click",".friday_09_06_01", function () {
+        bootbox.confirm("Are you sure you want to delete all reaction history?", function(action) {
+            var result = get_current_category();
+            result.vocabulary.map(function (element) {
+                element.time_reaction = [];
+            });
+            set_storage();
+        });
+        return false;
     });
 
     $(document).on("mouseenter", ".p8 li", function(e) {
@@ -529,6 +556,10 @@ function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
 function all_task() {
     $(".friday_04_07_0,.friday_04_07_1").hide();
     get_storage(function (result) {
+
+            var next_lesson=new Date(parseInt(result.config.time_last_traning));
+            var date_next_lesson=moment(next_lesson).format('DD-MM-YYYY')+" at "+moment(next_lesson).format('HH:mm:ss');
+
             var pageSize=(result.config.pageSize)?result.config.pageSize:25;
             var pageNumber=(result.config.pageNumber)?result.config.pageNumber:1;
             $(".all_task .build_task_table").bootstrapTable({
@@ -578,7 +609,8 @@ function all_task() {
 						    if(all_data.time_reaction!=undefined) {
                                 if (all_data.time_reaction.length) {
                                     var sum = all_data.time_reaction.reduce(function (a, b) {
-                                        return parseFloat(a) + parseFloat(b);
+                                        console.log();
+                                        return a + parseFloat(b.time);
                                     }, 0);
                                     data = sum / all_data.time_reaction.length;
                                     data = data.toFixed(2);
@@ -624,8 +656,9 @@ function all_task() {
                $(".fixed-table-body").scrollTop(result.config.scrollTop);
            }
 
-            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
-            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
+           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
+           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
+           $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start: '+date_next_lesson+' <a href="" class="thirsday_08_06_02">skip and reset</a></div>');
     });
 }
 

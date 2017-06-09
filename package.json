@@ -5,7 +5,8 @@
   "main": "background.js",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "del": "^2.2.2"
+    "del": "^2.2.2",
+    "moment": "^2.18.1"
   },
   "devDependencies": {
     "gulp": "^3.9.1"

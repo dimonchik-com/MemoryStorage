@@ -783,7 +783,6 @@ function EnglishTip(vocabulary, config) {
                     if(left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
                 }
 
-                config.time = new Date().getTime();
                 time_end();
                 show_on_element = 1;
 
@@ -798,12 +797,13 @@ function EnglishTip(vocabulary, config) {
                     translate_word=config.last_word.en;
                 }
 
-                var seccess_word=create('<div id="wednesday_29_03_4" style="min-width:'+width_background+'px;">'+translate_word+'</div>');
-                setTimeout(function () {
-                    remove_element(["wednesday_29_03_4"]);
-                }, 1000);
-                insertAfter(document.body.childNodes[0], seccess_word);
-
+                if(translate_word.length>0) {
+                    var seccess_word = create('<div id="wednesday_29_03_4" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
+                    setTimeout(function () {
+                        remove_element(["wednesday_29_03_4"]);
+                    }, 1000);
+                    insertAfter(document.body.childNodes[0], seccess_word);
+                }
                 create_world();
             }
 
@@ -954,14 +954,18 @@ function EnglishTip(vocabulary, config) {
         var t = new Date().getTime();
         var time_diff = (t - config.time) / 1000;
 
+        config.time = new Date().getTime();
+
         if(!config.last_word.time_reaction) {
-            config.last_word.time_reaction = [time_diff];
+            config.last_word.time_reaction = [{index:0, time:time_diff}];
         } else if(time_diff<=15) {
-            config.last_word.time_reaction.push(time_diff);
+            config.last_word.time_reaction.push({index:config.last_word.total_iteration, time:time_diff.toFixed(2)});
+            config.last_word.time_reaction.sort(function(a,b){
+                return a.index-b.index;
+            });
             config.last_word.time_reaction=config.last_word.time_reaction.splice(-50);
         }
 
-        config.last_word.time_reaction.push(time_diff.toFixed(2));
         config.last_word.iteration++;
         config.last_word.total_iteration++;
     }
