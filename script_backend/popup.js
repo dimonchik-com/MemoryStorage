@@ -296,8 +296,8 @@ $( document ).ready(function() {
         var time_break=$('.wednesday_05_04_08 input[name=time_break]').val();
         result.config.time_break=time_break;
 
-        if($(this).has("input[name=time_break]")) {
-            console.log(1);
+        if($(this).is("input[name=time_break]")) {
+            set_new_time(false);
         }
 
         var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
@@ -396,10 +396,7 @@ $( document ).ready(function() {
     $("body").on("click",".thirsday_08_06_02", function () {
         bootbox.confirm("Are you sure you want to reschedule the class?", function(action) {
             if(action) {
-                var result=get_current_category();
-                result.config.time_last_traning=new Date().getTime()+(result.config.time_break*60*1000);
-
-                set_storage();
+                set_new_time(true);
             }
         });
        return false;
@@ -407,11 +404,13 @@ $( document ).ready(function() {
 
     $("body").on("click",".friday_09_06_01", function () {
         bootbox.confirm("Are you sure you want to delete all reaction history?", function(action) {
-            var result = get_current_category();
-            result.vocabulary.map(function (element) {
-                element.time_reaction = [];
-            });
-            set_storage();
+            if(action) {
+                var result = get_current_category();
+                result.vocabulary.map(function (element) {
+                    element.time_reaction = [];
+                });
+                set_storage();
+            }
         });
         return false;
     });
@@ -441,6 +440,13 @@ $( document ).ready(function() {
         return html;
     }
 });
+
+function set_new_time(update_tab) {
+    var result=get_current_category();
+    result.config.time_last_traning=new Date().getTime()+(result.config.time_break*60*1000);
+    if(update_tab) $(".p8 a[data-name="+user_data.current_category+"]").click();
+    set_storage();
+}
 
 function resort_menu() {
     var sort_list=[];
@@ -609,7 +615,6 @@ function all_task() {
 						    if(all_data.time_reaction!=undefined) {
                                 if (all_data.time_reaction.length) {
                                     var sum = all_data.time_reaction.reduce(function (a, b) {
-                                        console.log();
                                         return a + parseFloat(b.time);
                                     }, 0);
                                     data = sum / all_data.time_reaction.length;

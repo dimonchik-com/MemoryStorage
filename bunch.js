@@ -627,9 +627,23 @@ function EnglishTip(vocabulary, config) {
         update_data_from_storage();
     });
 
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden){
+            var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
+            console.log("update_data_from_storage 1");
+            if(tuesday_16_05_01) {
+                console.log("update_data_from_storage 2");
+                update_data_from_storage();
+            }
+        }
+    });
+
     var save_vacabulary={time:0,repeat:1, ignore_update:0};
 
     setInterval(function () {
+        var  wednesday_17_05= document.getElementById('wednesday_17_05_17_0');
+        if(wednesday_17_05) return false;
+
         var main_id = document.getElementById('wednesday_29_03_0');
 
         var length_body = document.getElementsByTagName("BODY")[0].innerHTML;
@@ -768,13 +782,14 @@ function EnglishTip(vocabulary, config) {
             // success
             document.getElementById('wednesday_29_03_2').onclick = function (e) {
                 config.left_traning_word--;
-                if(config.left_traning_word==0) {
+                if(config.left_traning_word<=0) {
                     var next_time_lesson=new Date().getTime()+(config.time_break*60*1000);
                     var congratulation = document.getElementById('tuesday_16_05_01');
                     congratulation.innerHTML='<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in '+new Date(next_time_lesson)+'</div>';
+                    config.time_last_traning=next_time_lesson;
+                    save_data();
                     setTimeout(function () {
-                        config.time_last_traning=next_time_lesson;
-                        save_data();
+                        remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
                     },5000);
                 }
 
@@ -980,9 +995,13 @@ function EnglishTip(vocabulary, config) {
 
             save_vacabulary.ignore_update=1;
 
-            chrome.storage.local.set({'english_tip': user_data}, function() {
+            try {
+                chrome.storage.local.set({'english_tip': user_data}, function() {
 
-            });
+                });
+            } catch (err) {
+                location.reload();
+            }
 
             save_vacabulary.time=new Date().getTime();
             save_vacabulary.repeat=1;
