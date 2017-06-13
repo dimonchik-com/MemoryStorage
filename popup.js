@@ -1257,7 +1257,7 @@ function all_task() {
     get_storage(function (result) {
 
             var next_lesson=new Date(parseInt(result.config.time_last_traning));
-            var date_next_lesson=moment(next_lesson).format('DD-MM-YYYY')+" at "+moment(next_lesson).format('HH:mm:ss');
+            var date_next_lesson=/*moment(next_lesson).format('DD-MM-YYYY')+*/" at "+moment(next_lesson).format('HH:mm:ss');
 
             var pageSize=(result.config.pageSize)?result.config.pageSize:25;
             var pageNumber=(result.config.pageNumber)?result.config.pageNumber:1;
@@ -1356,7 +1356,7 @@ function all_task() {
 
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
-           $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start: '+date_next_lesson+' <a href="" class="thirsday_08_06_02">skip and reset</a></div>');
+           $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start '+date_next_lesson+' <a href="" class="thirsday_08_06_02">skip and reset</a></div>');
     });
 }
 

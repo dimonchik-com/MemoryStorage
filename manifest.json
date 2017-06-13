@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
-  "name": "EnglishTip",
-  "description": "English bottom tip.",
+  "name": "MemoryTraining",
+  "description": "The best Google Chrome extension for memory training. To be smart is easy!",
   "version": "1.0",
 
   "browser_action": {

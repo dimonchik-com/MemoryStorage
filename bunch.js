@@ -629,16 +629,20 @@ function EnglishTip(vocabulary, config) {
 
     document.addEventListener("visibilitychange", function() {
         if (document.hidden){
-            var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
-            console.log("update_data_from_storage 1");
-            if(tuesday_16_05_01) {
-                console.log("update_data_from_storage 2");
-                update_data_from_storage();
-            }
+            setTimeout(function(){
+                var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
+                console.log("update_data_from_storage 1");
+                console.log(tuesday_16_05_01);
+                if(tuesday_16_05_01) {
+                    console.log("update_data_from_storage 2");
+                    update_data_from_storage();
+                }
+            },500);
         }
     });
 
     var save_vacabulary={time:0,repeat:1, ignore_update:0};
+    var count_data_from_storage=0;
 
     setInterval(function () {
         var  wednesday_17_05= document.getElementById('wednesday_17_05_17_0');
@@ -781,8 +785,8 @@ function EnglishTip(vocabulary, config) {
 
             // success
             document.getElementById('wednesday_29_03_2').onclick = function (e) {
-                config.left_traning_word--;
-                if(config.left_traning_word<=0) {
+                config.left_traning_word=parseInt(config.left_traning_word)-1;
+                if(parseInt(config.left_traning_word)==0) {
                     var next_time_lesson=new Date().getTime()+(config.time_break*60*1000);
                     var congratulation = document.getElementById('tuesday_16_05_01');
                     congratulation.innerHTML='<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in '+new Date(next_time_lesson)+'</div>';
@@ -791,6 +795,8 @@ function EnglishTip(vocabulary, config) {
                     setTimeout(function () {
                         remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
                     },5000);
+                } else if(parseInt(config.left_traning_word)<0) {
+                    config.left_traning_word=0;
                 }
 
                 if(config.left_traning_word!=0) {
@@ -1014,10 +1020,14 @@ function EnglishTip(vocabulary, config) {
     }
 
     function update_data_from_storage() {
+        console.log("start_english_tip");
+        var time_count_data_from_storage=count_data_from_storage;
         chrome.storage.local.get('english_tip', function (all_data) {
+            count_data_from_storage++;
             user_data=all_data.english_tip;
 
             var length_body = document.getElementsByTagName("BODY")[0].innerHTML;
+            console.log("get_english_tip: "+length_body);
             if(length_body.length<=3000) {
                 return false;
             }
@@ -1028,6 +1038,8 @@ function EnglishTip(vocabulary, config) {
             }
 
             all_data=get_current_category();
+
+            console.log(all_data);
 
             if (all_data.vocabulary) {
                 vocabulary = all_data.vocabulary;
@@ -1062,6 +1074,13 @@ function EnglishTip(vocabulary, config) {
                 create_world(false);
             }
         });
+
+        setTimeout(function(){
+            if(count_data_from_storage<time_count_data_from_storage+1) {
+                location.reload();
+            }
+        }, 500);
+
     }
 
     function get_number_repeat(config,vocabulary) {
