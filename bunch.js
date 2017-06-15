@@ -616,7 +616,7 @@ firebase.SDK_VERSION = "3.7.1";
 var user_data;
 
 function EnglishTip(vocabulary, config) {
-    
+
     // update data from storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
         if(save_vacabulary.ignore_update) {
@@ -637,6 +637,12 @@ function EnglishTip(vocabulary, config) {
                     console.log("update_data_from_storage 2");
                     update_data_from_storage();
                 }
+
+                setTimeout(function(){
+                    alert(visibilitychange);
+                    save_data();
+                },500);
+
             },500);
         }
     });
@@ -651,12 +657,12 @@ function EnglishTip(vocabulary, config) {
         var main_id = document.getElementById('wednesday_29_03_0');
 
         var length_body = document.getElementsByTagName("BODY")[0].innerHTML;
-        if(length_body.length<=3000) {
+        if(length_body.length<=2000) {
             return false;
         }
 
         if (main_id == null && vocabulary && parseInt(user_data.status_enable)) {
-            create_world();
+            create_world(true, false);
         }
 
         // check current time
@@ -675,6 +681,7 @@ function EnglishTip(vocabulary, config) {
                 if(parseInt(config.left_traning_word)<=0 || config.left_traning_word==undefined) {
                     config.left_traning_word=get_number_repeat(config,vocabulary);
                 }
+                console.log("config.left_traning_word="+config.left_traning_word);
                 var black_display = create('<div id="tuesday_16_05_01"><div>Time to traning: left <span id="tuesday_16_05_02">'+config.left_traning_word+'</span> words</div></div>');
                 insertAfter(document.body.childNodes[0], black_display);
             } else if(parseInt(config.left_traning_word)>=1) {
@@ -699,6 +706,7 @@ function EnglishTip(vocabulary, config) {
 #wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
 #tuesday_16_05_01{position: fixed; background: black; width: 100%; height: 100%; top: 0px; z-index: 100000000; opacity: .6; display:table-cell; vertical-align:middle;}
 #tuesday_16_05_01 div{color: red; position: absolute; top: 50%; width: 100%; text-align: center; font-size: 21px; font-weight: bold;}
+#tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}`;
 
         if(config.position_template=="top_left") {
@@ -729,10 +737,11 @@ function EnglishTip(vocabulary, config) {
 
     var show_on_element = 0;
 
-    function create_world(save_action) {
+    function create_world(save_action, show_prev_word) {
         init_style();
         remove_element(["wednesday_29_03_0"]);
-        var word = get_next_world();
+
+        var word = show_prev_word ? config.last_word : get_next_world();
 
         if(!word) {
             console.log("Wrong word!");
@@ -785,7 +794,9 @@ function EnglishTip(vocabulary, config) {
 
             // success
             document.getElementById('wednesday_29_03_2').onclick = function (e) {
+                console.log("0-success-left_traning_word="+config.left_traning_word);
                 config.left_traning_word=parseInt(config.left_traning_word)-1;
+                console.log("1-success-left_traning_word="+config.left_traning_word);
                 if(parseInt(config.left_traning_word)==0) {
                     var next_time_lesson=new Date().getTime()+(config.time_break*60*1000);
                     var congratulation = document.getElementById('tuesday_16_05_01');
@@ -796,7 +807,13 @@ function EnglishTip(vocabulary, config) {
                         remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
                     },5000);
                 } else if(parseInt(config.left_traning_word)<0) {
-                    config.left_traning_word=0;
+                    console.log("SET_ZERO_FACK="+config.left_traning_word);
+                    var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
+                    if(tuesday_16_05_01) {
+                        config.left_traning_word=get_number_repeat(config,vocabulary)-1;
+                    } else {
+                        config.left_traning_word = 0;
+                    }
                 }
 
                 if(config.left_traning_word!=0) {
@@ -825,7 +842,7 @@ function EnglishTip(vocabulary, config) {
                     }, 1000);
                     insertAfter(document.body.childNodes[0], seccess_word);
                 }
-                create_world();
+                create_world(true, false);
             }
 
             // fail
@@ -848,7 +865,7 @@ function EnglishTip(vocabulary, config) {
                 insertAfter(document.body.childNodes[0], fail_word);
 
                 remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
-                create_world();
+                create_world(true, true);
             }
 
             document.getElementById('wednesday_29_03_1').onmouseout = function (e) {
@@ -870,14 +887,15 @@ function EnglishTip(vocabulary, config) {
             wednesday_tany.style.minWidth=width_background+"px";
         }
 
-        if(save_action==undefined) {
+        console.log("save_action"+save_action);
+        if(save_action) {
             save_data();
         }
     }
 
     function get_next_world() {
         var list_elemet=get_list_element();
-        
+        console.log(list_elemet);
         var ret_element;
         if (config.dir_sorting == 0) {
             ret_element = list_elemet[0];
@@ -995,17 +1013,20 @@ function EnglishTip(vocabulary, config) {
         var current_time=new Date().getTime();
         var dif_time=current_time-save_vacabulary.time;
 
-        if(save_vacabulary.time==0 || dif_time>=2000) {
+        console.log("start_save_data_0");
 
+        if(save_vacabulary.time==0 || dif_time>=2000) {
+            console.log("start_save_data_1");
             var copy_config=JSON.parse(JSON.stringify(config));
 
             save_vacabulary.ignore_update=1;
-
+            console.log(user_data);
             try {
                 chrome.storage.local.set({'english_tip': user_data}, function() {
 
                 });
             } catch (err) {
+                alert("save_data - error");
                 location.reload();
             }
 
@@ -1027,7 +1048,7 @@ function EnglishTip(vocabulary, config) {
             user_data=all_data.english_tip;
 
             var length_body = document.getElementsByTagName("BODY")[0].innerHTML;
-            console.log("get_english_tip: "+length_body);
+            console.log("get_english_tip: "+length_body.length);
             if(length_body.length<=3000) {
                 return false;
             }
@@ -1069,14 +1090,20 @@ function EnglishTip(vocabulary, config) {
             });
 
             config=all_data.config;
+
+            if(config.left_traning_word<=0) {
+                remove_element(["tuesday_16_05_01"]);
+            }
+
             if (all_data.vocabulary) {
                 vocabulary = all_data.vocabulary;
-                create_world(false);
+                create_world(false, false);
             }
         });
 
         setTimeout(function(){
             if(count_data_from_storage<time_count_data_from_storage+1) {
+                alert("save_data - error 2");
                 location.reload();
             }
         }, 500);
