@@ -60,7 +60,8 @@ function EnglishTip(vocabulary, config) {
         if(parseInt(user_data.status_enable) &&
           (current_timestamp>config.time || parseInt(config.left_traning_word)>0) &&
           (new Date().getTime()>config.time_last_traning || config.time_last_traning==undefined) &&
-            new String(config.time_break).length>=1
+           new String(config.time_break).length>=1 &&
+           vocabulary.length>=3
         ) {
             if(!document.getElementById('tuesday_16_05_01')) {
                 if(parseInt(config.left_traning_word)<=0 || config.left_traning_word==undefined) {
