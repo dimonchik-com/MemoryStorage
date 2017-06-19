@@ -759,10 +759,9 @@ $( document ).ready(function() {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
                 if(snapshot.val()) {
-                    user_data=snapshot.val();
-                    build_menu();
-                    start_play();
-                    save_data_in_firebase();
+                    get_storage(function () {
+                        start_play();
+                    }, snapshot.val());
                 } else {
                     user_data.displayName=user.displayName;
                     user_data.email=user.email;
@@ -1201,11 +1200,22 @@ function startSignIn() {
  * Function for get session id
  * @param callback
  */
-function get_storage(callback) {
+function get_storage(callback, data_from_firebase) {
 	chrome.storage.local.get('english_tip', function (result) {
         if(result.hasOwnProperty("english_tip")) {
             user_data = result.english_tip;
         }
+
+        if(data_from_firebase) {
+            if(data_from_firebase==undefined && !user_data.time_last_activity) {
+                save_data_in_firebase();
+            } else if(user_data.time_last_activity>data_from_firebase.time_last_activity || !data_from_firebase.hasOwnProperty("english_tip")) {
+                save_data_in_firebase();
+            } else if(user_data.time_last_activity<data_from_firebase.time_last_activity) {
+                user_data=data_from_firebase;
+            }
+        }
+
         build_menu();
 
 		return callback(get_current_category());
@@ -1219,6 +1229,8 @@ function set_storage(callback){
             return b.id - a.id;
         });
     }
+
+    user_data.time_last_activity=new Date().getTime();
 
     chrome.storage.local.set({'english_tip': user_data}, function() {
         if(callback) {
