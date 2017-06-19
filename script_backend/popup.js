@@ -67,10 +67,9 @@ $( document ).ready(function() {
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
                 if(snapshot.val()) {
                     user_data=snapshot.val();
-                    get_storage(function () {
-                        start_play();
-                        save_data_in_firebase();
-                    });
+                    build_menu();
+                    start_play();
+                    save_data_in_firebase();
                 } else {
                     user_data.displayName=user.displayName;
                     user_data.email=user.email;
@@ -514,7 +513,6 @@ function get_storage(callback) {
         if(result.hasOwnProperty("english_tip")) {
             user_data = result.english_tip;
         }
-
         build_menu();
 
 		return callback(get_current_category());
