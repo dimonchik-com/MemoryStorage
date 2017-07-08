@@ -748,36 +748,30 @@ var user_data={
             ]
         }
     ],
-    top_id:3
+    top_id:3,
+    time_last_activity:new Date().getTime()
 };
 
 $( document ).ready(function() {
+    get_storage(function () {
+        start_play();
+    });
 
     firebase.auth().onAuthStateChanged(function(user) {
-        if (user) {
-
+        if (user && !user_data.first_load) {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
-                if(snapshot.val()) {
-                    get_storage(function () {
-                        start_play();
-                    }, snapshot.val());
-                } else {
-                    user_data.displayName=user.displayName;
-                    user_data.email=user.email;
-                    firebase.database().ref('users/' + user.uid).set(user_data, function (result) {
-                        get_storage(function () {
-                            start_play();
-                            save_data_in_firebase();
-                        });
-                    });
+                var result=snapshot.val();
+                if(result) {
+                    user_data = result;
                 }
+                user_data.first_load=1;
+                set_storage(function () {
+                    start_play();
+                    build_menu();
+                });
             });
-
-        } else {
-			$(".wednesday_05_04_02").hide();
-            $(".wednesday_05_04_01 button").show();
-		}
+        }
     });
 
 	$("body").on("click",".wednesday_05_04_01 button", function () {
@@ -785,12 +779,22 @@ $( document ).ready(function() {
     });
 
 	// Log out
+    var start_log_out=1;
 	$("body").on("click",".p5 .p6", function () {
-        firebase.auth().signOut();
+        if(start_log_out) {
+            start_log_out=0;
+            synchronize_data(function () {
+                firebase.auth().signOut();
 
-        $(".wednesday_05_04_01").show();
-        $(".p0,.p5").hide();
-        $(".p0").removeClass("wednesday_05_04_03");
+                chrome.storage.local.remove(["english_tip"]);
+                delete user_data.first_load;
+
+                $(".wednesday_05_04_01,.wednesday_05_04_01 button").show();
+                $(".p0,.p5,.wednesday_05_04_02").hide();
+                $(".p0").removeClass("wednesday_05_04_03");
+                start_log_out=1;
+            });
+        }
 	});
 
 	// add new task
@@ -848,6 +852,8 @@ $( document ).ready(function() {
 				total_iteration:0
 			});
 
+            user_data.time_last_activity=new Date().getTime();
+
             set_storage(function(){
 				$(".p12 input").val("");
                 $(".p11").hide();
@@ -896,7 +902,7 @@ $( document ).ready(function() {
 	$("body").on("click",".p19", function () {
 		var list_remove_task=[];
 		$(".build_task_table input[type='checkbox']:checked, .build_task_table input[type='checkbox']:checked").each(function(){
-			var name_domain=$(this).closest("tr").find(".p17").attr("id");
+			var name_domain=$(this).closest("tr").find(".thursday_27_04_1").attr("id");
 			list_remove_task.push(name_domain);
 		});
 
@@ -909,6 +915,8 @@ $( document ).ready(function() {
                             result.vocabulary.splice(i,1);
                         }
                     }
+
+                    user_data.time_last_activity=new Date().getTime();
                     set_storage(function () {
                         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
                         $(".p19").hide();
@@ -1126,6 +1134,37 @@ $( document ).ready(function() {
         }
     });
 
+    $("body").on("click",".monday_06_01", function () {
+        synchronize_data();
+    });
+
+    function synchronize_data(callback) {
+        $(".monday_06_01").addClass("gly-spin");
+        if (firebase.auth().currentUser) {
+            var userId = firebase.auth().currentUser.uid;
+            firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
+                var data_from_firebase=snapshot.val();
+
+                if(user_data.time_last_activity>data_from_firebase.time_last_activity) {
+                    save_data_in_firebase(function (res) {
+                        $(".monday_06_01").removeClass("gly-spin");
+                        callback();
+                    });
+                } else {
+                    user_data=data_from_firebase;
+                    set_storage(function () {
+                        $(".monday_06_01").removeClass("gly-spin");
+                        callback();
+                    });
+                }
+            });
+        } else { // if not data on server
+            firebase.database().ref('users/' + user.uid).set(user_data, function (result) {
+
+            });
+        }
+    }
+
     function get_tooltip(id, word, top, left, wednesday) {
         var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow '+wednesday+'"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
         return html;
@@ -1200,25 +1239,16 @@ function startSignIn() {
  * Function for get session id
  * @param callback
  */
-function get_storage(callback, data_from_firebase) {
+function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
         if(result.hasOwnProperty("english_tip")) {
-            user_data = result.english_tip;
+            user_data=result.english_tip;
+            build_menu();
+            return callback(get_current_category());
+        } else {
+            $(".wednesday_05_04_02").hide();
+            $(".wednesday_05_04_01,.p4").show();
         }
-
-        if(data_from_firebase) {
-            if(data_from_firebase==undefined && !user_data.time_last_activity) {
-                save_data_in_firebase();
-            } else if(user_data.time_last_activity>data_from_firebase.time_last_activity || !data_from_firebase.hasOwnProperty("english_tip")) {
-                save_data_in_firebase();
-            } else if(user_data.time_last_activity<data_from_firebase.time_last_activity) {
-                user_data=data_from_firebase;
-            }
-        }
-
-        build_menu();
-
-		return callback(get_current_category());
 	});
 }
 
@@ -1230,8 +1260,6 @@ function set_storage(callback){
         });
     }
 
-    user_data.time_last_activity=new Date().getTime();
-
     chrome.storage.local.set({'english_tip': user_data}, function() {
         if(callback) {
             return callback();
@@ -1239,10 +1267,15 @@ function set_storage(callback){
     });
 }
 
-function save_data_in_firebase() {
+function save_data_in_firebase(callback) {
     var userId = firebase.auth().currentUser.uid;
-    firebase.database().ref('users/' + userId).set(user_data, function(result) {
-        console.log(result);
+    var copy_user_data=JSON.parse(JSON.stringify(user_data));
+    delete copy_user_data.first_load;
+    copy_user_data.time_last_activity=new Date().getTime();
+    firebase.database().ref('users/' + userId).set(copy_user_data, function(result) {
+        if(callback) {
+            callback(result);
+        }
     });
 }
 

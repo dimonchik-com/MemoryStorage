@@ -49,3 +49,49 @@
 .thirsday_08_06_01{position: absolute; top: 60px; font-size: 13px;}
 .wednesday_05_04_10{position: relative;}
 .friday_09_06_01{right: 0; position: absolute; top: -25px;}
+.monday_06_01{    position: absolute;
+    right: 0;
+    top: 19px;
+    margin: 0 100px 0 0;
+    color: #337ab7;
+    font-size: 16px; cursor: pointer;}
+.gly-spin {
+    -webkit-animation: spin 2s infinite linear;
+    -moz-animation: spin 2s infinite linear;
+    -o-animation: spin 2s infinite linear;
+    animation: spin 2s infinite linear;
+}
+@-moz-keyframes spin {
+    0% {
+        -moz-transform: rotate(0deg);
+    }
+    100% {
+        -moz-transform: rotate(359deg);
+    }
+}
+@-webkit-keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+    }
+}
+@-o-keyframes spin {
+    0% {
+        -o-transform: rotate(0deg);
+    }
+    100% {
+        -o-transform: rotate(359deg);
+    }
+}
+@keyframes spin {
+    0% {
+        -webkit-transform: rotate(0deg);
+        transform: rotate(0deg);
+    }
+    100% {
+        -webkit-transform: rotate(359deg);
+        transform: rotate(359deg);
+    }
+}
