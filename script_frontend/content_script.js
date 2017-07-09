@@ -24,7 +24,7 @@ function EnglishTip(vocabulary, config) {
                 }
 
                 setTimeout(function(){
-                    alert(visibilitychange);
+                    console.log("visibilitychange");
                     save_data();
                 },500);
 
@@ -67,6 +67,7 @@ function EnglishTip(vocabulary, config) {
                 if(parseInt(config.left_traning_word)<=0 || config.left_traning_word==undefined) {
                     config.left_traning_word=get_number_repeat(config,vocabulary);
                 }
+                console.log(get_number_repeat(config,vocabulary));
                 console.log("config.left_traning_word="+config.left_traning_word);
                 var black_display = create('<div id="tuesday_16_05_01"><div>Time to traning: left <span id="tuesday_16_05_02">'+config.left_traning_word+'</span> words</div></div>');
                 insertAfter(document.body.childNodes[0], black_display);
@@ -281,7 +282,6 @@ function EnglishTip(vocabulary, config) {
 
     function get_next_world() {
         var list_elemet=get_list_element();
-        console.log(list_elemet);
         var ret_element;
         if (config.dir_sorting == 0) {
             ret_element = list_elemet[0];
@@ -381,6 +381,16 @@ function EnglishTip(vocabulary, config) {
 
         config.time = new Date().getTime();
 
+        // FIX remove not array, remove after clean data in my account
+        if(config.last_word.time_reaction) {
+            var length=config.last_word.time_reaction.length;
+            while(length--) {
+               if(typeof config.last_word.time_reaction[length]!="object") {
+                   config.last_word.time_reaction.splice(length,1);
+               }
+            }
+        }
+
         if(!config.last_word.time_reaction) {
             config.last_word.time_reaction = [{index:0, time:time_diff}];
         } else if(time_diff<=15) {
@@ -406,13 +416,12 @@ function EnglishTip(vocabulary, config) {
             var copy_config=JSON.parse(JSON.stringify(config));
 
             save_vacabulary.ignore_update=1;
-            console.log(user_data);
             try {
                 chrome.storage.local.set({'english_tip': user_data}, function() {
 
                 });
             } catch (err) {
-                alert("save_data - error");
+                //alert("save_data - error");
                 location.reload();
             }
 
@@ -489,7 +498,7 @@ function EnglishTip(vocabulary, config) {
 
         setTimeout(function(){
             if(count_data_from_storage<time_count_data_from_storage+1) {
-                alert("save_data - error 2");
+                //alert("save_data - error 2");
                 location.reload();
             }
         }, 500);
@@ -497,11 +506,17 @@ function EnglishTip(vocabulary, config) {
     }
 
     function get_number_repeat(config,vocabulary) {
+        var list_elemet=get_list_element();
         if(new String(config.number_repeat).toLowerCase()=="all") {
-            var list_elemet=get_list_element();
             return list_elemet.length;
         } else {
-            return config.number_repeat;
+            var rel_element=0;
+            if(config.number_repeat > list_elemet.length) {
+                rel_element= list_elemet.length;
+            } else {
+                rel_element= config.number_repeat;
+            }
+            return rel_element;
         }
     }
     

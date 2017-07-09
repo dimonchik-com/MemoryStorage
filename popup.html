@@ -73,13 +73,13 @@
               </div>
 
               <div class="form-group">
-                <label for="type_network">Source word:</label>
+                <label for="type_network">Source:</label>
                 <input type="name" class="form-control" id="name" name="new_word">
                 <div class="friday_04_07_1">Duplicate</div>
               </div>
 
               <div class="form-group">
-                <label for="max_photo_click">Translation:</label>
+                <label for="max_photo_click">Value:</label>
                 <input type="name" class="form-control" name="new_translate">
               </div>
 
@@ -110,10 +110,10 @@
               </div>
             </div>
 
-            <table cellpadding="0" cellspacing="0" border="0" width="100%">
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" class="sunday_07_09_02">
               <tr>
                 <td width="50%">
-                    <div class="form-group" style="margin-right: 8px;">
+                    <div class="form-group" style="padding-right: 8px;">
                       <label for="type_network">What show first?:</label>
                       <select class="form-control friday_04_07_3" name="dir_translation">
                         <option value="source_translation" selected>Source word / Translation word</option>
@@ -133,37 +133,73 @@
                   </div>
                 </td>
               </tr>
+              <tr>
+                <td>
+                  <div class="form-group" style="padding-right: 8px;">
+                    <label for="type_network">Position?:</label>
+                    <select class="form-control friday_04_07_4" name="position_template">
+                      <option value="top_left">The top left corner</option>
+                      <option value="top_right">The top right corner</option>
+                      <option value="bottom_left">The bottom left corner</option>
+                      <option value="bottom_right" selected>The bottom right corner</option>
+                    </select>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group">
+                    <label for="type_network">The time break between classes:</label>
+                    <div class="wednesday_05_04_10">
+                      <a href="" class="friday_09_06_01">Clear time reaction</a>
+                      <input type="text" class="form-control" name="time_break" value="" placeholder="10 minutes"></input>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="form-group" style="padding-right: 5px;">
+                    <label for="type_network"> The status of a word is learned when:</label>
+                    <div class="wednesday_05_04_10">
+                      <input type="text" class="form-control" name="" value="" placeholder="The reaction time is equal. Default '5' second."></input>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group">
+                    <label for="type_network">&nbsp;</label>
+                    <div class="wednesday_05_04_10">
+                      <input type="text" class="form-control" name="" value="" placeholder="The count time is equal. Default '50' reps."></input>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="form-group" style="padding-right: 5px;">
+                    <label for="type_network">Number of words that you should repeat:</label>
+                    <div class="wednesday_05_04_10">
+                      <input type="text" class="form-control" name="number_repeat" value="" placeholder="The number or 'All'. Default 'All'"></input>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group">
+                    <label for="type_network">To train the learned words?:</label>
+                    <select class="form-control friday_04_07_4" name="">
+                      <option value="1">Yes</option>
+                      <option value="0" selected>No</option>
+                    </select>
+                  </div>
+                </td>
+              </tr>
+
             </table>
 
-            <div class="form-group">
-              <label for="type_network">Position?:</label>
-              <select class="form-control friday_04_07_4" name="position_template">
-                <option value="top_left">The top left corner</option>
-                <option value="top_right">The top right corner</option>
-                <option value="bottom_left">The bottom left corner</option>
-                <option value="bottom_right" selected>The bottom right corner</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label for="type_network">The time break between classes:</label>
-              <div class="wednesday_05_04_10">
-                <a href="" class="friday_09_06_01">Clear time reaction</a>
-                <input type="text" class="form-control" name="time_break" value="10"></input>
-              </div>
-              <p style="margin: 10px 0 0 0;">The time interval through which you have to continue the lesson. Specified in minutes.</p>
-            </div>
-
-            <div class="form-group">
-              <label for="type_network">Number of words:</label>
-              <div class="wednesday_05_04_10">
-                <input type="text" class="form-control" name="number_repeat" value="All"></input>
-              </div>
-              <p class="friday_04_14_01">
-                The minimum number of words that you should repeat. The number or "All"
-                <a href="" class="friday_04_14_02">Edit category</a>
-                <a href="" class="saturday_04_04">To go back</a>
-              </p>
+            <div class="sunday_07_09_03">
+              <button type="button" class="btn btn-default friday_04_14_02">Edit category</button>
+              <button type="button" class="btn btn-default saturday_04_04">To go back</button>
             </div>
 
           </form>

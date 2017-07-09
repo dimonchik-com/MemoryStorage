@@ -14,7 +14,7 @@
     "js": ["bunch.js"]
   } ],
   "icons": { "16": "memorytraining-16.png", "48": "memorytraining-48.png", "128": "memorytraining-128.png" },
-  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
+  "content_security_policy":"script-src 'self' https://www.gstatic.com/ https://www.gstatic.com/* https://*.firebaseio.com https://www.googleapis.com; object-src 'self'",
   "oauth2": {
     "client_id": "144308778722-l4sivvhfqq8e6cvc9rsijfc2ti7rnbfi.apps.googleusercontent.com",
     "scopes": [

@@ -71,11 +71,15 @@ $( document ).ready(function() {
                 var result=snapshot.val();
                 if(result) {
                     user_data = result;
+                } else { // creating a new user
+                    user_data.displayName=user.displayName;
+                    user_data.email=user.email;
+                    save_data_in_firebase();
                 }
                 user_data.first_load=1;
                 set_storage(function () {
-                    start_play();
                     build_menu();
+                    start_play();
                 });
             });
         }
@@ -100,7 +104,7 @@ $( document ).ready(function() {
                 $(".p0,.p5,.wednesday_05_04_02").hide();
                 $(".p0").removeClass("wednesday_05_04_03");
                 start_log_out=1;
-            });
+            }, true);
         }
 	});
 
@@ -156,7 +160,8 @@ $( document ).ready(function() {
 				ru:new_translate,
                 time_reaction:[],
                 iteration:0,
-				total_iteration:0
+				total_iteration:0,
+                status_learn:0
 			});
 
             user_data.time_last_activity=new Date().getTime();
@@ -445,23 +450,35 @@ $( document ).ready(function() {
         synchronize_data();
     });
 
-    function synchronize_data(callback) {
+    function synchronize_data(callback, force_overwriting=false) {
         $(".monday_06_01").addClass("gly-spin");
         if (firebase.auth().currentUser) {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
                 var data_from_firebase=snapshot.val();
 
-                if(user_data.time_last_activity>data_from_firebase.time_last_activity) {
+                if(!data_from_firebase) {
+                    callback();
+                }
+
+                if(user_data.time_last_activity>data_from_firebase.time_last_activity) { // if local data more recent then server data
                     save_data_in_firebase(function (res) {
                         $(".monday_06_01").removeClass("gly-spin");
                         callback();
                     });
-                } else {
-                    user_data=data_from_firebase;
+                } else { // if on server data more recent than local
+                    data_from_firebase.current_category = user_data.current_category;
+                    user_data = data_from_firebase;
                     set_storage(function () {
-                        $(".monday_06_01").removeClass("gly-spin");
-                        callback();
+                        if(force_overwriting) {
+                            save_data_in_firebase(function (res) {
+                                $(".monday_06_01").removeClass("gly-spin");
+                                callback();
+                            });
+                        } else {
+                            $(".monday_06_01").removeClass("gly-spin");
+                            callback();
+                        }
                     });
                 }
             });
@@ -632,7 +649,7 @@ function all_task() {
                     },
                     {
                         field: 'en',
-                        title: 'Source word',
+                        title: 'Source',
                         align: 'center',
                         editable: true,
                         formatter :function (data, all_data) {
@@ -641,7 +658,7 @@ function all_task() {
                     },
 					{
 						field: 'ru',
-						title: 'Translation word',
+						title: 'Value',
 						align: 'center',
 						formatter :function (data, all_data) {
 						    if(data.replace(/\s/g,'')==""){
@@ -652,7 +669,7 @@ function all_task() {
 					},
 					{
 						field: 'reaction',
-						title: 'Reaction',
+						title: 'Time',
 						align: 'center',
 						formatter :function (data, all_data) {
 						    if(all_data.time_reaction!=undefined) {
@@ -669,9 +686,18 @@ function all_task() {
 					},
                     {
                         field: 'total_iteration',
-                        title: 'Count show',
+                        title: 'Count',
                         align: 'center',
                         formatter :function (data) {
+                            return data;
+                        }
+                    },
+                    {
+                        field: 'status',
+                        title: 'Status',
+                        align: 'center',
+                        formatter :function (data) {
+                            //data="<span class='sunday_07_09 glyphicon glyphicon-ok'></span>";
                             return data;
                         }
                     }
@@ -752,7 +778,7 @@ function config_tab() {
     $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
     $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
 
-    $(".thursday_27_04_0").html("Last time activite: "+new Date(result.config.time).toLocaleString());
+    $(".thursday_27_04_0").html("Last time activite: "+moment(new Date(result.config.time)).format('DD-MM-YYYY HH:mm:ss'));
 
     $("#range_03").ionRangeSlider({
         type: "double",
