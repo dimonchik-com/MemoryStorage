@@ -973,7 +973,8 @@ $( document ).ready(function() {
         var id=$(".wednesday_05_04_09").attr("id");
         var val=$(".wednesday_05_04_09").val();
 
-        $(current_click_element).text(val);
+        var copy_val=(val)?val:"-";
+        $(current_click_element).text(copy_val);
 
         update_word_in_vacabulary(id, val, current_click_class, false);
 
@@ -997,14 +998,28 @@ $( document ).ready(function() {
         var position_template=$('.wednesday_05_04_08 select[name=position_template]').val();
         result.config.position_template=position_template;
 
-        var time_break=$('.wednesday_05_04_08 input[name=time_break]').val();
+        var time_break=parseInt($('.wednesday_05_04_08 input[name=time_break]').val());
+        time_break=time_break?time_break:30;
         result.config.time_break=time_break;
+
+        var time_reaction=parseInt($('.wednesday_05_04_08 input[name=time_reaction]').val());
+        time_reaction=time_reaction?time_reaction:5;
+        result.config.time_reaction=time_reaction;
+
+        var time_reps=parseInt($('.wednesday_05_04_08 input[name=time_reps]').val());
+        time_reps=time_reps?time_reps:50;
+        result.config.time_reps=time_reps;
+
+        var train_learned_words=parseInt($('.wednesday_05_04_08 input[name=train_learned_words]').val());
+        train_learned_words=train_learned_words;
+        result.config.train_learned_words=train_learned_words;
 
         if($(this).is("input[name=time_break]")) {
             set_new_time(false);
         }
 
         var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
+        number_repeat=number_repeat?number_repeat:"all";
         result.config.number_repeat=number_repeat;
 
         set_storage();
@@ -1047,7 +1062,25 @@ $( document ).ready(function() {
                 }
             } else {
                 var parent_category=get_parent_categoty(parent_category);
-                var blank_category={vocabulary:[], config:{range_area:{start:0,end:0},dir_sorting:0, id:user_data.top_id++, parent_id:parent_category.id_categoty, name:name_category, position_template: "bottom_right", time_break: 30, number_repeat: 10, dir_translation: "source_translation", template_word: "id_word"}, child:[]};
+                var blank_category={
+                    vocabulary:[],
+                    child:[],
+                    config:{
+                        range_area:{start:0,end:0},
+                        dir_sorting:0,
+                        id:user_data.top_id++,
+                        parent_id:parent_category.id_categoty,
+                        name:name_category,
+                        position_template: "bottom_right",
+                        time_break: 30,
+                        number_repeat: 10,
+                        dir_translation: "source_translation",
+                        template_word: "id_word",
+                        time_reaction: 5,
+                        time_reps:50,
+                        train_learned_words:0
+                    }
+                };
 
                 parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
@@ -1390,7 +1423,11 @@ function all_task() {
                         title: 'Status',
                         align: 'center',
                         formatter :function (data) {
-                            //data="<span class='sunday_07_09 glyphicon glyphicon-ok'></span>";
+                            if(data) {
+                                data="<span class='sunday_07_09 glyphicon glyphicon-ok'></span>";
+                            } else {
+                                data="-";
+                            }
                             return data;
                         }
                     }
@@ -1451,7 +1488,7 @@ function get_range() {
     });
     max_index=max_index.id;
 
-    return {min_index:min_index,max_index:max_index};
+    return {min_index:parseInt(min_index),max_index:parseInt(max_index)};
 }
 
 // Set default values
@@ -1478,8 +1515,8 @@ function config_tab() {
         grid: true,
         min: range.min_index,
         max: range.max_index,
-        from: result.config.range_area.start ? result.config.range_area.start : range.min_index,
-        to: result.config.range_area.end ? result.config.range_area.end : null,
+        from: (result.config.range_area.start && result.config.range_area.start<=result.config.range_area.end) ? result.config.range_area.start : range.min_index,
+        to: (result.config.range_area.end && result.config.range_area.end>=result.config.range_area.start) ? result.config.range_area.end : null,
         prefix: "",
         onFinish:function(a){
             result.config.range_area.start=a.from;

@@ -1122,6 +1122,7 @@ function EnglishTip(vocabulary, config) {
 
     function get_number_repeat(config,vocabulary) {
         var list_elemet=get_list_element();
+        console.log(list_elemet);
         if(new String(config.number_repeat).toLowerCase()=="all") {
             return list_elemet.length;
         } else {
