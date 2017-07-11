@@ -682,8 +682,13 @@ function EnglishTip(vocabulary, config) {
                 if(parseInt(config.left_traning_word)<=0 || config.left_traning_word==undefined) {
                     config.left_traning_word=get_number_repeat(config,vocabulary);
                 }
+
+                console.log(config);
                 console.log(get_number_repeat(config,vocabulary));
                 console.log("config.left_traning_word="+config.left_traning_word);
+
+                if(config.left_traning_word<=0) return 0;
+
                 var black_display = create('<div id="tuesday_16_05_01"><div>Time to traning: left <span id="tuesday_16_05_02">'+config.left_traning_word+'</span> words</div></div>');
                 insertAfter(document.body.childNodes[0], black_display);
             } else if(parseInt(config.left_traning_word)>=1) {
@@ -699,13 +704,14 @@ function EnglishTip(vocabulary, config) {
         var englishtip_css = document.getElementById('wednesday_29_03_0');
 
         var position_template = `
-#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center;}
-#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
+#wednesday_29_03_1{line-height: 15px;}
+#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 100000000000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center; line-height: 15px;}
+#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer; line-height: 15px;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
-#wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer;}
-#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
-#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer;}
+#wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 100000000000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer; line-height: 15px;}
+#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 100000000000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer; line-height: 15px;}
+#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 100000000000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer; line-height: 15px;}
 #tuesday_16_05_01{position: fixed; background: black; width: 100%; height: 100%; top: 0px; z-index: 100000000; opacity: .6; display:table-cell; vertical-align:middle;}
 #tuesday_16_05_01 div{color: red; position: absolute; top: 50%; width: 100%; text-align: center; font-size: 21px; font-weight: bold;}
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
@@ -802,8 +808,17 @@ function EnglishTip(vocabulary, config) {
                 if(parseInt(config.left_traning_word)==0) {
                     var next_time_lesson=new Date().getTime()+(config.time_break*60*1000);
                     var congratulation = document.getElementById('tuesday_16_05_01');
-                    congratulation.innerHTML='<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in '+new Date(next_time_lesson)+'</div>';
+                    congratulation.innerHTML='<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in '+getFormattedDate(new Date(next_time_lesson))+'</div>';
                     config.time_last_traning=next_time_lesson;
+
+                    // update time in rest categories
+                    var all_category=get_all_category();
+
+                    for(var i in all_category) {
+                        var time=all_category[i].config.time_break?all_category[i].config.time_break:30;
+                        all_category[i].config.time_last_traning=new Date().getTime()+(time*60*1000);
+                    }
+
                     save_data();
                     setTimeout(function () {
                         remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
@@ -897,6 +912,9 @@ function EnglishTip(vocabulary, config) {
 
     function get_next_world() {
         var list_elemet=get_list_element();
+
+        if(!list_elemet.length) return 0;
+
         var ret_element;
         if (config.dir_sorting == 0) {
             ret_element = list_elemet[0];
@@ -921,6 +939,21 @@ function EnglishTip(vocabulary, config) {
     function get_list_element() {
         var current_iteration = 0;
         var vocabulary_copy=JSON.parse(JSON.stringify(vocabulary));
+
+        var train_learned_words=(config.train_learned_words)?1:0;
+
+        console.log(vocabulary_copy);
+
+        if(!train_learned_words) {
+            var lenth=vocabulary_copy.length;
+            while(lenth--) {
+                if(vocabulary_copy[lenth].status_learn==1) {
+                    vocabulary_copy.splice(lenth,1);
+                }
+            }
+        }
+
+        console.log(vocabulary_copy);
 
         vocabulary_copy.sort(function (a,b) {
             return a.id-b.id;
@@ -1033,7 +1066,9 @@ function EnglishTip(vocabulary, config) {
             save_vacabulary.ignore_update=1;
             try {
                 chrome.storage.local.set({'english_tip': user_data}, function() {
-
+                    setTimeout(function () {
+                        save_vacabulary.ignore_update=0;
+                    }, 500);
                 });
             } catch (err) {
                 //alert("save_data - error");
@@ -1176,4 +1211,40 @@ function get_current_category() {
     }
 
     return link_category;
+}
+
+function get_all_category() {
+    var category=[];
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            category.push(user_data.category[i]);
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        category.push(user_data.category[i].child[i_two]);
+                    }
+                }
+            }
+        }
+    }
+    return category;
+}
+
+function getFormattedDate(date) {
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    var sec = date.getSeconds();
+
+    month = (month < 10 ? "0" : "") + month;
+    day = (day < 10 ? "0" : "") + day;
+    hour = (hour < 10 ? "0" : "") + hour;
+    min = (min < 10 ? "0" : "") + min;
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var str = date.getFullYear() + "-" + month + "-" + day + " " +  hour + ":" + min + ":" + sec;
+
+    return str;
 }

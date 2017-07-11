@@ -825,6 +825,35 @@ $( document ).ready(function() {
         $("input[name=new_id]").val(max_id);
 	});
 
+	// click learn word
+    $("body").on("click",".tuesday_07_11_01", function () {
+        $(this).removeClass("tuesday_07_11_01").text("");
+        $(this).addClass("sunday_07_09 glyphicon glyphicon-ok").attr({"title":"Learned"});
+
+        var id=$(this).parent().parent().find(".thursday_27_04_1").attr("id");
+        var word=get_word_from_vacabulary(id);
+
+        if(word) {
+            word.status_learn=1;
+        }
+
+        set_storage();
+    });
+
+    $("body").on("click",".sunday_07_09", function () {
+        $(this).removeAttr("class").text("-");
+        $(this).addClass("tuesday_07_11_01").attr({"title":"Not learned"});
+
+        var id=$(this).parent().parent().find(".thursday_27_04_1").attr("id");
+        var word=get_word_from_vacabulary(id);
+
+        if(word) {
+            word.status_learn=0;
+        }
+
+        set_storage();
+    });
+
 	// create new task
 	$("body").on("click",".p13", function () {
 		get_storage(function (result) {
@@ -858,6 +887,12 @@ $( document ).ready(function() {
 			});
 
             user_data.time_last_activity=new Date().getTime();
+
+            // update count
+            var range=get_range();
+            if(result.config.range_area.end==(range.max_index-1)){
+                result.config.range_area.end=range.max_index;
+            }
 
             set_storage(function(){
 				$(".p12 input").val("");
@@ -1015,7 +1050,7 @@ $( document ).ready(function() {
         result.config.train_learned_words=train_learned_words;
 
         if($(this).is("input[name=time_break]")) {
-            set_new_time(false);
+            set_new_time();
         }
 
         var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
@@ -1131,9 +1166,9 @@ $( document ).ready(function() {
     });
 
     $("body").on("click",".thirsday_08_06_02", function () {
-        bootbox.confirm("Are you sure you want to reschedule the class?", function(action) {
+        bootbox.confirm("Are you sure you want to reschedule the lesson?", function(action) {
             if(action) {
-                set_new_time(true);
+                set_new_time_all(true);
             }
         });
        return false;
@@ -1221,10 +1256,21 @@ $( document ).ready(function() {
     }
 });
 
-function set_new_time(update_tab) {
+function set_new_time() {
     var result=get_current_category();
     result.config.time_last_traning=new Date().getTime()+(result.config.time_break*60*1000);
-    if(update_tab) $(".p8 a[data-name="+user_data.current_category+"]").click();
+    set_storage();
+}
+
+function set_new_time_all() {
+    var result=get_all_category();
+
+    for(var i in result) {
+        var time=result[i].config.time_break?result[i].config.time_break:30;
+        result[i].config.time_last_traning=new Date().getTime()+(time*60*1000);
+    }
+
+    $(".p8 a[data-name="+user_data.current_category+"]").click();
     set_storage();
 }
 
@@ -1330,19 +1376,26 @@ function save_data_in_firebase(callback) {
 }
 
 function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
-    var result=get_current_category();
+    var word=get_word_from_vacabulary(id);
 
-    for(var i in result.vocabulary) {
-        if(result.vocabulary[i].id==id) {
-            result.vocabulary[i][current_click_class]=val;
-            break;
-        }
+    if(word) {
+        word[current_click_class]=val;
     }
 
     if(rebut) {
         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
     }
     set_storage();
+}
+
+function get_word_from_vacabulary(id) {
+    var result=get_current_category();
+    for(var i in result.vocabulary) {
+        if(result.vocabulary[i].id==id) {
+            return result.vocabulary[i];
+            break;
+        }
+    }
 }
 
 function all_task() {
@@ -1419,14 +1472,14 @@ function all_task() {
                         }
                     },
                     {
-                        field: 'status',
+                        field: 'status_learn',
                         title: 'Status',
                         align: 'center',
                         formatter :function (data) {
                             if(data) {
                                 data="<span class='sunday_07_09 glyphicon glyphicon-ok'></span>";
                             } else {
-                                data="-";
+                                data="<span class='tuesday_07_11_01'>-</span>";
                             }
                             return data;
                         }
@@ -1575,6 +1628,24 @@ function get_current_category() {
     }
 
     return link_category;
+}
+
+function get_all_category() {
+    var category=[];
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            category.push(user_data.category[i]);
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        category.push(user_data.category[i].child[i_two]);
+                    }
+                }
+            }
+        }
+    }
+    return category;
 }
 
 function get_cutegory_by_id(id) {
