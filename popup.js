@@ -703,7 +703,33 @@ var user_data={
     category:[
         {
             vocabulary:[
-
+                {
+                    id:1,
+                    en:"Hallo",
+                    ru:"Hello",
+                    time_reaction:[],
+                    iteration:0,
+                    total_iteration:0,
+                    status_learn:0
+                },
+                {
+                    id:2,
+                    en:"Привет",
+                    ru:"Hello",
+                    time_reaction:[],
+                    iteration:0,
+                    total_iteration:0,
+                    status_learn:0
+                },
+                {
+                    id:3,
+                    en:"嗨",
+                    ru:"Hello",
+                    time_reaction:[],
+                    iteration:0,
+                    total_iteration:0,
+                    status_learn:0
+                }
             ],
             config:{
                 range_area:{
@@ -718,7 +744,8 @@ var user_data={
                 template_word:"id_word",
                 time_break:30,
                 number_repeat:10,
-                position_template: "bottom_right"
+                position_template: "bottom_right",
+                time_last_traning:new Date().getTime()
             },
             child:[
 
@@ -749,16 +776,32 @@ var user_data={
         }
     ],
     top_id:3,
-    time_last_activity:new Date().getTime()
+    time_last_activity:new Date().getTime(),
+    update_content_script:1,
+    status_enable:1
 };
 
 $( document ).ready(function() {
     get_storage(function () {
         start_play();
+
+        setTimeout(function () {
+            if(user_data.save_data_when_open) {
+                $(".monday_06_01").click();
+            }
+        },1000);
+
     });
 
+    var authUser=0;
+    for (var key in localStorage){
+        if(key.match(/firebase:authUser/)){
+            authUser=1;
+        }
+    }
+
     firebase.auth().onAuthStateChanged(function(user) {
-        if (user && !user_data.first_load) {
+        if (user && !user_data.first_load && !authUser) {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
                 var result=snapshot.val();
@@ -767,7 +810,9 @@ $( document ).ready(function() {
                 } else { // creating a new user
                     user_data.displayName=user.displayName;
                     user_data.email=user.email;
-                    save_data_in_firebase();
+                    save_data_in_firebase(function () {
+                        
+                    });
                 }
                 user_data.first_load=1;
                 set_storage(function () {
@@ -887,6 +932,7 @@ $( document ).ready(function() {
 			});
 
             user_data.time_last_activity=new Date().getTime();
+            user_data.save_data_when_open=1;
 
             // update count
             var range=get_range();
@@ -957,6 +1003,8 @@ $( document ).ready(function() {
                     }
 
                     user_data.time_last_activity=new Date().getTime();
+                    user_data.save_data_when_open=1;
+
                     set_storage(function () {
                         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
                         $(".p19").hide();
@@ -1092,7 +1140,7 @@ $( document ).ready(function() {
                 if(current_category.config.parent_id==0) {
                     user_data.category.splice(user_data.category.length-1,0, current_category)
                 } else {
-                    var category=get_cutegory_by_id(current_category.config.parent_id);
+                    var category=get_cutegory_by_id(current_category.config.parent_id,user_data);
                     category.child.splice(category.child.length-1,0, current_category);
                 }
             } else {
@@ -1113,7 +1161,8 @@ $( document ).ready(function() {
                         template_word: "id_word",
                         time_reaction: 5,
                         time_reps:50,
-                        train_learned_words:0
+                        train_learned_words:0,
+                        time_last_traning:new Date().getTime()
                     }
                 };
 
@@ -1168,7 +1217,7 @@ $( document ).ready(function() {
     $("body").on("click",".thirsday_08_06_02", function () {
         bootbox.confirm("Are you sure you want to reschedule the lesson?", function(action) {
             if(action) {
-                set_new_time_all(true);
+                set_new_time_all();
             }
         });
        return false;
@@ -1208,7 +1257,19 @@ $( document ).ready(function() {
     });
 
     $("body").on("click",".monday_06_01", function () {
-        synchronize_data();
+        synchronize_data(function () {
+            
+        });
+    });
+
+    $("body").on("click",".wednesday_7_12_01",function () {
+        var result=get_current_category();
+        if(result.vocabulary.length<get_constant("minimum_elements_for_training")) {
+            bootbox.alert("Minimum number of words to start training 3");
+        } else {
+            set_new_time_all(1);
+        }
+        return false;
     });
 
     function synchronize_data(callback, force_overwriting=false) {
@@ -1229,6 +1290,18 @@ $( document ).ready(function() {
                     });
                 } else { // if on server data more recent than local
                     data_from_firebase.current_category = user_data.current_category;
+
+                    var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase);
+                    var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data);
+
+                    console.log(data_from_firebase);
+                    console.log(user_data);
+
+                    data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
+
+                    console.log(data_from_firebase_categoty.config.time_last_traning);
+                    console.log(data_from_user_data.config.time_last_traning);
+
                     user_data = data_from_firebase;
                     set_storage(function () {
                         if(force_overwriting) {
@@ -1262,15 +1335,19 @@ function set_new_time() {
     set_storage();
 }
 
-function set_new_time_all() {
+function set_new_time_all(time_now) {
     var result=get_all_category();
 
     for(var i in result) {
         var time=result[i].config.time_break?result[i].config.time_break:30;
-        result[i].config.time_last_traning=new Date().getTime()+(time*60*1000);
+        if(time_now) {
+            result[i].config.time_last_traning=new Date().getTime();
+        } else {
+            result[i].config.time_last_traning=new Date().getTime()+(time*60*1000);
+        }
     }
 
-    $(".p8 a[data-name="+user_data.current_category+"]").click();
+    $(".p8 a[data-name=" + user_data.current_category + "]").click();
     set_storage();
 }
 
@@ -1337,6 +1414,9 @@ function startSignIn() {
  */
 function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
+
+        console.log(result.english_tip);
+
         if(result.hasOwnProperty("english_tip")) {
             user_data=result.english_tip;
             build_menu();
@@ -1348,7 +1428,7 @@ function get_storage(callback) {
 	});
 }
 
-function set_storage(callback){
+function set_storage(callback, update_content_script=1){
     var current_category=get_current_category();
     if(current_category) {
         current_category.vocabulary.sort(function (a, b) {
@@ -1356,7 +1436,9 @@ function set_storage(callback){
         });
     }
 
-    chrome.storage.local.set({'english_tip': user_data}, function() {
+    user_data.update_content_script=update_content_script;
+
+    chrome.storage.local.set({'english_tip': user_data}, function(status) {
         if(callback) {
             return callback();
         }
@@ -1367,10 +1449,16 @@ function save_data_in_firebase(callback) {
     var userId = firebase.auth().currentUser.uid;
     var copy_user_data=JSON.parse(JSON.stringify(user_data));
     delete copy_user_data.first_load;
+
+    delete user_data.save_data_when_open;
+    delete copy_user_data.save_data_when_open;
+
     copy_user_data.time_last_activity=new Date().getTime();
     firebase.database().ref('users/' + userId).set(copy_user_data, function(result) {
         if(callback) {
-            callback(result);
+            set_storage(function(){
+                callback(result);
+            },1);
         }
     });
 }
@@ -1452,13 +1540,7 @@ function all_task() {
 						align: 'center',
 						formatter :function (data, all_data) {
 						    if(all_data.time_reaction!=undefined) {
-                                if (all_data.time_reaction.length) {
-                                    var sum = all_data.time_reaction.reduce(function (a, b) {
-                                        return a + parseFloat(b.time);
-                                    }, 0);
-                                    data = sum / all_data.time_reaction.length;
-                                    data = data.toFixed(2);
-                                }
+                                data=time_reaction_get_everage_value(all_data.time_reaction);
                             }
                             return data;
 						}
@@ -1496,14 +1578,18 @@ function all_task() {
                 onPageChange:function(){
                     result.config.pageSize=this.pageSize;
                     result.config.pageNumber=this.pageNumber;
-                    set_storage();
+                    set_storage(function () {
+
+                    }, 0);
                 },
                 customScroll:function(top){
 
                     clearTimeout($.data(this, 'scrollTimer'));
                     $.data(this, 'scrollTimer', setTimeout(function() {
                         result.config.scrollTop=top;
-                        set_storage();
+                        set_storage(function () {
+
+                        }, 0);
                     }, 500));
 
                 }
@@ -1515,7 +1601,7 @@ function all_task() {
 
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
-           $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start '+date_next_lesson+' <a href="" class="thirsday_08_06_02">skip and reset</a></div>');
+           $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start '+date_next_lesson+' <a href="#" class="thirsday_08_06_02">skip and reset</a>, <a href="#" class="wednesday_7_12_01">train now</a></div>');
     });
 }
 
@@ -1600,64 +1686,6 @@ function get_parent_categoty(parent_category) {
     return ref;
 }
 
-function get_current_category() {
-    var link_category;
-    if(user_data.category.length) {
-        for(var i in user_data.category) {
-            if(user_data.category[i].config.id==user_data.current_category) {
-                link_category=user_data.category[i];
-                break;
-            }
-
-            if(user_data.category[i].hasOwnProperty("child")) {
-                if (user_data.category[i].child.length) {
-                    for (var i_two in user_data.category[i].child) {
-                        if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
-                            link_category = user_data.category[i].child[i_two];
-                            break;
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
-    if(!link_category.hasOwnProperty('vocabulary')) {
-        link_category.vocabulary=[];
-    }
-
-    return link_category;
-}
-
-function get_all_category() {
-    var category=[];
-    if(user_data.category.length) {
-        for(var i in user_data.category) {
-            category.push(user_data.category[i]);
-
-            if(user_data.category[i].hasOwnProperty("child")) {
-                if (user_data.category[i].child.length) {
-                    for (var i_two in user_data.category[i].child) {
-                        category.push(user_data.category[i].child[i_two]);
-                    }
-                }
-            }
-        }
-    }
-    return category;
-}
-
-function get_cutegory_by_id(id) {
-    if(user_data.category.length) {
-        for (var i in user_data.category) {
-            if(user_data.category[i].config.id==id) {
-                return link_category=user_data.category[i];
-            }
-        }
-    }
-}
-
 function build_menu() {
     $(".p8").html("");
 
@@ -1710,7 +1738,6 @@ function delete_current_category() {
     }
 
     user_data.current_category=user_data.category[0].config.id;
-
     set_storage(function() {
         $(".p8 a[data-name="+user_data.current_category+"]").click();
     });
@@ -1732,17 +1759,156 @@ function start_play() {
     $(".thursday_11_05_01 a[value="+user_data.status_enable+"]").click();
 }
 
-// Функция для отправки сообщений
-chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-	chrome.tabs.sendMessage(tabs[0].id, {greeting: "hello"}, function(response) {
-		//console.log(response.farewell);
-	});
+function reloadWindow(win)
+{
+    chrome.tabs.getAllInWindow(win.id, (tabs) => {
+        for (var i in tabs) {
+            var tab = tabs[i]
+            chrome.tabs.update(tab.id, {url: tab.url, selected: tab.selected}, null)
+        }
+    });
+};
+
+/**
+ * Reload all tabs in all windows one by one.
+ */
+function reloadAllWindows()
+{
+    chrome.windows.getAll({}, function(windows) {
+        for (var i in windows)
+            reloadWindow(windows[i])
+    }.bind(this));
+}
+
+chrome.windows.getCurrent(function(win)
+{
+    chrome.tabs.getAllInWindow(win.id, function(tabs)
+    {
+        var find_memory_traning=0;
+        for (var i in tabs) {
+            var tab = tabs[i];
+            chrome.tabs.sendMessage(tab.id, {are_you_smart: 1}, function(response) {
+                if(response) {
+                    if(response.hasOwnProperty("yes_i_smart")) {
+                        find_memory_traning=1;
+                    }
+                }
+            });
+        }
+
+        setTimeout(function () {
+            if(!find_memory_traning) {
+                reloadAllWindows();
+            }
+        }, 1000);
+
+    });
 });
 
-// Функция для получения сообщений
-chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse) {
-		console.log(request.greeting);
-		//sendResponse({farewell: "goodbye"});
-	}
-);
+
+function get_constant(name) {
+    var constant={
+        time_reaction:5,
+        time_reps:50,
+        minimum_elements_for_training:3
+    };
+    return constant[name];
+}
+
+function time_reaction_get_everage_value(time_reaction) {
+    if (time_reaction.length) {
+        var sum = time_reaction.reduce(function (a, b) {
+            return a + parseFloat(b.time);
+        }, 0);
+        data = sum / time_reaction.length;
+        data = data.toFixed(2);
+        return data;
+    }
+}
+
+function get_all_category() {
+    var category=[];
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            category.push(user_data.category[i]);
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        category.push(user_data.category[i].child[i_two]);
+                    }
+                }
+            }
+        }
+    }
+    return category;
+}
+
+function getFormattedDate(date) {
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
+    var hour = date.getHours();
+    var min = date.getMinutes();
+    var sec = date.getSeconds();
+
+    month = (month < 10 ? "0" : "") + month;
+    day = (day < 10 ? "0" : "") + day;
+    hour = (hour < 10 ? "0" : "") + hour;
+    min = (min < 10 ? "0" : "") + min;
+    sec = (sec < 10 ? "0" : "") + sec;
+
+    var str = date.getFullYear() + "-" + month + "-" + day + " " +  hour + ":" + min + ":" + sec;
+
+    return str;
+}
+
+function get_current_category() {
+    var link_category;
+    if(user_data.category.length) {
+        for(var i in user_data.category) {
+            if(user_data.category[i].config.id==user_data.current_category) {
+                link_category=user_data.category[i];
+                break;
+            }
+
+            if(user_data.category[i].hasOwnProperty("child")) {
+                if (user_data.category[i].child.length) {
+                    for (var i_two in user_data.category[i].child) {
+                        if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
+                            link_category = user_data.category[i].child[i_two];
+                            break;
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+    if(!link_category.hasOwnProperty('vocabulary')) {
+        link_category.vocabulary=[];
+    }
+
+    return link_category;
+}
+
+function get_cutegory_by_id(id,user_data_clone) {
+    if(user_data_clone.category.length) {
+        for (var i in user_data_clone.category) {
+            if(user_data_clone.category[i].config.id==id) {
+                return link_category=user_data_clone.category[i];
+            }
+
+            if(user_data_clone.category[i].hasOwnProperty("child")) {
+                if (user_data_clone.category[i].child.length) {
+                    for (var i_two in user_data_clone.category[i].child) {
+                        if (user_data_clone.category[i].child[i_two].config.id == user_data_clone.current_category) {
+                            return link_category = user_data_clone.category[i].child[i_two];
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+}
