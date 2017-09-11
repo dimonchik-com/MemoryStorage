@@ -34,6 +34,7 @@ gulp.task('archive', () =>
             "popup.html",
             "bunch.js",
             "node_modules/bootstrap/dist/fonts/*",
+            "node_modules/ion-rangeslider/img/*",
             "node_modules/bootstrap/dist/css/bootstrap.min.css",
             "node_modules/bootstrap/dist/css/bootstrap-theme.min.css",
             "node_modules/jquery/dist/jquery.js",
@@ -47,7 +48,7 @@ gulp.task('archive', () =>
             "node_modules/bootstrap/dist/js/bootstrap.min.js",
             "node_modules/bootstrap/dist/js/bootbox.min.js",
             "node_modules/moment/min/moment.min.js"
-        ]).pipe(archiver('MemoryTraining.zip'))
+        ]).pipe(archiver('MemoryTraining.zip',{compress:true,category_merge:false}))
             .pipe(gulp.dest(''));
     },2000)
 );

@@ -104,3 +104,9 @@ function get_cutegory_by_id(id,user_data_clone) {
         }
     }
 }
+
+function getRandomInt(min, max) {
+    max=parseInt(max);
+    min=parseInt(min);
+    return Math.floor(min + Math.random() * (max + 1 - min));
+}

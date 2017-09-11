@@ -40,9 +40,9 @@
 .p8 .dropdown-menu>li>a{padding-bottom: 10px; padding-top: 10px;}
 .mondey_04_17_0{right: 0;  position: absolute;  margin: 9px 8px 0 0px;  text-shadow: none; display: none;}
 .input-sm{font-size: 13px;}
-.thursday_27_04_0{position: absolute; right: 0; margin: 0 10px 0 0; top: 77px; font-size: 12px;}
+.thursday_27_04_0{position: absolute; right: 0; margin: 0 10px 0 0; top: 0px; font-size: 12px;}
 .wednesday_03_05_1{left: 26% !important;}
-.thursday_11_05_01{position: absolute; top: 58px; right: 0; font-size: 13px; margin: 0 10px 0 0;}
+.thursday_11_05_01{position: absolute; top: 58px; right: 0; font-size: 13px; margin: 0 10px 0 0; display: none;}
 .thursday_11_05_01 a{text-decoration: underline; margin: 0 0px 0 5px; cursor: pointer;}
 .thursday_11_05_02{text-decoration: none !important; cursor: default !important; color:#333 !important;}
 .thursday_11_05_02:hover{color:#333 !important;}
@@ -60,6 +60,12 @@
 .sunday_07_09_03{margin: 2px 0 0 0;}
 .form-group{margin-bottom: 16px;}
 .tuesday_07_11_01{cursor: pointer;}
+.wednesday_05_04_08{overflow: auto;
+    height: 475px;
+    overflow-x: hidden;
+    padding: 0 5px 0 5px;
+    margin: 0 0 10px -5px;
+    position: relative;}
 
 .gly-spin {
     -webkit-animation: spin 2s infinite linear;

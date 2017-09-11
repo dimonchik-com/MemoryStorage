@@ -745,7 +745,9 @@ var user_data={
                 time_break:30,
                 number_repeat:10,
                 position_template: "bottom_right",
-                time_last_traning:new Date().getTime()
+                time_last_traning:new Date().getTime(),
+                delay_traning:1,
+                delay_traning_second:'0-60'
             },
             child:[
 
@@ -768,7 +770,9 @@ var user_data={
                 template_word:"id_word",
                 time_break:30,
                 number_repeat:10,
-                position_template: "bottom_right"
+                position_template: "bottom_right",
+                delay_traning:1,
+                delay_traning_second:'0-60'
             },
             child:[
 
@@ -1094,8 +1098,14 @@ $( document ).ready(function() {
         result.config.time_reps=time_reps;
 
         var train_learned_words=parseInt($('.wednesday_05_04_08 input[name=train_learned_words]').val());
-        train_learned_words=train_learned_words;
         result.config.train_learned_words=train_learned_words;
+
+        var delay_traning=parseInt($('.wednesday_05_04_08 select[name=delay_traning]').val());
+        result.config.delay_traning=delay_traning;
+
+        var delay_traning_second=$('.wednesday_05_04_08 input[name=delay_traning_second]').val();
+        delay_traning_second=delay_traning_second?delay_traning_second:'0-60';
+        result.config.delay_traning_second=delay_traning_second;
 
         if($(this).is("input[name=time_break]")) {
             set_new_time();
@@ -1520,6 +1530,9 @@ function all_task() {
                         align: 'center',
                         editable: true,
                         formatter :function (data, all_data) {
+                            if(data.replace(/\s/g,'')==""){
+                                data="-";
+                            }
                             return '<a href="#" class="wednesday_05_04_05" id="'+all_data.id+'">'+data+'</a>';
                         }
                     },
@@ -1646,6 +1659,10 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=position_template]').val(result.config.position_template);
     $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
     $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
+    $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.delay_traning);
+    $('.wednesday_05_04_08 input[name=delay_traning_second]').val(result.config.delay_traning_second);
+
+    console.log(result);
 
     $(".thursday_27_04_0").html("Last time activite: "+moment(new Date(result.config.time)).format('DD-MM-YYYY HH:mm:ss'));
 
@@ -1911,4 +1928,10 @@ function get_cutegory_by_id(id,user_data_clone) {
 
         }
     }
+}
+
+function getRandomInt(min, max) {
+    max=parseInt(max);
+    min=parseInt(min);
+    return Math.floor(min + Math.random() * (max + 1 - min));
 }

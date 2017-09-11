@@ -648,6 +648,7 @@ function EnglishTip(vocabulary, config) {
 
     var save_vacabulary={time:0,repeat:1, ignore_update:0};
     var count_data_from_storage=0;
+    var click_fail=0;
 
     setInterval(function () {
         if(!user_data){
@@ -675,8 +676,6 @@ function EnglishTip(vocabulary, config) {
         if(config.time==undefined) {
              config.time=new Date().getTime();
         }
-
-
 
         if(parseInt(user_data.status_enable) &&
           (current_timestamp>config.time || parseInt(config.left_traning_word)>0) &&
@@ -806,22 +805,11 @@ function EnglishTip(vocabulary, config) {
             document.getElementById('wednesday_29_03_2').onclick = function (e) {
                 config.left_traning_word=parseInt(config.left_traning_word)-1;
                 if(parseInt(config.left_traning_word)==0) {
-                    var next_time_lesson=new Date().getTime()+(config.time_break*60*1000);
+                    var next_time_lesson = save_next_time(config.time_break*60, "default");
                     var congratulation = document.getElementById('tuesday_16_05_01');
                     if(congratulation) {
                         congratulation.innerHTML = '<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in ' + getFormattedDate(new Date(next_time_lesson)) + '</div>';
                     }
-                    config.time_last_traning=next_time_lesson;
-
-                    // update time in rest categories
-                    var all_category=get_all_category();
-
-                    for(var i in all_category) {
-                        var time=all_category[i].config.time_break?all_category[i].config.time_break:30;
-                        all_category[i].config.time_last_traning=new Date().getTime()+(time*60*1000);
-                    }
-
-                    save_data();
                     setTimeout(function () {
                         remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
                     },5000);
@@ -865,6 +853,7 @@ function EnglishTip(vocabulary, config) {
 
             // fail
             document.getElementById('wednesday_29_03_3').onclick = function (e) {
+                click_fail=1;
                 show_on_element = 1;
 
                 var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
@@ -884,6 +873,18 @@ function EnglishTip(vocabulary, config) {
 
                 remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
                 create_world(true, true);
+
+                var delay_traning=config.delay_traning?config.delay_traning:1;
+                var delay_traning_second=config.delay_traning_second?config.delay_traning_second:'0-60';
+
+                if(delay_traning) {
+                    var delay_traning_second_ar=delay_traning_second.split("-");
+                    var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
+                    if(tuesday_16_05_01) {
+                        var randomInt=getRandomInt(delay_traning_second_ar[0],delay_traning_second_ar[1]);
+                        save_next_time(randomInt, "shot_time");
+                    }
+                }
             }
 
             document.getElementById('wednesday_29_03_1').onmouseout = function (e) {
@@ -909,18 +910,38 @@ function EnglishTip(vocabulary, config) {
             save_data();
         }
     }
+    
+    function save_next_time(seconds, indicator) {
+        var next_time_lesson=new Date().getTime()+(seconds*1000);
+        config.time_last_traning=next_time_lesson;
 
+        // update time in rest categories
+        var all_category=get_all_category();
+
+        for(var i in all_category) {
+            var time=all_category[i].config.time_break?all_category[i].config.time_break:30;
+            time=time*60*1000;
+            if(indicator!="default") {
+                time=seconds*1000;
+            }
+            all_category[i].config.time_last_traning=new Date().getTime()+time;
+        }
+
+        save_data();
+        return next_time_lesson;
+    }
+    
     function get_next_world() {
         var list_elemet=get_list_element();
 
         if(!list_elemet.length) return 0;
 
         var ret_element;
-        if (config.dir_sorting == 0) {
+        if (!parseInt(config.dir_sorting)) {
             ret_element = list_elemet[0];
-        } else if (config.dir_sorting == 1) {
+        } else if (parseInt(config.dir_sorting) == 1) {
             ret_element = list_elemet[list_elemet.length - 1];
-        } else if (config.dir_sorting == 2) {
+        } else if (parseInt(config.dir_sorting) == 2) {
             ret_element = list_elemet[~~(Math.random() * list_elemet.length)];
         }
 
@@ -1052,18 +1073,24 @@ function EnglishTip(vocabulary, config) {
             }
         }
 
-        if(!config.last_word.time_reaction) {
-            config.last_word.time_reaction = [{index:0, time:time_diff}];
-        } else if(time_diff<=15) {
-            config.last_word.time_reaction.push({index:config.last_word.total_iteration, time:time_diff.toFixed(2)});
-            config.last_word.time_reaction.sort(function(a,b){
-                return a.index-b.index;
-            });
-            config.last_word.time_reaction=config.last_word.time_reaction.splice(-50);
-        }
+        if(!click_fail) {
+            if (!config.last_word.time_reaction) {
+                config.last_word.time_reaction = [{index: 0, time: time_diff}];
+            } else if (time_diff <= 15) {
+                config.last_word.time_reaction.push({
+                    index: config.last_word.total_iteration,
+                    time: time_diff.toFixed(2)
+                });
+                config.last_word.time_reaction.sort(function (a, b) {
+                    return a.index - b.index;
+                });
+                config.last_word.time_reaction = config.last_word.time_reaction.splice(-50);
+            }
 
+            config.last_word.total_iteration++;
+        }
         config.last_word.iteration++;
-        config.last_word.total_iteration++;
+
 
         var time_reaction=config.time_reaction?config.time_reaction:get_constant("time_reaction");
         var time_reps=config.time_reps?config.time_reps:get_constant("time_reps");
@@ -1323,4 +1350,10 @@ function get_cutegory_by_id(id,user_data_clone) {
 
         }
     }
+}
+
+function getRandomInt(min, max) {
+    max=parseInt(max);
+    min=parseInt(min);
+    return Math.floor(min + Math.random() * (max + 1 - min));
 }
