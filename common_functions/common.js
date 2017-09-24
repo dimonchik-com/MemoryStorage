@@ -2,7 +2,12 @@ function get_constant(name) {
     var constant={
         time_reaction:5,
         time_reps:50,
-        minimum_elements_for_training:3
+        minimum_elements_for_training:3,
+        delay_traning_second:"30-60",
+        delay_traning:0,
+        way_traning:0,
+        time_break:30,
+        number_repeat:10
     };
     return constant[name];
 }
@@ -109,4 +114,16 @@ function getRandomInt(min, max) {
     max=parseInt(max);
     min=parseInt(min);
     return Math.floor(min + Math.random() * (max + 1 - min));
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }

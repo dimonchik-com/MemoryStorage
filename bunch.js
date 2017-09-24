@@ -707,7 +707,7 @@ function EnglishTip(vocabulary, config) {
         var position_template = `
 #wednesday_29_03_1{line-height: 15px;}
 #wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 90000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center; line-height: 15px;}
-#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px;}
+#wednesday_29_03_2,#thursday_14_09_1{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
 #wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer; line-height: 15px;}
@@ -716,7 +716,8 @@ function EnglishTip(vocabulary, config) {
 #tuesday_16_05_01{position: fixed; background: black; width: 100%; height: 100%; top: 0px; z-index: 90000000000; opacity: .6; display:table-cell; vertical-align:middle;}
 #tuesday_16_05_01 div{color: red; position: absolute; top: 50%; width: 100%; text-align: center; font-size: 21px; font-weight: bold;}
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
-#wednesday_17_05_17_0{color:green !important;}`;
+#wednesday_17_05_17_0{color:green !important;}
+#thursday_14_09_1{margin:0px;}`;
 
         if(config.position_template=="top_left") {
             position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; left: 0px; right: auto; margin-top: 0px;}";
@@ -798,91 +799,104 @@ function EnglishTip(vocabulary, config) {
                 position_left = "margin-left: "+(width_background/2)+"px;";
             }
 
-            var frag = create('<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px; '+position_left+'">X</div></div>');
-            insertAfter(frag,"wednesday_29_03_1");
+            var frag;
+
+            if(config.way_traning) {
+                frag = `<div id="wednesday_29_03_1"><div id="thursday_14_09_1"><input type="text" value=""></div></div>`;
+            } else {
+                frag = '<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px; '+position_left+'">X</div></div>';
+            }
+
+            var div = document.getElementById('wednesday_29_03_0');
+            div.innerHTML += frag;
+            // insertAfter(frag,"wednesday_29_03_1");
 
             // success
-            document.getElementById('wednesday_29_03_2').onclick = function (e) {
-                config.left_traning_word=parseInt(config.left_traning_word)-1;
-                if(parseInt(config.left_traning_word)==0) {
-                    var next_time_lesson = save_next_time(config.time_break*60, "default");
-                    var congratulation = document.getElementById('tuesday_16_05_01');
-                    if(congratulation) {
-                        congratulation.innerHTML = '<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in ' + getFormattedDate(new Date(next_time_lesson)) + '</div>';
+            if(document.getElementById('wednesday_29_03_2')) {
+                document.getElementById('wednesday_29_03_2').onclick = function (e) {
+                    config.left_traning_word = parseInt(config.left_traning_word) - 1;
+                    if (parseInt(config.left_traning_word) == 0) {
+                        var next_time_lesson = save_next_time(config.time_break * 60, "default");
+                        var congratulation = document.getElementById('tuesday_16_05_01');
+                        if (congratulation) {
+                            congratulation.innerHTML = '<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in ' + getFormattedDate(new Date(next_time_lesson)) + '</div>';
+                        }
+                        setTimeout(function () {
+                            remove_element(["wednesday_17_05_17_0", "tuesday_16_05_01"]);
+                        }, 5000);
+                    } else if (parseInt(config.left_traning_word) < 0) {
+                        var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
+                        if (tuesday_16_05_01) {
+                            config.left_traning_word = get_number_repeat(config, vocabulary) - 1;
+                        } else {
+                            config.left_traning_word = 0;
+                        }
                     }
-                    setTimeout(function () {
-                        remove_element(["wednesday_17_05_17_0","tuesday_16_05_01"]);
-                    },5000);
-                } else if(parseInt(config.left_traning_word)<0) {
-                    var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
-                    if(tuesday_16_05_01) {
-                        config.left_traning_word=get_number_repeat(config,vocabulary)-1;
-                    } else {
-                        config.left_traning_word = 0;
+
+                    if (config.left_traning_word != 0) {
+                        var left_traning_word_id = document.getElementById('tuesday_16_05_02');
+                        if (left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
                     }
+
+                    time_end();
+                    show_on_element = 1;
+
+                    var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
+
+                    remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
+
+                    var translate_word = "";
+                    if (config.dir_translation == "source_translation") {
+                        translate_word = config.last_word.ru;
+                    } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
+                        translate_word = config.last_word.en;
+                    }
+
+                    if (translate_word.length > 0) {
+                        var seccess_word = create('<div id="wednesday_29_03_4" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
+                        setTimeout(function () {
+                            remove_element(["wednesday_29_03_4"]);
+                        }, 1000);
+                        insertAfter(seccess_word, "wednesday_29_03_4");
+                    }
+                    create_world(true, false);
                 }
-
-                if(config.left_traning_word!=0) {
-                    var left_traning_word_id = document.getElementById('tuesday_16_05_02');
-                    if(left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
-                }
-
-                time_end();
-                show_on_element = 1;
-
-                var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
-
-                remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
-
-                var translate_word="";
-                if(config.dir_translation=="source_translation") {
-                    translate_word=config.last_word.ru;
-                } else if(config.dir_translation=="translation_source" || config.dir_translation=="source_source") {
-                    translate_word=config.last_word.en;
-                }
-
-                if(translate_word.length>0) {
-                    var seccess_word = create('<div id="wednesday_29_03_4" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
-                    setTimeout(function () {
-                        remove_element(["wednesday_29_03_4"]);
-                    }, 1000);
-                    insertAfter(seccess_word,"wednesday_29_03_4");
-                }
-                create_world(true, false);
             }
 
             // fail
-            document.getElementById('wednesday_29_03_3').onclick = function (e) {
-                click_fail=1;
-                show_on_element = 1;
+            if(document.getElementById('wednesday_29_03_3')) {
+                document.getElementById('wednesday_29_03_3').onclick = function (e) {
+                    click_fail = 1;
+                    show_on_element = 1;
 
-                var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
+                    var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
 
-                var translate_word="";
-                if(config.dir_translation=="source_translation") {
-                    translate_word=config.last_word.ru;
-                } else if(config.dir_translation=="translation_source" || config.dir_translation=="source_source") {
-                    translate_word=config.last_word.en;
-                }
+                    var translate_word = "";
+                    if (config.dir_translation == "source_translation") {
+                        translate_word = config.last_word.ru;
+                    } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
+                        translate_word = config.last_word.en;
+                    }
 
-                var fail_word=create('<div id="wednesday_29_03_5" style="min-width:'+width_background+'px;">'+translate_word+'</div>');
-                setTimeout(function () {
-                    remove_element(["wednesday_29_03_5"]);
-                }, 5000);
-                insertAfter(fail_word,"wednesday_29_03_5");
+                    var fail_word = create('<div id="wednesday_29_03_5" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
+                    setTimeout(function () {
+                        remove_element(["wednesday_29_03_5"]);
+                    }, 5000);
+                    insertAfter(fail_word, "wednesday_29_03_5");
 
-                remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
-                create_world(true, true);
+                    remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
+                    create_world(true, true);
 
-                var delay_traning=config.delay_traning?config.delay_traning:1;
-                var delay_traning_second=config.delay_traning_second?config.delay_traning_second:'0-60';
+                    var delay_traning = config.delay_traning ? parseInt(config.delay_traning) : 0;
+                    var delay_traning_second = config.delay_traning_second ? config.delay_traning_second : get_constant("delay_traning_second");
 
-                if(delay_traning) {
-                    var delay_traning_second_ar=delay_traning_second.split("-");
-                    var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
-                    if(tuesday_16_05_01) {
-                        var randomInt=getRandomInt(delay_traning_second_ar[0],delay_traning_second_ar[1]);
-                        save_next_time(randomInt, "shot_time");
+                    if (delay_traning) {
+                        var delay_traning_second_ar = delay_traning_second.split("-");
+                        var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
+                        if (tuesday_16_05_01) {
+                            var randomInt = getRandomInt(delay_traning_second_ar[0], delay_traning_second_ar[1]);
+                            save_next_time(randomInt, "shot_time");
+                        }
                     }
                 }
             }
@@ -1193,7 +1207,7 @@ function EnglishTip(vocabulary, config) {
         setTimeout(function(){
             if(count_data_from_storage<time_count_data_from_storage+1) {
                 //alert("save_data - error 2");
-                location.reload();
+                //location.reload();
             }
         }, 500);
 
@@ -1249,7 +1263,12 @@ function get_constant(name) {
     var constant={
         time_reaction:5,
         time_reps:50,
-        minimum_elements_for_training:3
+        minimum_elements_for_training:3,
+        delay_traning_second:"30-60",
+        delay_traning:0,
+        way_traning:0,
+        time_break:30,
+        number_repeat:10
     };
     return constant[name];
 }
@@ -1356,4 +1375,16 @@ function getRandomInt(min, max) {
     max=parseInt(max);
     min=parseInt(min);
     return Math.floor(min + Math.random() * (max + 1 - min));
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }

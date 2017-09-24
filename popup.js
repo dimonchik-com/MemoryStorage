@@ -742,12 +742,13 @@ var user_data={
                 name:"Vocabulary",
                 dir_translation:"source_translation",
                 template_word:"id_word",
-                time_break:30,
-                number_repeat:10,
+                time_break:get_constant("time_break"),
+                number_repeat:get_constant("number_repeat"),
                 position_template: "bottom_right",
                 time_last_traning:new Date().getTime(),
-                delay_traning:1,
-                delay_traning_second:'0-60'
+                delay_traning:get_constant("delay_traning"),
+                delay_traning_second:get_constant("delay_traning_second"),
+                way_traning:get_constant("way_traning")
             },
             child:[
 
@@ -768,11 +769,12 @@ var user_data={
                 name:"Other",
                 dir_translation:"source_translation",
                 template_word:"id_word",
-                time_break:30,
-                number_repeat:10,
+                time_break:get_constant("time_break"),
+                number_repeat:get_constant("number_repeat"),
                 position_template: "bottom_right",
-                delay_traning:1,
-                delay_traning_second:'0-60'
+                delay_traning:get_constant("delay_traning"),
+                delay_traning_second:get_constant("delay_traning_second"),
+                way_traning:get_constant("way_traning")
             },
             child:[
 
@@ -1046,7 +1048,8 @@ $( document ).ready(function() {
             word="";
         }
         var id=$(this).attr("id");
-        var html=get_tooltip(id, word,(ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday);
+        word=escapeHtml(word);
+        var html=get_tooltip(id, word, (ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday);
         $(".p0").append(html);
         return false;
     });
@@ -1104,8 +1107,11 @@ $( document ).ready(function() {
         result.config.delay_traning=delay_traning;
 
         var delay_traning_second=$('.wednesday_05_04_08 input[name=delay_traning_second]').val();
-        delay_traning_second=delay_traning_second?delay_traning_second:'0-60';
+        delay_traning_second=delay_traning_second?delay_traning_second:get_constant("delay_traning_second");
         result.config.delay_traning_second=delay_traning_second;
+
+        var way_traning=parseInt($('.wednesday_05_04_08 select[name=way_traning]').val());
+        result.config.way_traning=way_traning;
 
         if($(this).is("input[name=time_break]")) {
             set_new_time();
@@ -1659,10 +1665,11 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=position_template]').val(result.config.position_template);
     $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
     $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
-    $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.delay_traning);
+    $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.hasOwnProperty("delay_traning")?result.config.delay_traning:get_constant("delay_traning"));
     $('.wednesday_05_04_08 input[name=delay_traning_second]').val(result.config.delay_traning_second);
+    $('.wednesday_05_04_08 select[name=way_traning]').val(result.config.hasOwnProperty("way_traning")?result.config.way_traning:get_constant("way_traning"));
 
-    console.log(result);
+    $("input[name=delay_traning_second]").attr("placeholder",get_constant("delay_traning_second"));
 
     $(".thursday_27_04_0").html("Last time activite: "+moment(new Date(result.config.time)).format('DD-MM-YYYY HH:mm:ss'));
 
@@ -1815,7 +1822,7 @@ chrome.windows.getCurrent(function(win)
 
         setTimeout(function () {
             if(!find_memory_traning) {
-                reloadAllWindows();
+                //reloadAllWindows();
             }
         }, 1000);
 
@@ -1827,7 +1834,12 @@ function get_constant(name) {
     var constant={
         time_reaction:5,
         time_reps:50,
-        minimum_elements_for_training:3
+        minimum_elements_for_training:3,
+        delay_traning_second:"30-60",
+        delay_traning:0,
+        way_traning:0,
+        time_break:30,
+        number_repeat:10
     };
     return constant[name];
 }
@@ -1934,4 +1946,16 @@ function getRandomInt(min, max) {
     max=parseInt(max);
     min=parseInt(min);
     return Math.floor(min + Math.random() * (max + 1 - min));
+}
+
+function escapeHtml(text) {
+    var map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
 }
