@@ -3,7 +3,7 @@ var user_data;
 function EnglishTip(vocabulary, config) {
 
     var frag = create('<div id="memory_traning_zero"></div>');
-    document.body.childNodes[0].parentNode.insertBefore(frag, document.body.childNodes[0].nextSibling);
+    document.body.childNodes[document.body.childNodes.length-1].parentNode.insertBefore(frag, document.body.childNodes[document.body.childNodes.length-1].nextSibling);
 
     // update data from storage
     chrome.storage.onChanged.addListener(function (changes, namespace) {
@@ -86,13 +86,22 @@ function EnglishTip(vocabulary, config) {
         }
     }, 1000);
 
+    window.addEventListener('click', function(e) {
+        e = e || window.event;
+        var target = e.target || e.srcElement;
+        var tuesday=document.getElementById('tuesday_03_10_0');
+        if(tuesday && target.id!="tuesday_03_10_0") {
+            create_world(true, true);
+        }
+    })
+
     function init_style() {
         var englishtip_css = document.getElementById('wednesday_29_03_0');
 
         var position_template = `
 #wednesday_29_03_1{line-height: 15px;}
-#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 90000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center; line-height: 15px;}
-#wednesday_29_03_2,#thursday_14_09_1{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px;}
+#wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 90000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center; line-height: 15px; cursor: none;}
+#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
 #wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer; line-height: 15px;}
@@ -102,7 +111,9 @@ function EnglishTip(vocabulary, config) {
 #tuesday_16_05_01 div{color: red; position: absolute; top: 50%; width: 100%; text-align: center; font-size: 21px; font-weight: bold;}
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}
-#thursday_14_09_1{margin:0px;}`;
+#thursday_14_09_1{position:absolute; right:0px; bottom:0px; padding:0px 0px 0px 0px; margin: 0px; width: 100%; height:100%;background: blue;}
+#thursday_14_09_1 input{background-image: none; background: none; border: none; color: #fff; padding: 5px 5px 0px 5px; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial;cursor: none;}
+#thursday_14_09_1 input:focus {outline-width: 0;}`;
 
         if(config.position_template=="top_left") {
             position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; left: 0px; right: auto; margin-top: 0px;}";
@@ -130,8 +141,6 @@ function EnglishTip(vocabulary, config) {
         return frag;
     }
 
-    var show_on_element = 0;
-
     function create_world(save_action, show_prev_word) {
         init_style();
         remove_element(["wednesday_29_03_0"]);
@@ -143,12 +152,22 @@ function EnglishTip(vocabulary, config) {
             return false;
         }
 
-        var word_id=""; var word_text="";
+        var word_id="", word_text="", word_direction;
 
         if(config.dir_translation=="source_translation" || config.dir_translation=="source_source") {
             word_text=word.en;
+            word_direction="en";
         } else if(config.dir_translation=="translation_source") {
             word_text=word.ru;
+            word_direction="ru";
+        } else if(config.random_random=="random_random") {
+            if(Math.round(Math.random())) {
+                word_text=word.en;
+                word_direction="en";
+            } else {
+                word_text=word.ru;
+                word_direction="ru";
+            }
         }
 
         if(config.template_word=="id_word") {
@@ -162,18 +181,10 @@ function EnglishTip(vocabulary, config) {
         var frag = create('<div id="wednesday_29_03_0">' + word_id + '</div>');
         insertAfter(frag,"wednesday_29_03_0");
 
-        document.getElementById('wednesday_29_03_0').onmouseout = function (e) {
-            show_on_element = 0;
-        }
-
-        document.getElementById('wednesday_29_03_0').onclick = function (e) {
-            show_on_element = 0;
-            document.getElementById('wednesday_29_03_0').onmouseover();
-        }
-
-        document.getElementById('wednesday_29_03_0').onmouseover = function (e) {
-            if (show_on_element) return 1;
-            show_on_element = 1;
+        document.getElementById('wednesday_29_03_0').onmouseenter = function (e) {
+            if(document.getElementById('tuesday_03_10_0')) {
+                return false;
+            }
 
             var width_background=document.getElementById("wednesday_29_03_0").offsetWidth;
 
@@ -187,117 +198,93 @@ function EnglishTip(vocabulary, config) {
             var frag;
 
             if(config.way_traning) {
-                frag = `<div id="wednesday_29_03_1"><div id="thursday_14_09_1"><input type="text" value=""></div></div>`;
+                frag = `<div id="wednesday_29_03_1"><div id="thursday_14_09_1"><input type="text" value="" id="tuesday_03_10_0"></div></div>`;
             } else {
                 frag = '<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px; '+position_left+'">X</div></div>';
             }
 
             var div = document.getElementById('wednesday_29_03_0');
+            remove_element(["wednesday_29_03_1","wednesday_29_03_2"]);
             div.innerHTML += frag;
-            // insertAfter(frag,"wednesday_29_03_1");
+
+            if(document.getElementById('tuesday_03_10_0')) {
+                var node = document.getElementById('tuesday_03_10_0');
+                node.addEventListener('keydown', function(event) {
+                    if (event.key === "Enter") {
+                        event.preventDefault();
+                        var check_word=(word_direction=="en")?word.ru:word.en;
+                        // console.log(new String(event.target.value).toLowerCase()+"="+check_word.toLowerCase());
+                        if(new String(event.target.value).toLowerCase()==check_word.toLowerCase()) {
+                            right_answer();
+                            setTimeout(function () {
+                                var node = document.getElementById('wednesday_29_03_0');
+                                eventFire(node,"mouseenter");
+                                setTimeout(function () {
+                                    if(document.getElementById('tuesday_03_10_0')) {
+                                        document.getElementById('tuesday_03_10_0').focus();
+                                    }
+                                },500);
+                            }, 3000);
+                        } else {
+                            fail_answer();
+                        }
+                    }
+                });
+            }
 
             // success
             if(document.getElementById('wednesday_29_03_2')) {
                 document.getElementById('wednesday_29_03_2').onclick = function (e) {
-                    config.left_traning_word = parseInt(config.left_traning_word) - 1;
-                    if (parseInt(config.left_traning_word) == 0) {
-                        var next_time_lesson = save_next_time(config.time_break * 60, "default");
-                        var congratulation = document.getElementById('tuesday_16_05_01');
-                        if (congratulation) {
-                            congratulation.innerHTML = '<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in ' + getFormattedDate(new Date(next_time_lesson)) + '</div>';
-                        }
-                        setTimeout(function () {
-                            remove_element(["wednesday_17_05_17_0", "tuesday_16_05_01"]);
-                        }, 5000);
-                    } else if (parseInt(config.left_traning_word) < 0) {
-                        var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
-                        if (tuesday_16_05_01) {
-                            config.left_traning_word = get_number_repeat(config, vocabulary) - 1;
-                        } else {
-                            config.left_traning_word = 0;
-                        }
-                    }
-
-                    if (config.left_traning_word != 0) {
-                        var left_traning_word_id = document.getElementById('tuesday_16_05_02');
-                        if (left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
-                    }
-
-                    time_end();
-                    show_on_element = 1;
-
-                    var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
-
-                    remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
-
-                    var translate_word = "";
-                    if (config.dir_translation == "source_translation") {
-                        translate_word = config.last_word.ru;
-                    } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
-                        translate_word = config.last_word.en;
-                    }
-
-                    if (translate_word.length > 0) {
-                        var seccess_word = create('<div id="wednesday_29_03_4" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
-                        setTimeout(function () {
-                            remove_element(["wednesday_29_03_4"]);
-                        }, 1000);
-                        insertAfter(seccess_word, "wednesday_29_03_4");
-                    }
-                    create_world(true, false);
+                    right_answer();
                 }
             }
 
             // fail
             if(document.getElementById('wednesday_29_03_3')) {
                 document.getElementById('wednesday_29_03_3').onclick = function (e) {
-                    click_fail = 1;
-                    show_on_element = 1;
-
-                    var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
-
-                    var translate_word = "";
-                    if (config.dir_translation == "source_translation") {
-                        translate_word = config.last_word.ru;
-                    } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
-                        translate_word = config.last_word.en;
-                    }
-
-                    var fail_word = create('<div id="wednesday_29_03_5" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
-                    setTimeout(function () {
-                        remove_element(["wednesday_29_03_5"]);
-                    }, 5000);
-                    insertAfter(fail_word, "wednesday_29_03_5");
-
-                    remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
-                    create_world(true, true);
-
-                    var delay_traning = config.delay_traning ? parseInt(config.delay_traning) : 0;
-                    var delay_traning_second = config.delay_traning_second ? config.delay_traning_second : get_constant("delay_traning_second");
-
-                    if (delay_traning) {
-                        var delay_traning_second_ar = delay_traning_second.split("-");
-                        var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
-                        if (tuesday_16_05_01) {
-                            var randomInt = getRandomInt(delay_traning_second_ar[0], delay_traning_second_ar[1]);
-                            save_next_time(randomInt, "shot_time");
-                        }
-                    }
+                    fail_answer();
                 }
-            }
-
-            document.getElementById('wednesday_29_03_1').onmouseout = function (e) {
-                var e = event.toElement || event.relatedTarget;
-
-                if (e != null) {
-                    if (e.parentNode == this || e == this) {
-                        return;
-                    }
-                }
-                remove_element("wednesday_29_03_1");
-                show_on_element = 0;
             }
         }
+
+        // document.getElementById('wednesday_29_03_0').onmouseleave = function (e) {
+        //     setTimeout(function () {
+        //         if(document.getElementById('tuesday_03_10_0')) {
+        //             var tuesday_v = document.getElementById('tuesday_03_10_0').value;
+        //             if (!tuesday_v) {
+        //                 remove_element("wednesday_29_03_1");
+        //             }
+        //         }
+        //     }, 2000);
+        // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         var wednesday_tany=document.getElementById("wednesday_29_03_4");
         if (wednesday_tany) {
@@ -309,7 +296,99 @@ function EnglishTip(vocabulary, config) {
             save_data();
         }
     }
-    
+
+    function right_answer() {
+        config.left_traning_word = parseInt(config.left_traning_word) - 1;
+        if (parseInt(config.left_traning_word) == 0) {
+            var next_time_lesson = save_next_time(config.time_break * 60, "default");
+            var congratulation = document.getElementById('tuesday_16_05_01');
+            if (congratulation) {
+                congratulation.innerHTML = '<div id="wednesday_17_05_17_0">Congratulations! The lesson is over. You are attaboy!<br>Next lesson in ' + getFormattedDate(new Date(next_time_lesson)) + '</div>';
+            }
+            setTimeout(function () {
+                remove_element(["wednesday_17_05_17_0", "tuesday_16_05_01"]);
+            }, 5000);
+        } else if (parseInt(config.left_traning_word) < 0) {
+            var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
+            if (tuesday_16_05_01) {
+                config.left_traning_word = get_number_repeat(config, vocabulary) - 1;
+            } else {
+                config.left_traning_word = 0;
+            }
+        }
+
+        if (config.left_traning_word != 0) {
+            var left_traning_word_id = document.getElementById('tuesday_16_05_02');
+            if (left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
+        }
+
+        time_end();
+
+        var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
+
+        remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
+
+        var translate_word = "";
+        if (config.dir_translation == "source_translation") {
+            translate_word = config.last_word.ru;
+        } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
+            translate_word = config.last_word.en;
+        }
+
+        if (translate_word.length > 0) {
+            var seccess_word = create('<div id="wednesday_29_03_4" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
+            setTimeout(function () {
+                remove_element(["wednesday_29_03_4"]);
+            }, 1500);
+
+            insertAfter(seccess_word, "wednesday_29_03_4");
+
+            document.getElementById('wednesday_29_03_4').onclick = function (e) {
+                remove_element(["wednesday_29_03_4"]);
+            };
+        }
+        create_world(true, false);
+    }
+
+    function fail_answer() {
+            click_fail = 1;
+
+            var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
+
+            var translate_word = "";
+            if (config.dir_translation == "source_translation") {
+                translate_word = config.last_word.ru;
+            } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
+                translate_word = config.last_word.en;
+            }
+
+            var fail_word = create('<div id="wednesday_29_03_5" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
+
+            setTimeout(function () {
+                remove_element(["wednesday_29_03_5"]);
+            }, 5000);
+            insertAfter(fail_word, "wednesday_29_03_5");
+
+            document.getElementById('wednesday_29_03_5').onclick = function (e) {
+                remove_element(["wednesday_29_03_5"]);
+            };
+
+            remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
+            create_world(true, true);
+
+            var delay_traning = config.delay_traning ? parseInt(config.delay_traning) : 0;
+            var delay_traning_second = config.delay_traning_second ? config.delay_traning_second : get_constant("delay_traning_second");
+
+            if (delay_traning) {
+                var delay_traning_second_ar = delay_traning_second.split("-");
+                var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
+                if (tuesday_16_05_01) {
+                    var randomInt = getRandomInt(delay_traning_second_ar[0], delay_traning_second_ar[1]);
+                    save_next_time(randomInt, "shot_time");
+                }
+            }
+    }
+
     function save_next_time(seconds, indicator) {
         var next_time_lesson=new Date().getTime()+(seconds*1000);
         config.time_last_traning=next_time_lesson;
@@ -329,7 +408,7 @@ function EnglishTip(vocabulary, config) {
         save_data();
         return next_time_lesson;
     }
-    
+
     function get_next_world() {
         var list_elemet=get_list_element();
 
@@ -412,7 +491,7 @@ function EnglishTip(vocabulary, config) {
         });
         return list_elemet;
     }
-    
+
     function get_index(vocabulary_copy, start_index, end_index) {
         var obj={start:0};
         for(i in vocabulary_copy) {
@@ -500,7 +579,7 @@ function EnglishTip(vocabulary, config) {
             config.last_word.status_learn=1;
         }
     }
-    
+
     function save_data() {
         var current_time=new Date().getTime();
         var dif_time=current_time-save_vacabulary.time;
@@ -613,7 +692,7 @@ function EnglishTip(vocabulary, config) {
             return rel_element;
         }
     }
-    
+
 }
 
 function init_memory_traning() {
@@ -634,7 +713,9 @@ function init_memory_traning() {
     });
 }
 
-init_memory_traning();
+setTimeout(function () {
+    init_memory_traning();
+},1000);
 
 // Функция для получения сообщений
 chrome.runtime.onMessage.addListener(
