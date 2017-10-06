@@ -5,6 +5,7 @@
   "main": "background.js",
   "dependencies": {
     "bootstrap": "^3.3.7",
+    "convert-layout": "^0.5.0",
     "del": "^2.2.2",
     "gulp-archiver": "^1.0.0",
     "gulp-concat": "^2.6.1",

@@ -503,21 +503,6 @@ $( document ).ready(function() {
         return false;
     });
 
-    $('body').on('click', ".friday_04_14_02", function (e) {
-        update_category_in_select_list();
-
-        $(".all_task, .config").hide();
-        $(".new_category, .mondey_04_17_0").show();
-
-        var current_category = get_current_category();
-
-        $(".tuersday_04_13_4").val(current_category.config.parent_id);
-        $(".tuersday_04_13_0").val(current_category.config.name);
-        $(".tuersday_04_13_1").text("Save change");
-
-        return false;
-    });
-
     $('body').on('click', ".mondey_04_17_0", function (e) {
         bootbox.confirm("Are you sure you want to delete this category? This action cannot be undone! <br>When you delete a parent category, all sub categories will be deleted also!", function(action) {
             if(action) {
@@ -961,6 +946,8 @@ function config_tab() {
     var range=get_range();
     var result=get_current_category();
 
+    update_category_in_select_list();
+
     var slider=$("#range_03").data("ionRangeSlider");
     if(slider) {
         slider.destroy();
@@ -975,6 +962,7 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.hasOwnProperty("delay_traning")?result.config.delay_traning:get_constant("delay_traning"));
     $('.wednesday_05_04_08 input[name=delay_traning_second]').val(result.config.delay_traning_second);
     $('.wednesday_05_04_08 select[name=way_traning]').val(result.config.hasOwnProperty("way_traning")?result.config.way_traning:get_constant("way_traning"));
+    $('.wednesday_05_04_08 input[name=name_category]').val(result.config.name);
 
     $("input[name=delay_traning_second]").attr("placeholder",get_constant("delay_traning_second"));
 

@@ -101,19 +101,19 @@ function EnglishTip(vocabulary, config) {
         var position_template = `
 #wednesday_29_03_1{line-height: 15px;}
 #wednesday_29_03_0{ position:fixed; right:0px; bottom:0px; padding:5px 5px 5px 5px; z-index: 90000000000; background:blue; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; min-width: 80px; text-align: center; line-height: 15px; cursor: none;}
-#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px;}
+#wednesday_29_03_2{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:green; color: #fff; margin:5px 40px 1px 0px; font-size:13px; font-family:Arial; min-width: 40px !important; text-align: center; cursor:pointer; line-height: 15px; cursor: none;}
 #wednesday_29_03_2:hover{-moz-box-shadow:inset 0 0 5px #000000; -webkit-box-shadow: inset 0 0 5px #000000; box-shadow:inset 0 0 5px #000000;}
 #wednesday_29_03_3:hover{-moz-box-shadow:inset 0 0 10px red; -webkit-box-shadow: inset 0 0 10px red; box-shadow:inset 0 0 10px red;}
 #wednesday_29_03_3{position:fixed; right:0px; bottom:0px; padding:5px 0px 5px 0px; z-index: 90000000000; background:black; color: #fff; margin:5px 0px 1px 0; font-size:13px; font-family:Arial; width: 40px; text-align: center; cursor:pointer; line-height: 15px;}
-#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 90000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer; line-height: 15px;}
-#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 90000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; cursor: pointer; line-height: 15px;}
+#wednesday_29_03_4{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 90000000000; background: darkgreen; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; line-height: 15px; cursor: none;}
+#wednesday_29_03_5{position: fixed; right: 0px; bottom: 0px; padding: 5px 5px 5px 5px; z-index: 90000000000; background: red; color: #fff; margin: 5px 0px 1px 0; font-size: 13px; font-family: Arial; min-width: 80px; text-align: center; line-height: 15px; cursor: none;}
 #tuesday_16_05_01{position: fixed; background: black; width: 100%; height: 100%; top: 0px; z-index: 90000000000; opacity: .6; display:table-cell; vertical-align:middle;}
 #tuesday_16_05_01 div{color: red; position: absolute; top: 50%; width: 100%; text-align: center; font-size: 21px; font-weight: bold;}
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}
 #thursday_14_09_1{position:absolute; right:0px; bottom:0px; padding:0px 0px 0px 0px; margin: 0px; width: 100%; height:100%;background: blue;}
-#thursday_14_09_1 input{background-image: none; background: none; border: none; color: #fff; padding: 5px 5px 0px 5px; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial;cursor: none;}
-#thursday_14_09_1 input:focus {outline-width: 0;}`;
+#thursday_14_09_1 input{background-image: none; background: none; border: none; color: #fff; padding: 5px 5px 0px 5px; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; cursor: none; height:auto; box-shadow:none; border-radius:none;}
+#thursday_14_09_1 input:focus {outline-width: 0;background-image: none; background: none;}`;
 
         if(config.position_template=="top_left") {
             position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; left: 0px; right: auto; margin-top: 0px;}";
@@ -214,7 +214,11 @@ function EnglishTip(vocabulary, config) {
                         event.preventDefault();
                         var check_word=(word_direction=="en")?word.ru:word.en;
                         // console.log(new String(event.target.value).toLowerCase()+"="+check_word.toLowerCase());
-                        if(new String(event.target.value).toLowerCase()==check_word.toLowerCase()) {
+                        var input_text=new String(event.target.value).toLowerCase().trim();
+                        if(input_text==check_word.toLowerCase() ||
+                            convert_qwerty().fromEn(input_text).toLowerCase()==check_word.toLowerCase() ||
+                            convert_qwerty().toEn(input_text).toLowerCase()==check_word.toLowerCase()
+                        ) {
                             right_answer();
                             setTimeout(function () {
                                 var node = document.getElementById('wednesday_29_03_0');
@@ -246,17 +250,6 @@ function EnglishTip(vocabulary, config) {
                 }
             }
         }
-
-        // document.getElementById('wednesday_29_03_0').onmouseleave = function (e) {
-        //     setTimeout(function () {
-        //         if(document.getElementById('tuesday_03_10_0')) {
-        //             var tuesday_v = document.getElementById('tuesday_03_10_0').value;
-        //             if (!tuesday_v) {
-        //                 remove_element("wednesday_29_03_1");
-        //             }
-        //         }
-        //     }, 2000);
-        // }
 
 
 
@@ -691,6 +684,35 @@ function EnglishTip(vocabulary, config) {
             }
             return rel_element;
         }
+    }
+
+    function convert_qwerty () {
+        var map={q:"й",w:"ц",e:"у",r:"к",t:"е",y:"н",u:"г",i:"ш",o:"щ",p:"з","[":"х","{":"Х","]":"ъ","}":"Ъ","|":"/","`":"ё","~":"Ё",a:"ф",s:"ы",d:"в",f:"а",g:"п",h:"р",j:"о",k:"л",l:"д",";":"ж",":":"Ж","'":"э",'"':"Э",z:"я",x:"ч",c:"с",v:"м",b:"и",n:"т",m:"ь",",":"б","<":"Б",".":"ю",">":"Ю","/":".","?":",","@":'"',"#":"№",$:";","^":":","&":"?"};
+
+        function replace (map) {
+            return function (str) {
+                return str.split('').map(function (i) {
+                    return map[i] || i
+                }).join('');
+            }
+        }
+
+        var reverse = { }
+        var full = { }
+
+        for (var key in map) {
+            var value = map[key]
+            full[key] = value
+            reverse[value] = key
+
+            var upper = key.toUpperCase()
+            if (upper !== key) {
+                full[upper] = value.toUpperCase()
+                reverse[full[upper]] = upper
+            }
+        }
+
+        return { fromEn: replace(full), toEn: replace(reverse) }
     }
 
 }
