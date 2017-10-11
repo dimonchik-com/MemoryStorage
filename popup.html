@@ -121,6 +121,17 @@
               <tr>
                 <td colspan="2">
                   <div class="form-group">
+                    <label for="type_network">Range index:</label>
+                    <div class="wednesday_05_04_10">
+                      <input id="range_03"></input>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td colspan="2">
+                  <div class="form-group">
                     <label for="name">The direction of the sort:</label>
                     <span class="thursday_27_04_0">Last time activite: 08:51:17</span>
                     <select class="form-control friday_04_07_2" name="dir_sorting">
@@ -133,25 +144,13 @@
               </tr>
 
               <tr>
-                <td colspan="2">
-                  <div class="form-group">
-                    <label for="type_network">Range index:</label>
-                    <div class="wednesday_05_04_10">
-                      <input id="range_03"></input>
-                    </div>
-                  </div>
-                </td>
-              </tr>
-
-              <tr>
                 <td>
                   <div class="form-group" style="padding-right: 8px;">
                     <label for="way_traning">Training mode?</label>
                     <select class="form-control friday_04_07_4" name="training_mode">
-                      <option value="0" selected>Enabled</option>
-                      <option value="1">Disabled</option>
-                      <option value="3">Disabled on this site</option>
-                      <option value="4">Disabled on this page</option>
+                      <option value="1" selected>Enabled</option>
+                      <option value="0">Disabled</option>
+                      <option value="2">Disabled on this site</option>
                     </select>
                   </div>
                 </td>
@@ -160,7 +159,7 @@
                     <label for="way_traning">Way of training?</label>
                     <select class="form-control friday_04_07_4" name="way_traning">
                       <option value="0" selected>Repeat words</option>
-                      <option value="1">Spelling words</option>
+                      <option value="1">Writing words</option>
                     </select>
                   </div>
                 </td>
@@ -218,7 +217,7 @@
                   <div class="form-group" style="padding-right: 5px;">
                     <label for="type_network"> The status of a word is learned when:</label>
                     <div class="wednesday_05_04_10">
-                      <input type="text" class="form-control" name="time_reaction" value="" placeholder="The reaction time is equal. Default '5' second."></input>
+                      <input type="text" class="form-control" name="time_reaction" value="" placeholder="The reaction time is = Default '5' second. 0 - disabled"></input>
                     </div>
                   </div>
                 </td>

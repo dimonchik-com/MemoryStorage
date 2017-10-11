@@ -55,7 +55,8 @@ var user_data={
                 time_last_traning:new Date().getTime(),
                 delay_traning:get_constant("delay_traning"),
                 delay_traning_second:get_constant("delay_traning_second"),
-                way_traning:get_constant("way_traning")
+                way_traning:get_constant("way_traning"),
+                training_mode:1
             },
             child:[
 
@@ -81,7 +82,8 @@ var user_data={
                 position_template: "bottom_right",
                 delay_traning:get_constant("delay_traning"),
                 delay_traning_second:get_constant("delay_traning_second"),
-                way_traning:get_constant("way_traning")
+                way_traning:get_constant("way_traning"),
+                training_mode:1
             },
             child:[
 
@@ -94,27 +96,27 @@ var user_data={
     status_enable:1
 };
 
+var current_open_page={};
+
 $( document ).ready(function() {
     get_storage(function () {
-        start_play();
+            start_play();
 
-        setTimeout(function () {
-            if(user_data.save_data_when_open) {
-                $(".monday_06_01").click();
-            }
-        },1000);
-
+            setTimeout(function () {
+                if (user_data.save_data_when_open) {
+                    $(".monday_06_01").click();
+                }
+            }, 1000);
     });
 
-    var authUser=0;
-    for (var key in localStorage){
-        if(key.match(/firebase:authUser/)){
-            authUser=1;
-        }
-    }
+    chrome.tabs.getSelected(null, function (tab) {
+        var url = new URL(tab.url);
+        current_open_page.url=new String(url.href).toString();
+        current_open_page.domain=new String(url.hostname).toString();
+    });
 
     firebase.auth().onAuthStateChanged(function(user) {
-        if (user && !user_data.first_load && !authUser) {
+        if (user && !user_data.first_load && !$(".p4:visible").length) {
             var userId = firebase.auth().currentUser.uid;
             firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
                 var result=snapshot.val();
@@ -131,12 +133,14 @@ $( document ).ready(function() {
                 set_storage(function () {
                     build_menu();
                     start_play();
-                });
+                },1,1);
             });
         }
     });
 
 	$("body").on("click",".wednesday_05_04_01 button", function () {
+	    $(".p4").hide();
+	    $(".wednesday_05_04_02").show();
         startSignIn();
     });
 
@@ -148,7 +152,17 @@ $( document ).ready(function() {
             synchronize_data(function () {
                 firebase.auth().signOut();
 
-                chrome.storage.local.remove(["english_tip"]);
+                var firebase_key=["english_tip"];
+                for (var key in localStorage){
+                    if(key.match(/firebase:/)){
+                        firebase_key.push(key);
+                    }
+                }
+
+                chrome.storage.local.remove(firebase_key, function () {
+
+                });
+
                 delete user_data.first_load;
 
                 $(".wednesday_05_04_01,.wednesday_05_04_01 button").show();
@@ -194,8 +208,7 @@ $( document ).ready(function() {
         if(word) {
             word.status_learn=1;
         }
-
-        set_storage();
+        set_storage(()=>{},1,2);
     });
 
     $("body").on("click",".sunday_07_09", function () {
@@ -208,8 +221,7 @@ $( document ).ready(function() {
         if(word) {
             word.status_learn=0;
         }
-
-        set_storage();
+        set_storage(()=>{},1,3);
     });
 
 	// create new task
@@ -252,12 +264,11 @@ $( document ).ready(function() {
             if(result.config.range_area.end==(range.max_index-1)){
                 result.config.range_area.end=range.max_index;
             }
-
             set_storage(function(){
 				$(".p12 input").val("");
                 $(".p11").hide();
                 $(".p8 a[data-name="+user_data.current_category+"]").click();
-			});
+			},1,4);
 		});
 		return false;
 	});
@@ -271,14 +282,13 @@ $( document ).ready(function() {
             $("a[data-name=2]").next().find("li:first a").click();
             return false;
         }
-
         set_storage(function () {
             $(".config,.new_category,.all_task,.p11").hide();
             $(".all_task .bootstraptable").bootstrapTable('destroy');
 
             $(".all_task").show();
             all_task();
-        });
+        },1,5);
 	});
 
     $("body").on("click", ".saturday_04_02",function () {
@@ -317,11 +327,10 @@ $( document ).ready(function() {
 
                     user_data.time_last_activity=new Date().getTime();
                     user_data.save_data_when_open=1;
-
                     set_storage(function () {
                         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
                         $(".p19").hide();
-                    });
+                    },1,6);
 				});
 			}
 		});
@@ -380,7 +389,7 @@ $( document ).ready(function() {
     });
 
     // Change form data
-    $('.wednesday_05_04_08 select,.wednesday_05_04_08 input').on('change keyup', function (e) {
+    $('.friday_04_14_02').on('click', function (e) {
         var result=get_current_category();
 
         var dir_sorting=$('.wednesday_05_04_08 select[name=dir_sorting]').val();
@@ -420,6 +429,21 @@ $( document ).ready(function() {
         var way_traning=parseInt($('.wednesday_05_04_08 select[name=way_traning]').val());
         result.config.way_traning=way_traning;
 
+        var training_mode=parseInt($('.wednesday_05_04_08 select[name=training_mode]').val());
+        result.config.training_mode=training_mode;
+
+        // Gear disabled on this site
+        if(training_mode==2 && current_open_page.domain.match(/\./)) {
+            if(result.config.training_mode_domain){
+                result.config.training_mode_domain.push(current_open_page.domain);
+            } else {
+                result.config.training_mode_domain=[current_open_page.domain];
+            }
+        } else if(training_mode==1 && result.config.training_mode_domain) {
+            var index=result.config.training_mode_domain.indexOf(current_open_page.domain);
+            result.config.training_mode_domain.splice(index,1);
+        }
+
         if($(this).is("input[name=time_break]")) {
             set_new_time();
         }
@@ -428,7 +452,8 @@ $( document ).ready(function() {
         number_repeat=number_repeat?number_repeat:"all";
         result.config.number_repeat=number_repeat;
 
-        set_storage();
+        $(".saturday_04_04").click();
+        set_storage(()=>{},1,7);
     });
 
     $('body').on('click', ".saturday_04_04,.tuersday_04_13_2,.p14", function (e) {
@@ -492,12 +517,11 @@ $( document ).ready(function() {
                 parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
                 user_data.current_category=blank_category.config.id;
-
                 set_storage(function () {
                     build_menu();
                     $(".p8 a[data-name="+user_data.current_category+"]").click();
                     $(".tuersday_04_13_0").val("");
-                });
+                },1,8);
             }
         }
         return false;
@@ -517,8 +541,7 @@ $( document ).ready(function() {
 
        $(".thursday_11_05_02").removeClass("thursday_11_05_02");
        $(this).addClass("thursday_11_05_02");
-
-       set_storage();
+       set_storage(()=>{},1,9);
        return false;
     });
 
@@ -538,7 +561,7 @@ $( document ).ready(function() {
                 result.vocabulary.map(function (element) {
                     element.time_reaction = [];
                 });
-                set_storage();
+                set_storage(()=>{},1,10);
             }
         });
         return false;
@@ -621,7 +644,7 @@ $( document ).ready(function() {
                             $(".monday_06_01").removeClass("gly-spin");
                             callback();
                         }
-                    });
+                    },1,11);
                 }
             });
         } else { // if not data on server
@@ -640,7 +663,7 @@ $( document ).ready(function() {
 function set_new_time() {
     var result=get_current_category();
     result.config.time_last_traning=new Date().getTime()+(result.config.time_break*60*1000);
-    set_storage();
+    set_storage(()=>{},1,12);
 }
 
 function set_new_time_all(time_now) {
@@ -656,7 +679,7 @@ function set_new_time_all(time_now) {
     }
 
     $(".p8 a[data-name=" + user_data.current_category + "]").click();
-    set_storage();
+    set_storage(()=>{},1,13);
 }
 
 function resort_menu() {
@@ -682,7 +705,7 @@ function resort_menu() {
             }
 
             user_data.category=new_array;
-            set_storage();
+            set_storage(()=>{},1,14);
         });
     }
 }
@@ -722,10 +745,9 @@ function startSignIn() {
  */
 function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
-
         console.log(result.english_tip);
 
-        if(result.hasOwnProperty("english_tip")) {
+        if(result && result.hasOwnProperty("english_tip") && result.english_tip) {
             user_data=result.english_tip;
             build_menu();
             return callback(get_current_category());
@@ -736,7 +758,7 @@ function get_storage(callback) {
 	});
 }
 
-function set_storage(callback, update_content_script=1){
+function set_storage(callback, update_content_script=1, id_callback){
     var current_category=get_current_category();
     if(current_category) {
         current_category.vocabulary.sort(function (a, b) {
@@ -746,6 +768,7 @@ function set_storage(callback, update_content_script=1){
 
     user_data.update_content_script=update_content_script;
 
+    // console.log("update date "+new Date());
     chrome.storage.local.set({'english_tip': user_data}, function(status) {
         if(callback) {
             return callback();
@@ -766,7 +789,7 @@ function save_data_in_firebase(callback) {
         if(callback) {
             set_storage(function(){
                 callback(result);
-            },1);
+            },1,15);
         }
     });
 }
@@ -781,7 +804,7 @@ function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
     if(rebut) {
         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
     }
-    set_storage();
+    set_storage(()=>{},1,16);
 }
 
 function get_word_from_vacabulary(id) {
@@ -891,7 +914,7 @@ function all_task() {
                     result.config.pageNumber=this.pageNumber;
                     set_storage(function () {
 
-                    }, 0);
+                    }, 0, 17);
                 },
                 customScroll:function(top){
 
@@ -900,7 +923,7 @@ function all_task() {
                         result.config.scrollTop=top;
                         set_storage(function () {
 
-                        }, 0);
+                        }, 0, 18);
                     }, 500));
 
                 }
@@ -964,6 +987,12 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=way_traning]').val(result.config.hasOwnProperty("way_traning")?result.config.way_traning:get_constant("way_traning"));
     $('.wednesday_05_04_08 input[name=name_category]').val(result.config.name);
 
+    if (parseInt(result.config.training_mode) == 0) {
+        $('.wednesday_05_04_08 select[name=training_mode]').val(result.config.training_mode);
+    } else if(result.config.training_mode_domain && result.config.training_mode_domain.indexOf(current_open_page.domain) != -1) {
+        $('.wednesday_05_04_08 select[name=training_mode]').val(2);
+    }
+
     $("input[name=delay_traning_second]").attr("placeholder",get_constant("delay_traning_second"));
 
     $(".thursday_27_04_0").html("Last time activite: "+moment(new Date(result.config.time)).format('DD-MM-YYYY HH:mm:ss'));
@@ -979,7 +1008,7 @@ function config_tab() {
         onFinish:function(a){
             result.config.range_area.start=a.from;
             result.config.range_area.end=a.to;
-            set_storage();
+            set_storage(()=>{},1,19);
         }
     });
 }
@@ -1059,7 +1088,7 @@ function delete_current_category() {
     user_data.current_category=user_data.category[0].config.id;
     set_storage(function() {
         $(".p8 a[data-name="+user_data.current_category+"]").click();
-    });
+    },1,20);
 }
 
 function update_category_in_select_list() {
@@ -1123,4 +1152,3 @@ chrome.windows.getCurrent(function(win)
 
     });
 });
-
