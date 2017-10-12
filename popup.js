@@ -749,7 +749,8 @@ var user_data={
                 delay_traning:get_constant("delay_traning"),
                 delay_traning_second:get_constant("delay_traning_second"),
                 way_traning:get_constant("way_traning"),
-                training_mode:1
+                training_mode:1,
+                stop_next_word:0
             },
             child:[
 
@@ -776,7 +777,8 @@ var user_data={
                 delay_traning:get_constant("delay_traning"),
                 delay_traning_second:get_constant("delay_traning_second"),
                 way_traning:get_constant("way_traning"),
-                training_mode:1
+                training_mode:1,
+                stop_next_word:0
             },
             child:[
 
@@ -1141,6 +1143,9 @@ $( document ).ready(function() {
             set_new_time();
         }
 
+        var stop_next_word=parseInt($('.wednesday_05_04_08 select[name=stop_next_word]').val());
+        result.config.stop_next_word=stop_next_word;
+
         var number_repeat=$('.wednesday_05_04_08 input[name=number_repeat]').val();
         number_repeat=number_repeat?number_repeat:"all";
         result.config.number_repeat=number_repeat;
@@ -1155,7 +1160,7 @@ $( document ).ready(function() {
     });
 
     $('body').on('click', ".saturday_04_01", function (e) {
-        $(".all_task, .config, .mondey_04_17_0").hide();
+        $(".all_task, .config").hide();
         $(".tuersday_04_13_1").text("Save");
         $(".new_category").show();
         $(".tuersday_04_13_0").val("");
@@ -1166,62 +1171,48 @@ $( document ).ready(function() {
     });
 
     $('body').on('click', ".tuersday_04_13_1", function (e) {
-        var name_category=$(".tuersday_04_13_0").val();
-        var parent_category=$(".tuersday_04_13_4").val();
+        var name_category=$(".new_category .tuersday_04_13_0").val();
+        var parent_category=$(".new_category .tuersday_04_13_4").val();
 
         if(!name_category.length) {
             $(".tuersday_04_13_0").parent().addClass("has-error");
         } else {
-            if($(".mondey_04_17_0").is(":visible")){
-                var current_category=get_current_category();
-                delete_current_category();
-                current_category.config.parent_id=parent_category;
-                current_category.config.name=name_category;
-
-                if(current_category.config.parent_id==0) {
-                    user_data.category.splice(user_data.category.length-1,0, current_category)
-                } else {
-                    var category=get_cutegory_by_id(current_category.config.parent_id,user_data);
-                    category.child.splice(category.child.length-1,0, current_category);
+            var parent_category=get_parent_categoty(parent_category);
+            var blank_category={
+                vocabulary:[],
+                child:[],
+                config:{
+                    range_area:{start:0,end:0},
+                    dir_sorting:0,
+                    id:user_data.top_id++,
+                    parent_id:parent_category.id_categoty,
+                    name:name_category,
+                    position_template: "bottom_right",
+                    time_break: 30,
+                    number_repeat: 10,
+                    dir_translation: "source_translation",
+                    template_word: "id_word",
+                    time_reaction: 5,
+                    time_reps:50,
+                    train_learned_words:0,
+                    time_last_traning:new Date().getTime()
                 }
-            } else {
-                var parent_category=get_parent_categoty(parent_category);
-                var blank_category={
-                    vocabulary:[],
-                    child:[],
-                    config:{
-                        range_area:{start:0,end:0},
-                        dir_sorting:0,
-                        id:user_data.top_id++,
-                        parent_id:parent_category.id_categoty,
-                        name:name_category,
-                        position_template: "bottom_right",
-                        time_break: 30,
-                        number_repeat: 10,
-                        dir_translation: "source_translation",
-                        template_word: "id_word",
-                        time_reaction: 5,
-                        time_reps:50,
-                        train_learned_words:0,
-                        time_last_traning:new Date().getTime()
-                    }
-                };
+            };
 
-                parent_category.category.splice(parent_category.category.length-1,0, blank_category);
+            parent_category.category.splice(parent_category.category.length-1,0, blank_category);
 
-                user_data.current_category=blank_category.config.id;
-                set_storage(function () {
-                    build_menu();
-                    $(".p8 a[data-name="+user_data.current_category+"]").click();
-                    $(".tuersday_04_13_0").val("");
-                },1,8);
-            }
+            user_data.current_category=blank_category.config.id;
+            set_storage(function () {
+                build_menu();
+                $(".p8 a[data-name="+user_data.current_category+"]").click();
+                $(".tuersday_04_13_0").val("");
+            },1,8);
         }
         return false;
     });
 
     $('body').on('click', ".mondey_04_17_0", function (e) {
-        bootbox.confirm("Are you sure you want to delete this category? This action cannot be undone! <br>When you delete a parent category, all sub categories will be deleted also!", function(action) {
+        bootbox.confirm("Are you sure you want to delete this category? This action cannot be undone! <br>When you delete a category, all sub categories will be deleted also!<br>Be careful in your desires!", function(action) {
             if(action) {
                 delete_current_category();
             }
@@ -1315,8 +1306,8 @@ $( document ).ready(function() {
                 } else { // if on server data more recent than local
                     data_from_firebase.current_category = user_data.current_category;
 
-                    var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase);
-                    var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data);
+                    var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase.category);
+                    var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data.category);
 
                     console.log(data_from_firebase);
                     console.log(user_data);
@@ -1686,6 +1677,9 @@ function config_tab() {
         $('.wednesday_05_04_08 select[name=training_mode]').val(2);
     }
 
+    $('.wednesday_05_04_08 select[name=stop_next_word]').val(result.config.hasOwnProperty("stop_next_word")?result.config.stop_next_word:0);
+
+
     $("input[name=delay_traning_second]").attr("placeholder",get_constant("delay_traning_second"));
 
     $(".thursday_27_04_0").html("Last time activite: "+moment(new Date(result.config.time)).format('DD-MM-YYYY HH:mm:ss'));
@@ -1787,8 +1781,8 @@ function delete_current_category() {
 function update_category_in_select_list() {
     $(".tuersday_04_13_5").remove();
 
-    for(var i=user_data.category.length-1; i>=0; i--) {
-        $(".tuersday_04_13_4 option:first").after('<option class="tuersday_04_13_5" value="' + user_data.category[i].config.id + '">' + user_data.category[i].config.name + '</option>');
+    for(var i=0; i<user_data.category.length; i++) {
+        $(".tuersday_04_13_4").append('<option class="tuersday_04_13_5" value="' + user_data.category[i].config.id + '">' + user_data.category[i].config.name + '</option>');
     }
 }
 
@@ -1936,18 +1930,18 @@ function get_current_category() {
     return link_category;
 }
 
-function get_cutegory_by_id(id,user_data_clone) {
-    if(user_data_clone.category.length) {
-        for (var i in user_data_clone.category) {
-            if(user_data_clone.category[i].config.id==id) {
-                return link_category=user_data_clone.category[i];
+function get_cutegory_by_id(id,category) {
+    if(category.length) {
+        for (var i in category) {
+            if(category[i].config.id==id) {
+                return link_category=category[i];
             }
 
-            if(user_data_clone.category[i].hasOwnProperty("child")) {
-                if (user_data_clone.category[i].child.length) {
-                    for (var i_two in user_data_clone.category[i].child) {
-                        if (user_data_clone.category[i].child[i_two].config.id == user_data_clone.current_category) {
-                            return link_category = user_data_clone.category[i].child[i_two];
+            if(category[i].hasOwnProperty("child")) {
+                if (category[i].child.length) {
+                    for (var i_two in category[i].child) {
+                        if (category[i].child[i_two].config.id == current_category) {
+                            return link_category = category[i].child[i_two];
                         }
                     }
                 }

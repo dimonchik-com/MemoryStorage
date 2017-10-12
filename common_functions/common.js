@@ -89,18 +89,18 @@ function get_current_category() {
     return link_category;
 }
 
-function get_cutegory_by_id(id,user_data_clone) {
-    if(user_data_clone.category.length) {
-        for (var i in user_data_clone.category) {
-            if(user_data_clone.category[i].config.id==id) {
-                return link_category=user_data_clone.category[i];
+function get_cutegory_by_id(id,category) {
+    if(category.length) {
+        for (var i in category) {
+            if(category[i].config.id==id) {
+                return link_category=category[i];
             }
 
-            if(user_data_clone.category[i].hasOwnProperty("child")) {
-                if (user_data_clone.category[i].child.length) {
-                    for (var i_two in user_data_clone.category[i].child) {
-                        if (user_data_clone.category[i].child[i_two].config.id == user_data_clone.current_category) {
-                            return link_category = user_data_clone.category[i].child[i_two];
+            if(category[i].hasOwnProperty("child")) {
+                if (category[i].child.length) {
+                    for (var i_two in category[i].child) {
+                        if (category[i].child[i_two].config.id == current_category) {
+                            return link_category = category[i].child[i_two];
                         }
                     }
                 }

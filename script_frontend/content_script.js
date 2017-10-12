@@ -15,14 +15,14 @@ function EnglishTip(vocabulary, config) {
     document.addEventListener("visibilitychange", function() {
         if (document.hidden){
             setTimeout(function(){
-                var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
-                if(tuesday_16_05_01) {
+                // var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
+                // if(tuesday_16_05_01) {
                     update_data_from_storage();
-                }
+                // }
 
-                setTimeout(function(){
-                    save_data(1);
-                },500);
+                // setTimeout(function(){
+                //     save_data(1);
+                // },500);
 
             },500);
         }
@@ -282,6 +282,7 @@ function EnglishTip(vocabulary, config) {
     }
 
     function right_answer() {
+        click_fail=0;
         config.left_traning_word = parseInt(config.left_traning_word) - 1;
         if (parseInt(config.left_traning_word) == 0) {
             var next_time_lesson = save_next_time(config.time_break * 60, "default");
@@ -304,6 +305,10 @@ function EnglishTip(vocabulary, config) {
         if (config.left_traning_word != 0) {
             var left_traning_word_id = document.getElementById('tuesday_16_05_02');
             if (left_traning_word_id) left_traning_word_id.innerHTML = config.left_traning_word;
+        }
+
+        if(config.stop_next_word==1 && !document.getElementById("tuesday_16_05_01")) {
+            click_fail=1;
         }
 
         time_end();
@@ -331,7 +336,8 @@ function EnglishTip(vocabulary, config) {
                 remove_element(["wednesday_29_03_4"]);
             };
         }
-        create_world(true, false);
+
+        create_world(true, click_fail);
     }
 
     function fail_answer(word_direction) {
@@ -543,9 +549,8 @@ function EnglishTip(vocabulary, config) {
             }
 
             config.last_word.total_iteration++;
+            config.last_word.iteration++;
         }
-        config.last_word.iteration++;
-
 
         var time_reaction=config.time_reaction?config.time_reaction:get_constant("time_reaction");
         var time_reps=config.time_reps?config.time_reps:get_constant("time_reps");
@@ -581,7 +586,7 @@ function EnglishTip(vocabulary, config) {
                     }
                 });
             } catch (err) {
-                //alert("save_data - error");
+                console.log("save_data - error 1");
                 location.reload();
             }
 
@@ -661,8 +666,8 @@ function EnglishTip(vocabulary, config) {
 
         setTimeout(function(){
             if(count_data_from_storage<time_count_data_from_storage+1) {
-                //alert("save_data - error 2");
-                //location.reload();
+                console.log("save_data - error 2");
+                location.reload();
             }
         }, 500);
 
@@ -723,7 +728,6 @@ function EnglishTip(vocabulary, config) {
     function remove_all_element() {
         remove_element(["wednesday_29_03_1", "wednesday_29_03_0", "tuesday_16_05_01", "memory_traning_zero", "englishtip_css"]);
     }
-
 }
 
 function init_memory_traning() {
