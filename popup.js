@@ -1127,6 +1127,9 @@ $( document ).ready(function() {
         var training_mode=parseInt($('.wednesday_05_04_08 select[name=training_mode]').val());
         result.config.training_mode=training_mode;
 
+        var name_category=$('.wednesday_05_04_08 input[name=name_category]').val();
+        result.config.name=name_category;
+
         // Gear disabled on this site
         if(training_mode==2 && current_open_page.domain.match(/\./)) {
             if(result.config.training_mode_domain){
@@ -1844,7 +1847,7 @@ function get_constant(name) {
         time_reaction:5,
         time_reps:50,
         minimum_elements_for_training:3,
-        delay_traning_second:"30-60",
+        delay_traning_second:"30-240",
         delay_traning:0,
         way_traning:0,
         time_break:30,

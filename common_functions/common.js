@@ -3,7 +3,7 @@ function get_constant(name) {
         time_reaction:5,
         time_reps:50,
         minimum_elements_for_training:3,
-        delay_traning_second:"30-60",
+        delay_traning_second:"30-240",
         delay_traning:0,
         way_traning:0,
         time_break:30,

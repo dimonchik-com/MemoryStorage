@@ -127,7 +127,7 @@ function EnglishTip(vocabulary, config) {
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}
 #thursday_14_09_1{position:absolute; right:0px; bottom:0px; padding:0px 0px 0px 0px; margin: 0px; width: 100%; height:100%;background: blue;}
-#thursday_14_09_1 input{background-image: none; background: none; border: none; color: #fff; padding: 5px 5px 0px 5px; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none; border-radius:none;}
+#thursday_14_09_1 input, #thursday_14_09_1 input:hover, #thursday_14_09_1 input:active, #thursday_14_09_1 input:focus{background-image: none; background: none; border: none !important; color: #fff !important; padding: 5px 5px 0px 5px !important; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none !important; border-radius:none !important; text-shadow: none !important; font-weight:normal !important;}
 #thursday_14_09_1 input:focus {outline-width: 0;background-image: none; background: none;}`;
 
         if(config.position_template=="top_left") {
@@ -217,7 +217,7 @@ function EnglishTip(vocabulary, config) {
             var frag;
 
             if(config.way_traning) {
-                frag = `<div id="wednesday_29_03_1"><div id="thursday_14_09_1"><input type="text" value="" id="tuesday_03_10_0"></div></div>`;
+                frag = `<div id="wednesday_29_03_1"><div id="thursday_14_09_1"><input type="text" value="" id="tuesday_03_10_0" autocomplete="off"></div></div>`;
             } else {
                 frag = '<div id="wednesday_29_03_1"><div id="wednesday_29_03_2" style="width:'+(width_background/2)+'px; margin-right:'+(width_background/2)+'px">V</div> <div id="wednesday_29_03_3" style="width:'+(width_background/2)+'px; '+position_left+'">X</div></div>';
             }
@@ -239,17 +239,10 @@ function EnglishTip(vocabulary, config) {
                             convert_qwerty().toEn(input_text).toLowerCase()==check_word.toLowerCase()
                         ) {
                             right_answer();
-                            setTimeout(function () {
-                                var node = document.getElementById('wednesday_29_03_0');
-                                eventFire(node,"mouseenter");
-                                setTimeout(function () {
-                                    if(document.getElementById('tuesday_03_10_0')) {
-                                        document.getElementById('tuesday_03_10_0').focus();
-                                    }
-                                },500);
-                            }, 3000);
+                            set_focus_on_input();
                         } else {
                             fail_answer(word_direction);
+                            set_focus_on_input();
                         }
                     }
                 });
@@ -279,6 +272,18 @@ function EnglishTip(vocabulary, config) {
         if(save_action) {
             save_data(2);
         }
+    }
+
+    function set_focus_on_input() {
+        setTimeout(function () {
+            var node = document.getElementById('wednesday_29_03_0');
+            eventFire(node,"mouseenter");
+            setTimeout(function () {
+                if(document.getElementById('tuesday_03_10_0')) {
+                    document.getElementById('tuesday_03_10_0').focus();
+                }
+            },500);
+        }, 3000);
     }
 
     function right_answer() {
