@@ -1,9 +1,9 @@
-var config = {
-    apiKey: "AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E",
-    databaseURL: "https://englishtip-516bc.firebaseio.com",
-    storageBucket: "englishtip-516bc.appspot.com"
-};
-firebase.initializeApp(config);
+firebase.initializeApp({
+    apiKey: 'AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E',
+    authDomain: 'https://englishtip-516bc.firebaseio.com',
+    projectId: 'englishtip-516bc'
+});
+var db = firebase.firestore();
 
 var user_data={
     current_category:"1",
@@ -120,15 +120,17 @@ $( document ).ready(function() {
     firebase.auth().onAuthStateChanged(function(user) {
         if (user && !user_data.first_load && !$(".p4:visible").length) {
             var userId = firebase.auth().currentUser.uid;
-            firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
-                var result=snapshot.val();
-                if(result) {
-                    user_data = result;
-                } else { // creating a new user
+
+            var docRef = db.collection("users").doc(userId);
+
+            docRef.get().then(function(doc) {
+                if (doc.exists) {
+                    user_data=doc.data();
+                } else { // create new users
                     user_data.displayName=user.displayName;
                     user_data.email=user.email;
                     save_data_in_firebase(function () {
-                        
+
                     });
                 }
                 user_data.first_load=1;
@@ -136,6 +138,8 @@ $( document ).ready(function() {
                     build_menu();
                     start_play();
                 },1,1);
+            }).catch(function(error) {
+                console.log("Error getting document:", error);
             });
         }
     });
@@ -583,7 +587,7 @@ $( document ).ready(function() {
 
     $("body").on("click",".monday_06_01", function () {
         synchronize_data(function () {
-            
+
         });
     });
 
@@ -601,46 +605,58 @@ $( document ).ready(function() {
         $(".monday_06_01").addClass("gly-spin");
         if (firebase.auth().currentUser) {
             var userId = firebase.auth().currentUser.uid;
-            firebase.database().ref('/users/' + userId).once('value').then(function(snapshot) {
-                var data_from_firebase=snapshot.val();
 
-                if(!data_from_firebase) {
-                    callback();
-                }
+            var docRef = db.collection("users").doc(userId);
 
-                if(user_data.time_last_activity>data_from_firebase.time_last_activity) { // if local data more recent then server data
-                    save_data_in_firebase(function (res) {
-                        $(".monday_06_01").removeClass("gly-spin");
+            docRef.get().then(function(doc) {
+                if (doc.exists) {
+
+                    var data_from_firebase=doc.data();
+
+                    if(!data_from_firebase) {
                         callback();
-                    });
-                } else { // if on server data more recent than local
-                    data_from_firebase.current_category = user_data.current_category;
+                    }
 
-                    var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase.category);
-                    var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data.category);
-
-                    console.log(data_from_firebase);
-                    console.log(user_data);
-
-                    data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
-
-                    console.log(data_from_firebase_categoty.config.time_last_traning);
-                    console.log(data_from_user_data.config.time_last_traning);
-
-                    user_data = data_from_firebase;
-                    set_storage(function () {
-                        if(force_overwriting) {
-                            save_data_in_firebase(function (res) {
-                                $(".monday_06_01").removeClass("gly-spin");
-                                callback();
-                            });
-                        } else {
+                    if(user_data.time_last_activity>data_from_firebase.time_last_activity) { // if local data more recent then server data
+                        save_data_in_firebase(function (res) {
                             $(".monday_06_01").removeClass("gly-spin");
                             callback();
-                        }
-                    },1,11);
+                        });
+                    } else { // if on server data more recent than local
+                        data_from_firebase.current_category = user_data.current_category;
+
+                        var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase.category);
+                        var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data.category);
+
+                        console.log(data_from_firebase);
+                        console.log(user_data);
+
+                        data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
+
+                        console.log(data_from_firebase_categoty.config.time_last_traning);
+                        console.log(data_from_user_data.config.time_last_traning);
+
+                        user_data = data_from_firebase;
+                        set_storage(function () {
+                            if(force_overwriting) {
+                                save_data_in_firebase(function (res) {
+                                    $(".monday_06_01").removeClass("gly-spin");
+                                    callback();
+                                });
+                            } else {
+                                $(".monday_06_01").removeClass("gly-spin");
+                                callback();
+                            }
+                        },1,11);
+                    }
+
+                } else {
+                    console.log("No such document!");
                 }
+            }).catch(function(error) {
+                console.log("Error getting document:", error);
             });
+
         } else { // if not data on server
             firebase.database().ref('users/' + user.uid).set(user_data, function (result) {
 
@@ -779,21 +795,24 @@ function save_data_in_firebase(callback) {
     delete copy_user_data.save_data_when_open;
 
     copy_user_data.time_last_activity=new Date().getTime();
-    firebase.database().ref('users/' + userId).set(copy_user_data, function(result) {
-        if(callback) {
-            set_storage(function(){
-                callback(result);
-            },1,15);
-        }
+    db.collection("users").doc(userId).set(copy_user_data).then(function() {
+        set_storage(function(){
+            callback(copy_user_data);
+        },1,15);
+    }).catch(function(error) {
+        console.error("Error writing document: ", error);
     });
 }
 
 function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
     var word=get_word_from_vacabulary(id);
 
-    if(word) {
-        word[current_click_class]=val;
+    if(word[current_click_class]==val || !word) {
+        return true;
     }
+
+    word[current_click_class]=val;
+    user_data.time_last_activity=new Date().getTime();
 
     if(rebut) {
         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);

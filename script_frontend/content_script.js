@@ -127,8 +127,8 @@ function EnglishTip(vocabulary, config) {
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}
 #thursday_14_09_1{position:absolute; right:0px; bottom:0px; padding:0px 0px 0px 0px; margin: 0px; width: 100%; height:100%;background: blue;}
-#thursday_14_09_1 input, #thursday_14_09_1 input:hover, #thursday_14_09_1 input:active, #thursday_14_09_1 input:focus{background-image: none; background: none; border: none !important; color: #fff !important; padding: 5px 5px 0px 5px !important; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none !important; border-radius:none !important; text-shadow: none !important; font-weight:normal !important;}
-#thursday_14_09_1 input:focus {outline-width: 0;background-image: none; background: none;}`;
+#thursday_14_09_1 input, #thursday_14_09_1 input:hover, #thursday_14_09_1 input:active, #thursday_14_09_1 input:focus{background-image: none !important; background: none; border: none !important; color: #fff !important; padding: 5px 5px 0px 5px !important; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none !important; border-radius:none !important; text-shadow: none !important; font-weight:normal !important;}
+#thursday_14_09_1 input:focus {outline-width: 0;background-image: none !important; background: none !important;}`;
 
         if(config.position_template=="top_left") {
             position_template += "#wednesday_29_03_0,#wednesday_29_03_2,#wednesday_29_03_3,#wednesday_29_03_5,#wednesday_29_03_4{top: 0px; bottom: auto; left: 0px; right: auto; margin-top: 0px;}";
@@ -580,7 +580,6 @@ function EnglishTip(vocabulary, config) {
 
             save_vacabulary.ignore_update=1;
             try {
-                console.log(id_callback);
                 chrome.storage.local.get('english_tip', function (result) {
                     if(result && result.hasOwnProperty("english_tip") && result.english_tip) {
                         chrome.storage.local.set({'english_tip': user_data}, function () {
@@ -591,7 +590,7 @@ function EnglishTip(vocabulary, config) {
                     }
                 });
             } catch (err) {
-                console.log("save_data - error 1");
+                console.log("MemoryTraning: save_data - error 1");
                 location.reload();
             }
 
@@ -671,7 +670,7 @@ function EnglishTip(vocabulary, config) {
 
         setTimeout(function(){
             if(count_data_from_storage<time_count_data_from_storage+1) {
-                console.log("save_data - error 2");
+                console.log("MemoryTraning: save_data - error 2");
                 location.reload();
             }
         }, 500);
