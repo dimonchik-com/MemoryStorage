@@ -794,6 +794,10 @@ var user_data={
 var current_open_page={};
 
 $( document ).ready(function() {
+    // chrome.storage.local.remove("english_tip", function () {
+    //
+    // });
+
     get_storage(function () {
             start_play();
 
@@ -1157,6 +1161,23 @@ $( document ).ready(function() {
         number_repeat=number_repeat?number_repeat:"all";
         result.config.number_repeat=number_repeat;
 
+        var select_category=$(".wednesday_05_04_08 .tuersday_04_13_4").val();
+
+        if(select_category!=result.config.parent_id) {
+            var parent_category=get_parent_categoty(result.config.parent_id);
+            var splice_element;
+            for(var i in parent_category.category) {
+                if(parent_category.category[i].config.id==result.config.id) {
+                    splice_element=parent_category.category[i];
+                    parent_category.category.splice(i,1);
+                    break;
+                }
+            }
+            var select_category_object=get_cutegory_by_id(select_category,user_data.category);
+            select_category_object.child.push(splice_element);
+            user_data.time_last_activity=new Date().getTime();
+        }
+
         $(".saturday_04_04").click();
         set_storage(()=>{},1,7);
     });
@@ -1206,7 +1227,7 @@ $( document ).ready(function() {
                 }
             };
 
-            parent_category.category.splice(parent_category.category.length-1,0, blank_category);
+            parent_category.category.push(blank_category);
 
             user_data.current_category=blank_category.config.id;
             set_storage(function () {
@@ -1448,8 +1469,6 @@ function startSignIn() {
  */
 function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
-        console.log(result.english_tip);
-
         if(result && result.hasOwnProperty("english_tip") && result.english_tip) {
             user_data=result.english_tip;
             build_menu();
@@ -1963,7 +1982,7 @@ function get_cutegory_by_id(id,category) {
             if(category[i].hasOwnProperty("child")) {
                 if (category[i].child.length) {
                     for (var i_two in category[i].child) {
-                        if (category[i].child[i_two].config.id == current_category) {
+                        if (category[i].child[i_two].config.id == id) {
                             return link_category = category[i].child[i_two];
                         }
                     }

@@ -127,7 +127,7 @@ function EnglishTip(vocabulary, config) {
 #tuesday_16_05_01 span{position: relative !important; color: red; font-size: 21px; font-weight: bold; top:0px; left:0px; text-decoration: underline; cursor: auto;}
 #wednesday_17_05_17_0{color:green !important;}
 #thursday_14_09_1{position:absolute; right:0px; bottom:0px; padding:0px 0px 0px 0px; margin: 0px; width: 100%; height:100%;background: blue;}
-#thursday_14_09_1 input, #thursday_14_09_1 input:hover, #thursday_14_09_1 input:active, #thursday_14_09_1 input:focus{background-image: none !important; background: none; border: none !important; color: #fff !important; padding: 5px 5px 0px 5px !important; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none !important; border-radius:none !important; text-shadow: none !important; font-weight:normal !important;}
+#thursday_14_09_1 input, #thursday_14_09_1 input:hover, #thursday_14_09_1 input:active, #thursday_14_09_1 input:focus{background-image: none !important; background: none; border: none !important; color: #fff !important; padding: 5px 5px 0px 5px !important; text-align: center; width: 94%; margin: 0px; font-size: 13px; font-family: Arial; ${hide_cursor} height:auto; box-shadow:none !important; border-radius:none !important; text-shadow: none !important; font-weight:normal !important; line-height: 13px !important;}
 #thursday_14_09_1 input:focus {outline-width: 0;background-image: none !important; background: none !important;}`;
 
         if(config.position_template=="top_left") {

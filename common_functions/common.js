@@ -99,7 +99,7 @@ function get_cutegory_by_id(id,category) {
             if(category[i].hasOwnProperty("child")) {
                 if (category[i].child.length) {
                     for (var i_two in category[i].child) {
-                        if (category[i].child[i_two].config.id == current_category) {
+                        if (category[i].child[i_two].config.id == id) {
                             return link_category = category[i].child[i_two];
                         }
                     }
