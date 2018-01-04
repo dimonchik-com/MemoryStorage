@@ -59,7 +59,7 @@ var user_data={
                 training_mode:1,
                 stop_next_word:0
             },
-            child:[
+            category:[
 
             ]
         },
@@ -87,7 +87,7 @@ var user_data={
                 training_mode:1,
                 stop_next_word:0
             },
-            child:[
+            category:[
 
             ]
         }
@@ -481,7 +481,7 @@ $( document ).ready(function() {
                 }
             }
             var select_category_object=get_cutegory_by_id(select_category,user_data.category);
-            select_category_object.child.push(splice_element);
+            select_category_object.category.push(splice_element);
             user_data.time_last_activity=new Date().getTime();
         }
 
@@ -515,12 +515,12 @@ $( document ).ready(function() {
             var parent_category=get_parent_categoty(parent_category);
             var blank_category={
                 vocabulary:[],
-                child:[],
+                category:[],
                 config:{
                     range_area:{start:0,end:0},
                     dir_sorting:0,
                     id:user_data.top_id++,
-                    parent_id:parent_category.id_categoty,
+                    parent_id:parent_category.id_category,
                     name:name_category,
                     position_template: "bottom_right",
                     time_break: 30,
@@ -1054,14 +1054,14 @@ function get_parent_categoty(parent_category) {
         if(!user_data.hasOwnProperty("category")) {
             user_data.category=[];
         }
-        ref={category:user_data.category, id_categoty:0};
+        ref={category:user_data.category, id_category:0};
     } else {
         for(var i in user_data.category) {
             if(parent_category==user_data.category[i].config.id) {
-                if(!user_data.category[i].hasOwnProperty("child")) {
-                    user_data.category[i].child=[];
+                if(!user_data.category[i].hasOwnProperty("category")) {
+                    user_data.category[i].category=[];
                 }
-                ref={category:user_data.category[i].child, id_categoty:user_data.category[i].config.id};
+                ref={category:user_data.category[i].category, id_category:user_data.category[i].config.id};
             }
         }
     }
@@ -1075,25 +1075,25 @@ function build_menu() {
     for(var i in user_data.category) {
         var active=(user_data.category[i].config.id==user_data.current_category) ? "active": ""
 
-        if(user_data.category[i].config.id==2 && user_data.category[i].hasOwnProperty('child')) {
-            if(!user_data.category[i].child.length) continue;
+        if(user_data.category[i].config.id==2 && user_data.category[i].hasOwnProperty('category')) {
+            if(!user_data.category[i].category.length) continue;
         } else if(user_data.category[i].config.id==2) {
             continue;
         }
 
         $(".p8").append('<li class="'+active+'"><a href="#" data-name="'+user_data.category[i].config.id+'">'+user_data.category[i].config.name+'</a></li>');
 
-        if(user_data.category[i].hasOwnProperty("child")) {
-            if (user_data.category[i].child.length) {
+        if(user_data.category[i].hasOwnProperty("category")) {
+            if (user_data.category[i].category.length) {
                 $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").attr({"data-toggle": "dropdown"});
                 $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").append('<span class="caret"></span>');
                 $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().append('<ul class="dropdown-menu"></ul>');
-                for (var i_two in user_data.category[i].child) {
-                    var active = (user_data.category[i].child[i_two].config.id == user_data.current_category) ? "active" : "";
+                for (var i_two in user_data.category[i].category) {
+                    var active = (user_data.category[i].category[i_two].config.id == user_data.current_category) ? "active" : "";
                     if (active) {
                         $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().addClass("active");
                     }
-                    $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().find("ul").append('<li class="' + active + '"><a href="#" data-name="' + user_data.category[i].child[i_two].config.id + '">' + user_data.category[i].child[i_two].config.name + '</a></li>');
+                    $(".p8 li a[data-name='" + user_data.category[i].config.id + "']").parent().find("ul").append('<li class="' + active + '"><a href="#" data-name="' + user_data.category[i].category[i_two].config.id + '">' + user_data.category[i].category[i_two].config.name + '</a></li>');
                 }
             }
         }
@@ -1108,11 +1108,11 @@ function delete_current_category() {
             break;
         }
 
-        if(user_data.category[i].hasOwnProperty("child")) {
-            if (user_data.category[i].child.length) {
-                for (var i_two in user_data.category[i].child) {
-                    if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
-                        user_data.category[i].child.splice(i_two, 1);
+        if(user_data.category[i].hasOwnProperty("category")) {
+            if (user_data.category[i].category.length) {
+                for (var i_two in user_data.category[i].category) {
+                    if (user_data.category[i].category[i_two].config.id == user_data.current_category) {
+                        user_data.category[i].category.splice(i_two, 1);
                     }
                 }
             }

@@ -29,10 +29,10 @@ function get_all_category() {
         for(var i in user_data.category) {
             category.push(user_data.category[i]);
 
-            if(user_data.category[i].hasOwnProperty("child")) {
-                if (user_data.category[i].child.length) {
-                    for (var i_two in user_data.category[i].child) {
-                        category.push(user_data.category[i].child[i_two]);
+            if(user_data.category[i].hasOwnProperty("category")) {
+                if (user_data.category[i].category.length) {
+                    for (var i_two in user_data.category[i].category) {
+                        category.push(user_data.category[i].category[i_two]);
                     }
                 }
             }
@@ -68,11 +68,11 @@ function get_current_category() {
                 break;
             }
 
-            if(user_data.category[i].hasOwnProperty("child")) {
-                if (user_data.category[i].child.length) {
-                    for (var i_two in user_data.category[i].child) {
-                        if (user_data.category[i].child[i_two].config.id == user_data.current_category) {
-                            link_category = user_data.category[i].child[i_two];
+            if(user_data.category[i].hasOwnProperty("category")) {
+                if (user_data.category[i].category.length) {
+                    for (var i_two in user_data.category[i].category) {
+                        if (user_data.category[i].category[i_two].config.id == user_data.current_category) {
+                            link_category = user_data.category[i].category[i_two];
                             break;
                         }
                     }
@@ -96,11 +96,11 @@ function get_cutegory_by_id(id,category) {
                 return link_category=category[i];
             }
 
-            if(category[i].hasOwnProperty("child")) {
-                if (category[i].child.length) {
-                    for (var i_two in category[i].child) {
-                        if (category[i].child[i_two].config.id == id) {
-                            return link_category = category[i].child[i_two];
+            if(category[i].hasOwnProperty("category")) {
+                if (category[i].category.length) {
+                    for (var i_two in category[i].category) {
+                        if (category[i].category[i_two].config.id == id) {
+                            return link_category = category[i].category[i_two];
                         }
                     }
                 }
