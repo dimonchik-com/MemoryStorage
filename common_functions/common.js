@@ -91,6 +91,7 @@ function get_current_category() {
 
 function get_cutegory_by_id(id,category) {
     if(category.length) {
+        if(id==0) return {category:category};
         for (var i in category) {
             if(category[i].config.id==id) {
                 return link_category=category[i];

@@ -1169,12 +1169,20 @@ $( document ).ready(function() {
             for(var i in parent_category.category) {
                 if(parent_category.category[i].config.id==result.config.id) {
                     splice_element=parent_category.category[i];
+
                     parent_category.category.splice(i,1);
                     break;
                 }
             }
             var select_category_object=get_cutegory_by_id(select_category,user_data.category);
+
+            console.log(select_category);
+            console.log(select_category_object);
+            console.log(splice_element);
+
             select_category_object.category.push(splice_element);
+            splice_element.config.parent_id=select_category;
+
             user_data.time_last_activity=new Date().getTime();
         }
 
@@ -1705,6 +1713,7 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=dir_translation]').val(result.config.dir_translation);
     $('.wednesday_05_04_08 select[name=template_word]').val(result.config.template_word);
     $('.wednesday_05_04_08 select[name=position_template]').val(result.config.position_template);
+    $(".wednesday_05_04_08 select.tuersday_04_13_4").val(result.config.parent_id);
     $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
     $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
     $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.hasOwnProperty("delay_traning")?result.config.delay_traning:get_constant("delay_traning"));
@@ -1974,6 +1983,7 @@ function get_current_category() {
 
 function get_cutegory_by_id(id,category) {
     if(category.length) {
+        if(id==0) return {category:category};
         for (var i in category) {
             if(category[i].config.id==id) {
                 return link_category=category[i];
