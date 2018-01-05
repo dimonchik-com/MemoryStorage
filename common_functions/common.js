@@ -4,7 +4,7 @@ function get_constant(name) {
         time_reps:50,
         minimum_elements_for_training:3,
         delay_traning_second:"30-240",
-        delay_traning:0,
+        delay_traning:1,
         way_traning:0,
         time_break:30,
         number_repeat:10
