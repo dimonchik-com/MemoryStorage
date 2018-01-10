@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "MemoryTraining",
   "description": "The best Google Chrome extension for memory training. It's easy to be smart!",
-  "version": "1.0.7",
+  "version": "1.0.8",
 
   "browser_action": {
    "default_icon": "memorytraining-48.png",

@@ -5,12 +5,13 @@
   "main": "bunch.js",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "del": "^2.2.2",
+    "bootstrap-table": "^1.11.2",
     "convert-layout": "^0.5.0",
+    "del": "^2.2.2",
     "gulp": "^3.9.1",
+    "gulp-archiver": "^1.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-zip": "^4.0.0",
-    "gulp-archiver": "^1.0.0",
     "ion-rangeslider": "^2.1.7",
     "moment": "^2.18.1"
   },
