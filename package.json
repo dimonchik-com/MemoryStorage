@@ -4,6 +4,7 @@
   "description": "The best Google Chrome extension for memory training. To be smart is easy!",
   "main": "bunch.js",
   "dependencies": {
+    "bootbox": "^4.4.0",
     "bootstrap": "^3.3.7",
     "bootstrap-table": "^1.11.2",
     "convert-layout": "^0.5.0",
