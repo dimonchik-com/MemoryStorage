@@ -691,112 +691,109 @@
     };
 
 }(jQuery, window, 'sortable');
-firebase.initializeApp({
-    apiKey: 'AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E',
-    authDomain: 'https://englishtip-516bc.firebaseio.com',
-    projectId: 'englishtip-516bc'
-});
-var db = firebase.firestore();
-
-var user_data={
-    current_category:"1",
-    category:[
-        {
-            vocabulary:[
-                {
-                    id:1,
-                    en:"Hallo",
-                    ru:"Hello",
-                    time_reaction:[],
-                    iteration:0,
-                    total_iteration:0,
-                    status_learn:0
-                },
-                {
-                    id:2,
-                    en:"Привет",
-                    ru:"Hello",
-                    time_reaction:[],
-                    iteration:0,
-                    total_iteration:0,
-                    status_learn:0
-                },
-                {
-                    id:3,
-                    en:"嗨",
-                    ru:"Hello",
-                    time_reaction:[],
-                    iteration:0,
-                    total_iteration:0,
-                    status_learn:0
-                }
-            ],
-            config:{
-                range_area:{
-                    start:0,
-                    end:0
-                },
-                dir_sorting:0,
-                id:1,
-                parent_id:0,
-                name:"Vocabulary",
-                dir_translation:"source_translation",
-                template_word:"id_word",
-                time_break:get_constant("time_break"),
-                number_repeat:get_constant("number_repeat"),
-                position_template: "bottom_right",
-                time_last_traning:new Date().getTime(),
-                delay_traning:get_constant("delay_traning"),
-                delay_traning_second:get_constant("delay_traning_second"),
-                way_traning:get_constant("way_traning"),
-                training_mode:1,
-                stop_next_word:0
-            },
-            category:[
-
-            ]
-        },
-        {
-            vocabulary:[
-
-            ],
-            config:{
-                range_area:{
-                    start:0,
-                    end:0
-                },
-                dir_sorting:0,
-                id:2,
-                parent_id:0,
-                name:"Other",
-                dir_translation:"source_translation",
-                template_word:"id_word",
-                time_break:get_constant("time_break"),
-                number_repeat:get_constant("number_repeat"),
-                position_template: "bottom_right",
-                delay_traning:get_constant("delay_traning"),
-                delay_traning_second:get_constant("delay_traning_second"),
-                way_traning:get_constant("way_traning"),
-                training_mode:1,
-                stop_next_word:0
-            },
-            category:[
-
-            ]
-        }
-    ],
-    top_id:3,
-    time_last_activity:new Date().getTime(),
-    update_content_script:1,
-    status_enable:1
-};
-
+var db, user_data;
 var current_open_page={};
-
 $( document ).ready(function() {
-    // chrome.storage.local.remove("english_tip", function () {
-    //
-    // });
+
+    firebase.initializeApp({
+        apiKey: 'AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E',
+        authDomain: 'https://englishtip-516bc.firebaseio.com',
+        projectId: 'englishtip-516bc'
+    });
+    db = firebase.firestore();
+
+    user_data={
+        current_category:"1",
+        category:[
+            {
+                vocabulary:[
+                    {
+                        id:1,
+                        en:"Hallo",
+                        ru:"Hello",
+                        time_reaction:[],
+                        iteration:0,
+                        total_iteration:0,
+                        status_learn:0
+                    },
+                    {
+                        id:2,
+                        en:"Привет",
+                        ru:"Hello",
+                        time_reaction:[],
+                        iteration:0,
+                        total_iteration:0,
+                        status_learn:0
+                    },
+                    {
+                        id:3,
+                        en:"嗨",
+                        ru:"Hello",
+                        time_reaction:[],
+                        iteration:0,
+                        total_iteration:0,
+                        status_learn:0
+                    }
+                ],
+                config:{
+                    range_area:{
+                        start:0,
+                        end:0
+                    },
+                    dir_sorting:0,
+                    id:1,
+                    parent_id:0,
+                    name:"Vocabulary",
+                    dir_translation:"source_translation",
+                    template_word:"id_word",
+                    time_break:get_constant("time_break"),
+                    number_repeat:get_constant("number_repeat"),
+                    position_template: "bottom_right",
+                    time_last_traning:new Date().getTime(),
+                    delay_traning:get_constant("delay_traning"),
+                    delay_traning_second:get_constant("delay_traning_second"),
+                    way_traning:get_constant("way_traning"),
+                    training_mode:1,
+                    stop_next_word:0
+                },
+                category:[
+
+                ]
+            },
+            {
+                vocabulary:[
+
+                ],
+                config:{
+                    range_area:{
+                        start:0,
+                        end:0
+                    },
+                    dir_sorting:0,
+                    id:2,
+                    parent_id:0,
+                    name:"Other",
+                    dir_translation:"source_translation",
+                    template_word:"id_word",
+                    time_break:get_constant("time_break"),
+                    number_repeat:get_constant("number_repeat"),
+                    position_template: "bottom_right",
+                    delay_traning:get_constant("delay_traning"),
+                    delay_traning_second:get_constant("delay_traning_second"),
+                    way_traning:get_constant("way_traning"),
+                    training_mode:1,
+                    stop_next_word:0
+                },
+                category:[
+
+                ]
+            }
+        ],
+        top_id:3,
+        time_last_activity:new Date().getTime(),
+        update_content_script:1,
+        status_enable:1
+    };
 
     get_storage(function () {
             start_play();
@@ -1176,10 +1173,6 @@ $( document ).ready(function() {
             }
             var select_category_object=get_cutegory_by_id(select_category,user_data.category);
 
-            console.log(select_category);
-            console.log(select_category_object);
-            console.log(splice_element);
-
             select_category_object.category.push(splice_element);
             splice_element.config.parent_id=select_category;
 
@@ -1350,13 +1343,13 @@ $( document ).ready(function() {
                         var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase.category);
                         var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data.category);
 
-                        console.log(data_from_firebase);
-                        console.log(user_data);
+                        //console.log(data_from_firebase);
+                        //console.log(user_data);
 
                         data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
 
-                        console.log(data_from_firebase_categoty.config.time_last_traning);
-                        console.log(data_from_user_data.config.time_last_traning);
+                        //console.log(data_from_firebase_categoty.config.time_last_traning);
+                        //console.log(data_from_user_data.config.time_last_traning);
 
                         user_data = data_from_firebase;
                         set_storage(function () {
@@ -1468,6 +1461,10 @@ function startAuth(interactive) {
 function startSignIn() {
     if (!firebase.auth().currentUser) {
         startAuth(true);
+    } else {
+        get_storage(function () {
+            start_play();
+        });
     }
 }
 

@@ -1,23 +1,31 @@
 {
-  "name": "englishtip",
+  "name": "memorytraining",
   "version": "1.0.0",
-  "description": "",
-  "main": "background.js",
+  "description": "The best Google Chrome extension for memory training. To be smart is easy!",
+  "main": "bunch.js",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "convert-layout": "^0.5.0",
     "del": "^2.2.2",
-    "gulp-archiver": "^1.0.0",
+    "convert-layout": "^0.5.0",
+    "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
+    "gulp-zip": "^4.0.0",
+    "gulp-archiver": "^1.0.0",
+    "ion-rangeslider": "^2.1.7",
     "moment": "^2.18.1"
   },
-  "devDependencies": {
-    "gulp": "^3.9.1",
-    "gulp-zip": "^4.0.0"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Dmitriy Kupriyniv <dmitriy.dn.ua@gmail.com> (http://dimonchik.com)",
-  "license": "ISC"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dimonchik-com/MemoryTraining.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dimonchik-com/MemoryTraining/issues"
+  },
+  "homepage": "https://github.com/dimonchik-com/MemoryTraining#readme"
 }
