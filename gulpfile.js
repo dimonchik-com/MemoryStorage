@@ -46,7 +46,7 @@ gulp.task('archive', () =>
             "node_modules/ion-rangeslider/js/ion.rangeSlider.js",
             "node_modules/bootstrap-table/dist/bootstrap-table.min.css",
             "node_modules/bootstrap/dist/js/bootstrap.min.js",
-            "node_modules/bootstrap/dist/js/bootbox.min.js",
+            "node_modules/bootbox/bootbox.min.js",
             "node_modules/moment/min/moment.min.js"
         ]).pipe(archiver('MemoryTraining.zip',{compress:true,category_merge:false}))
             .pipe(gulp.dest(''));

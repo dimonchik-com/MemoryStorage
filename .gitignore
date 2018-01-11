@@ -2,5 +2,6 @@ bunch.js
 .idea
 package-lock.json
 MemoryTraining.zip
-/node_modules
+/node_modules/*
+!node_modules/gulp-zip
 /MemoryTraining.zip
