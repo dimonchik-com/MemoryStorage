@@ -67,6 +67,8 @@
     margin: 0 0 10px -5px;
     position: relative;}
 .wednesday_05_04_08 label{margin-bottom: 6px;}
+.wednesday_24_01{display: none; margin-left: 5px; top: 2px; color: #000;}
+.wednesday_24_01:hover{color: #337ab7}
 
 .gly-spin {
     -webkit-animation: spin 2s infinite linear;
