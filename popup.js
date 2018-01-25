@@ -691,6 +691,8 @@
     };
 
 }(jQuery, window, 'sortable');
+"use strict";
+
 var db, user_data;
 var current_open_page={};
 $( document ).ready(function() {
@@ -703,7 +705,8 @@ $( document ).ready(function() {
     db = firebase.firestore();
 
     user_data={
-        current_category:"1",
+        current_category:1,
+        current_select_category:1,
         category:[
             {
                 vocabulary:[
@@ -976,7 +979,13 @@ $( document ).ready(function() {
 	// build different task by action
 	$(".p8").on("click", "a",function () {
 		var name_tab=$(this).attr("data-name");
-        user_data.current_category=name_tab
+        user_data.current_category=name_tab;
+
+        if(user_data.current_category!=user_data.current_select_category) {
+            $(".wednesday_24_01").show();
+        } else {
+            $(".wednesday_24_01").hide();
+        }
 
         if(name_tab==2) {
             $("a[data-name=2]").next().find("li:first a").click();
@@ -991,7 +1000,20 @@ $( document ).ready(function() {
         },1,5);
 	});
 
-    $("body").on("click", ".saturday_04_02",function () {
+    $("body").on("click", ".wednesday_24_01", function () {
+        user_data.current_select_category=user_data.current_category;
+        $(".wednesday_24_01").hide();
+        set_storage(function () {
+            $(".config,.new_category,.all_task,.p11").hide();
+            $(".all_task .bootstraptable").bootstrapTable('destroy');
+
+            $(".all_task").show();
+            all_task();
+        },1,5);
+        return false;
+    });
+
+    $("body").on("click", ".saturday_04_02", function () {
         $(".all_task").hide();
         $(".config").show();
         config_tab();
@@ -1171,7 +1193,7 @@ $( document ).ready(function() {
                     break;
                 }
             }
-            var select_category_object=get_cutegory_by_id(select_category,user_data.category);
+            var select_category_object=get_category_by_id(select_category,user_data.category);
 
             select_category_object.category.push(splice_element);
             splice_element.config.parent_id=select_category;
@@ -1332,16 +1354,18 @@ $( document ).ready(function() {
                         callback();
                     }
 
-                    if(user_data.time_last_activity>data_from_firebase.time_last_activity) { // if local data more recent then server data
+                    if(user_data.time_last_activity>=data_from_firebase.time_last_activity) { // if local data more recent then server data
                         save_data_in_firebase(function (res) {
                             $(".monday_06_01").removeClass("gly-spin");
                             callback();
                         });
                     } else { // if on server data more recent than local
                         data_from_firebase.current_category = user_data.current_category;
+                        data_from_firebase.current_select_category = user_data.current_select_category;
 
-                        var data_from_firebase_categoty=get_cutegory_by_id(data_from_firebase.current_category,data_from_firebase.category);
-                        var data_from_user_data=get_cutegory_by_id(user_data.current_category,user_data.category);
+
+                        var data_from_firebase_categoty=get_category_by_id(data_from_firebase.current_category,data_from_firebase.category);
+                        var data_from_user_data=get_category_by_id(user_data.current_category,user_data.category);
 
                         //console.log(data_from_firebase);
                         //console.log(user_data);
@@ -1353,15 +1377,15 @@ $( document ).ready(function() {
 
                         user_data = data_from_firebase;
                         set_storage(function () {
-                            if(force_overwriting) {
+                            // if(force_overwriting) {
                                 save_data_in_firebase(function (res) {
                                     $(".monday_06_01").removeClass("gly-spin");
                                     callback();
                                 });
-                            } else {
-                                $(".monday_06_01").removeClass("gly-spin");
-                                callback();
-                            }
+                            // } else {
+                            //     $(".monday_06_01").removeClass("gly-spin");
+                            //     callback();
+                            // }
                         },1,11);
                     }
 
@@ -1887,6 +1911,8 @@ chrome.windows.getCurrent(function(win)
     });
 });
 
+"use strict";
+
 function get_constant(name) {
     var constant={
         time_reaction:5,
@@ -1948,28 +1974,11 @@ function getFormattedDate(date) {
     return str;
 }
 
-function get_current_category() {
-    var link_category;
-    if(user_data.category.length) {
-        for(var i in user_data.category) {
-            if(user_data.category[i].config.id==user_data.current_category) {
-                link_category=user_data.category[i];
-                break;
-            }
+function get_current_category(from="backend") {
 
-            if(user_data.category[i].hasOwnProperty("category")) {
-                if (user_data.category[i].category.length) {
-                    for (var i_two in user_data.category[i].category) {
-                        if (user_data.category[i].category[i_two].config.id == user_data.current_category) {
-                            link_category = user_data.category[i].category[i_two];
-                            break;
-                        }
-                    }
-                }
-            }
+    var id=parseInt((from=="front" && user_data.current_select_category)?user_data.current_select_category:user_data.current_category);
 
-        }
-    }
+    var link_category=get_category_by_id(id,user_data.category);
 
     if(!link_category.hasOwnProperty('vocabulary')) {
         link_category.vocabulary=[];
@@ -1978,26 +1987,26 @@ function get_current_category() {
     return link_category;
 }
 
-function get_cutegory_by_id(id,category) {
+function get_category_by_id(id,category) {
     if(category.length) {
         if(id==0) return {category:category};
         for (var i in category) {
             if(category[i].config.id==id) {
-                return link_category=category[i];
+                return category[i];
             }
 
             if(category[i].hasOwnProperty("category")) {
                 if (category[i].category.length) {
-                    for (var i_two in category[i].category) {
-                        if (category[i].category[i_two].config.id == id) {
-                            return link_category = category[i].category[i_two];
-                        }
+                    var link_category=get_category_by_id(id,category[i].category);
+                    if(link_category) {
+                        return link_category;
                     }
                 }
             }
 
         }
     }
+    return 0;
 }
 
 function getRandomInt(min, max) {

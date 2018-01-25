@@ -39,6 +39,7 @@ gulp.task('archive', () =>
             "node_modules/bootstrap/dist/css/bootstrap-theme.min.css",
             "node_modules/jquery/dist/jquery.js",
             "node_modules/bootstrap-table/dist/bootstrap-table.js",
+            "node_modules/bootstrap-select/dist/js/bootstrap-select.js",
             "node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js",
             "bower_components/x-editable/dist/jquery-editable/css/jquery-editable.css",
             "node_modules/ion-rangeslider/css/ion.rangeSlider.css",
@@ -48,7 +49,7 @@ gulp.task('archive', () =>
             "node_modules/bootstrap/dist/js/bootstrap.min.js",
             "node_modules/bootbox/bootbox.min.js",
             "node_modules/moment/min/moment.min.js"
-        ]).pipe(archiver('MemoryTraining.zip',{compress:true,category_merge:false}))
+        ]).pipe(archiver('MemoryStorage.zip',{compress:true,category_merge:false}))
             .pipe(gulp.dest(''));
     },2000)
 );

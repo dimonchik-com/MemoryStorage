@@ -11,6 +11,7 @@
 	<script type="text/javascript" src="/node_modules/jquery/dist/jquery.js"></script>
 
     <script src="/node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
+    <script src="/node_modules/bootstrap-table/dist/bootstrap-select/dist/js/bootstrap-select.js"></script>
     <script src="/node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js"></script>
 
     <link href="/bower_components/x-editable/dist/jquery-editable/css/jquery-editable.css" rel="stylesheet"/>
@@ -42,7 +43,7 @@
 
           </ol>
           <a href="" class="glyphicon glyphicon-plus saturday_04_01"></a>
-          <a href="" class="glyphicon glyphicon-pushpin wednesday_24_01" title="To fix category"></a>
+          <a href="" class="glyphicon glyphicon-pushpin wednesday_24_01" title="Fix category"></a>
           <ul class="nav navbar-nav navbar-right saturday_04_03">
             <li><a href="#" class="p6"><span style="margin: 0 5px 0 0;" class="glyphicon glyphicon-log-out"></span>Sign-out</a></li>
           </ul>
@@ -103,9 +104,10 @@
                     Category level
                   </label>
 
-                  <select class="form-control tuersday_04_13_4">
-                    <option value="0">Top level</option>
+                  <select class="selectpicker tuersday_04_13_4" data-live-search="true">
+                    <option data-tokens="mustard" value="0">Top level</option>
                   </select>
+
                 </td>
               </tr>
 

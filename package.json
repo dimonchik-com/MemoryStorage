@@ -1,11 +1,12 @@
 {
   "name": "memorytraining",
   "version": "1.0.0",
-  "description": "The best Google Chrome extension for memory training. To be smart is easy!",
+  "description": "The best Google Chrome extension to storage and memory training. To be smart is easy!",
   "main": "bunch.js",
   "dependencies": {
     "bootbox": "^4.4.0",
     "bootstrap": "^3.3.7",
+    "bootstrap-select": "^1.12.4",
     "bootstrap-table": "^1.11.2",
     "convert-layout": "^0.5.0",
     "del": "^2.2.2",

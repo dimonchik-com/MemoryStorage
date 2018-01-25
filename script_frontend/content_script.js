@@ -1,3 +1,5 @@
+"use strict";
+
 var user_data;
 
 function EnglishTip(vocabulary, config) {
@@ -635,7 +637,7 @@ function EnglishTip(vocabulary, config) {
                 return false;
             }
 
-            all_data=get_current_category();
+            all_data=get_current_category("front");
 
             if (all_data.vocabulary) {
                 vocabulary = all_data.vocabulary;
@@ -739,7 +741,7 @@ function init_memory_traning() {
         if(data.hasOwnProperty("english_tip") && data.english_tip) {
             user_data=data.english_tip;
 
-            var carrent_category=get_current_category();
+            var carrent_category=get_current_category("front");
 
             if (carrent_category.vocabulary) {
                 EnglishTip(carrent_category.vocabulary, carrent_category.config);

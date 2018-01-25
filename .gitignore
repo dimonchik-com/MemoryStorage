@@ -1,7 +1,7 @@
 bunch.js
 .idea
 package-lock.json
-MemoryTraining.zip
+MemoryStorage.zip
 /node_modules/*
 !node_modules/gulp-zip
 /MemoryTraining.zip

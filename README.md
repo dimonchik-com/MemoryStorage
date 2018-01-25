@@ -1,5 +1,5 @@
-# MemoryTraining
-The best Google Chrome extension for memory training. To be smart is easy!
+# MemoryStorage
+The best extension for storage knowledge and memory training. To be smart is easy!
 
 [Install plugin](https://chrome.google.com/webstore/detail/memorytraining/mnohamhkebjehjpackiendamgelabfpp)
 

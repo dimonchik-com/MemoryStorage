@@ -1,3 +1,5 @@
+"use strict";
+
 function get_constant(name) {
     var constant={
         time_reaction:5,
@@ -59,28 +61,11 @@ function getFormattedDate(date) {
     return str;
 }
 
-function get_current_category() {
-    var link_category;
-    if(user_data.category.length) {
-        for(var i in user_data.category) {
-            if(user_data.category[i].config.id==user_data.current_category) {
-                link_category=user_data.category[i];
-                break;
-            }
+function get_current_category(from="backend") {
 
-            if(user_data.category[i].hasOwnProperty("category")) {
-                if (user_data.category[i].category.length) {
-                    for (var i_two in user_data.category[i].category) {
-                        if (user_data.category[i].category[i_two].config.id == user_data.current_category) {
-                            link_category = user_data.category[i].category[i_two];
-                            break;
-                        }
-                    }
-                }
-            }
+    var id=parseInt((from=="front" && user_data.current_select_category)?user_data.current_select_category:user_data.current_category);
 
-        }
-    }
+    var link_category=get_category_by_id(id,user_data.category);
 
     if(!link_category.hasOwnProperty('vocabulary')) {
         link_category.vocabulary=[];
@@ -89,26 +74,26 @@ function get_current_category() {
     return link_category;
 }
 
-function get_cutegory_by_id(id,category) {
+function get_category_by_id(id,category) {
     if(category.length) {
         if(id==0) return {category:category};
         for (var i in category) {
             if(category[i].config.id==id) {
-                return link_category=category[i];
+                return category[i];
             }
 
             if(category[i].hasOwnProperty("category")) {
                 if (category[i].category.length) {
-                    for (var i_two in category[i].category) {
-                        if (category[i].category[i_two].config.id == id) {
-                            return link_category = category[i].category[i_two];
-                        }
+                    var link_category=get_category_by_id(id,category[i].category);
+                    if(link_category) {
+                        return link_category;
                     }
                 }
             }
 
         }
     }
+    return 0;
 }
 
 function getRandomInt(min, max) {
