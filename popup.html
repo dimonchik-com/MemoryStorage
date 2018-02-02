@@ -11,7 +11,9 @@
 	<script type="text/javascript" src="/node_modules/jquery/dist/jquery.js"></script>
 
     <script src="/node_modules/bootstrap-table/dist/bootstrap-table.js"></script>
-    <script src="/node_modules/bootstrap-table/dist/bootstrap-select/dist/js/bootstrap-select.js"></script>
+
+    <script src="/node_modules/bootstrap-select/dist/js/bootstrap-select.js"></script>
+    <link rel="stylesheet" href="/node_modules/bootstrap-select/dist/css/bootstrap-select.css">
     <script src="/node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js"></script>
 
     <link href="/bower_components/x-editable/dist/jquery-editable/css/jquery-editable.css" rel="stylesheet"/>
@@ -101,13 +103,15 @@
               <tr>
                 <td colspan="2">
                   <label>
-                    Category level
+                      Category level
                   </label>
 
-                  <select class="selectpicker tuersday_04_13_4" data-live-search="true">
-                    <option data-tokens="mustard" value="0">Top level</option>
-                  </select>
+                  <div>
+                      <select class="selectpicker tuesday_04_13_4" data-size="5" id="category_list" data-live-search="true" data-width="100%">
+                        <option data-tokens="mustard" value="0">Top level</option>
 
+                      </select>
+                  </div>
                 </td>
               </tr>
 
@@ -306,7 +310,7 @@
           <table cellpadding="0" cellspacing="0" border="0" width="100%">
             <tr>
               <td>
-                <div class="tuersday_04_13_3">
+                <div class="tuesday_04_13_3">
                   Category level
                 </div>
               </td>
@@ -314,7 +318,7 @@
 
             <tr>
               <td>
-                <select class="form-control tuersday_04_13_4">
+                <select class="form-control tuesday_04_13_4">
                   <option value="0">Top level</option>
                 </select>
               </td>
@@ -329,7 +333,7 @@
             <tr>
               <td>
                 <div>
-                    <input type="text" value="" name="" class="form-control tuersday_04_13_0">
+                    <input type="text" value="" name="" class="form-control tuesday_04_13_0">
                 </div>
               </td>
             </tr>

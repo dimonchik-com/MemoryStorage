@@ -90,10 +90,21 @@ function get_category_by_id(id,category) {
                     }
                 }
             }
-
         }
     }
     return 0;
+}
+
+function get_all_categories(category, list_categories) {
+    for(i in category) {
+        list_categories.push(category[i]);
+        if(category[i].hasOwnProperty("category")) {
+            if (category[i].category.length) {
+                get_all_categories(category[i].category,list_categories);
+            }
+        }
+    }
+    return list_categories;
 }
 
 function getRandomInt(min, max) {

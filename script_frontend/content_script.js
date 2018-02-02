@@ -234,12 +234,28 @@ function EnglishTip(vocabulary, config) {
                     if (event.key === "Enter") {
                         event.preventDefault();
                         var check_word=word[word_direction];
-                        // console.log(new String(event.target.value).toLowerCase()+"="+check_word.toLowerCase());
                         var input_text=new String(event.target.value).toLowerCase().trim();
-                        if(input_text==check_word.toLowerCase() ||
-                            convert_qwerty().fromEn(input_text).toLowerCase()==check_word.toLowerCase() ||
-                            convert_qwerty().toEn(input_text).toLowerCase()==check_word.toLowerCase()
-                        ) {
+
+                        var ar_check_words=check_word.toLowerCase().split("|");
+                        var flag;
+
+                        for(var index in ar_check_words) {
+                            var word_inside=ar_check_words[index];
+                            word_inside=word_inside.trim();
+                            if(input_text==word_inside ||
+                                convert_qwerty().fromEn(input_text).toLowerCase()==word_inside ||
+                                convert_qwerty().toEn(input_text).toLowerCase()==word_inside ||
+                                convert_qwerty().fromEn(word_inside).toLowerCase()==input_text ||
+                                convert_qwerty().toEn(word_inside).toLowerCase()==input_text
+                            ) {
+                                flag=1;
+                                break;
+                            } else {
+                                flag=0;
+                            }
+                        }
+
+                        if(flag) {
                             right_answer();
                             set_focus_on_input();
                         } else {

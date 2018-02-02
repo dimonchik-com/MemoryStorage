@@ -487,7 +487,7 @@ $( document ).ready(function() {
         number_repeat=number_repeat?number_repeat:"all";
         result.config.number_repeat=number_repeat;
 
-        var select_category=$(".wednesday_05_04_08 .tuersday_04_13_4").val();
+        var select_category=$("#category_list").val();
 
         if(select_category!=result.config.parent_id) {
             var parent_category=get_parent_categoty(result.config.parent_id);
@@ -521,7 +521,7 @@ $( document ).ready(function() {
         $(".all_task, .config").hide();
         $(".tuersday_04_13_1").text("Save");
         $(".new_category").show();
-        $(".tuersday_04_13_0").val("");
+        $(".tuesday_04_13_0").val("");
 
         update_category_in_select_list();
 
@@ -529,11 +529,11 @@ $( document ).ready(function() {
     });
 
     $('body').on('click', ".tuersday_04_13_1", function (e) {
-        var name_category=$(".new_category .tuersday_04_13_0").val();
-        var parent_category=$(".new_category .tuersday_04_13_4").val();
+        var name_category=$(".new_category .tuesday_04_13_0").val();
+        var parent_category=$(".new_category .tuesday_04_13_4").val();
 
         if(!name_category.length) {
-            $(".tuersday_04_13_0").parent().addClass("has-error");
+            $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
             var parent_category=get_parent_categoty(parent_category);
             var blank_category={
@@ -563,7 +563,7 @@ $( document ).ready(function() {
             set_storage(function () {
                 build_menu();
                 $(".p8 a[data-name="+user_data.current_category+"]").click();
-                $(".tuersday_04_13_0").val("");
+                $(".tuesday_04_13_0").val("");
             },1,8);
         }
         return false;
@@ -1041,7 +1041,6 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=dir_translation]').val(result.config.dir_translation);
     $('.wednesday_05_04_08 select[name=template_word]').val(result.config.template_word);
     $('.wednesday_05_04_08 select[name=position_template]').val(result.config.position_template);
-    $(".wednesday_05_04_08 select.tuersday_04_13_4").val(result.config.parent_id);
     $('.wednesday_05_04_08 input[name=time_break]').val(result.config.time_break);
     $('.wednesday_05_04_08 input[name=number_repeat]').val(result.config.number_repeat);
     $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.hasOwnProperty("delay_traning")?result.config.delay_traning:get_constant("delay_traning"));
@@ -1157,11 +1156,17 @@ function delete_current_category() {
 }
 
 function update_category_in_select_list() {
-    $(".tuersday_04_13_5").remove();
+    var all_cat=get_all_categories(user_data.category,[]);
+    var current_category=get_current_category(user_data.current_category);
 
-    for(var i=0; i<user_data.category.length; i++) {
-        $(".tuersday_04_13_4").append('<option class="tuersday_04_13_5" value="' + user_data.category[i].config.id + '">' + user_data.category[i].config.name + '</option>');
+    $(".tuesday_04_13_5").remove();
+    for(var i=0; i<all_cat.length; i++) {
+        if(all_cat[i].config.id!=current_category.config.id) {
+            var selected=(all_cat[i].config.id==current_category.config.parent_id)?"selected":"";
+            $("#category_list").append(`<option ${selected} class="tuesday_04_13_5" value="${all_cat[i].config.id}">${all_cat[i].config.name}</option>`);
+        }
     }
+    $("#category_list").selectpicker('refresh');
 }
 
 function start_play() {

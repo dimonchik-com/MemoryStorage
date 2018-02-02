@@ -1,22 +1,35 @@
 var gulp = require('gulp'),
     concat = require('gulp-concat'),
-    del = require('del');
-var archiver = require('gulp-zip');
+    del = require('del'),
+    archiver = require('gulp-zip'),
+    babel = require('gulp-babel'),
+    shell = require('shelljs'),
+    gulpMerge = require('gulp-merge');
 
 gulp.task('clean', function() {
     return del(['bunch.js']);
 });
 
-var paths_frontend=["script_frontend/firebase.js","script_frontend/md5.js","script_frontend/content_script.js","common_functions/common.js"];
+var paths_firebase=["script_frontend/firebase.js","script_frontend/md5.js","frontend.js"];
+var paths_frontend=["script_frontend/content_script.js","common_functions/common.js"];
 var paths_backend=["script_backend/jquery-sortable.js","script_backend/popup.js","common_functions/common.js"];
 
-gulp.task('scripts_frontend', ['clean'], function() {
+gulp.task('scripts_firebase', function() {
     return gulp.src(paths_frontend)
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(concat('frontend.js'))
+        .pipe(gulp.dest(""));
+});
+
+gulp.task('scripts_frontend', ['clean','scripts_firebase'], function() {
+    return gulp.src(paths_firebase)
         .pipe(concat('bunch.js'))
         .pipe(gulp.dest(""));
 });
 
-gulp.task('scripts_backend', ['clean'], function() {
+gulp.task('scripts_backend', function() {
     return gulp.src(paths_backend)
         .pipe(concat('popup.js'))
         .pipe(gulp.dest(""));
@@ -40,6 +53,7 @@ gulp.task('archive', () =>
             "node_modules/jquery/dist/jquery.js",
             "node_modules/bootstrap-table/dist/bootstrap-table.js",
             "node_modules/bootstrap-select/dist/js/bootstrap-select.js",
+            "node_modules/bootstrap-select/dist/css/bootstrap-select.min.css",
             "node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js",
             "bower_components/x-editable/dist/jquery-editable/css/jquery-editable.css",
             "node_modules/ion-rangeslider/css/ion.rangeSlider.css",
@@ -54,8 +68,11 @@ gulp.task('archive', () =>
     },2000)
 );
 
+
 gulp.task('watch', function() {
     gulp.watch([paths_frontend,paths_backend], ['scripts_frontend','scripts_backend', 'archive']);
 });
 
 gulp.task('default',['scripts_frontend','scripts_backend','watch','archive']);
+
+
