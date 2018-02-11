@@ -1,8 +1,15 @@
 "use strict";
 
-var db, user_data;
-var current_open_page = {};
+var db,
+    user_data,
+    current_open_page = {},
+    popup = 0;
 $(document).ready(function () {
+
+    if ($(window).width() < 200) {
+        $(".p0").css({ "width": "800px", "height": "600px" });
+        popup = 1;
+    }
 
     firebase.initializeApp({
         apiKey: 'AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E',
@@ -55,29 +62,6 @@ $(document).ready(function () {
                 number_repeat: get_constant("number_repeat"),
                 position_template: "bottom_right",
                 time_last_traning: new Date().getTime(),
-                delay_traning: get_constant("delay_traning"),
-                delay_traning_second: get_constant("delay_traning_second"),
-                way_traning: get_constant("way_traning"),
-                training_mode: 1,
-                stop_next_word: 0
-            },
-            category: []
-        }, {
-            vocabulary: [],
-            config: {
-                range_area: {
-                    start: 0,
-                    end: 0
-                },
-                dir_sorting: 0,
-                id: 2,
-                parent_id: 0,
-                name: "Other",
-                dir_translation: "source_translation",
-                template_word: "id_word",
-                time_break: get_constant("time_break"),
-                number_repeat: get_constant("number_repeat"),
-                position_template: "bottom_right",
                 delay_traning: get_constant("delay_traning"),
                 delay_traning_second: get_constant("delay_traning_second"),
                 way_traning: get_constant("way_traning"),
@@ -271,8 +255,6 @@ $(document).ready(function () {
     $("body").on("click", ".p8 a", function () {
         var name_tab = $(this).attr("data-name");
 
-        console.log(name_tab);
-
         user_data.current_category = name_tab;
 
         if (user_data.current_category != user_data.current_select_category) {
@@ -281,17 +263,26 @@ $(document).ready(function () {
             $(".wednesday_24_01").hide();
         }
 
-        if (name_tab == 2) {
-            $("a[data-name=2]").next().find("li:first a").click();
-            return false;
-        }
+        // if(name_tab==2) {
+        //     $("a[data-name=2]").next().find("li:first a").click();
+        //     return false;
+        // }
         set_storage(function () {
-            $(".config,.new_category,.all_task,.p11").hide();
+            $(".config,.new_category,.all_task,.p11,.sunday_02_11_2").hide();
             $(".all_task .bootstraptable").bootstrapTable('destroy');
 
             $(".all_task").show();
             all_task();
         }, 1, 5);
+    });
+
+    $("body").on("click", ".saturday_02_11_1", function () {
+        $(".config,.new_category,.all_task,.p11").hide();
+        $(".all_task .bootstraptable").bootstrapTable('destroy');
+        update_sort_category();
+        $(".sunday_02_11_2").show();
+
+        return false;
     });
 
     $("body").on("click", ".wednesday_24_01", function () {
@@ -477,8 +468,6 @@ $(document).ready(function () {
 
         var select_category = $("#category_list").val();
 
-        console.log(user_data.category);
-
         if (select_category != result.config.parent_id) {
             var parent_category = get_parent_categoty(result.config.parent_id);
             var splice_element;
@@ -599,11 +588,11 @@ $(document).ready(function () {
     });
 
     $(document).on("mouseenter", ".p8 li", function (e) {
-        $(this).find('ul').show();
+        $(this).find('ul:first').show();
     });
 
     $(document).on("mouseleave", ".p8 li", function (e) {
-        $(this).find('ul').hide();
+        $(this).find('ul:first').hide();
     });
 
     $("body").on("click", ".monday_06_01", function () {
@@ -812,6 +801,39 @@ function set_storage(callback) {
     });
 }
 
+function update_sort_category() {
+    $('.dd').removeData("nestable");
+    $(".sunday_02_11_3").html("");
+    var html = update_sort_category_html(user_data.category, "");
+    var height_table = popup ? $(window).height() - 67 : $(window).height() - 72;
+    $(".sunday_02_11_2").css({ "height": height_table + "px" });
+    $(".sunday_02_11_3").append("<ol class=\"dd-list\">" + html + "</ol>");
+
+    $('.dd').nestable({
+        group: 1
+    }).on('change', function () {
+        var data = $('.dd').nestable('serialize');
+        console.log(data);
+    });
+    $('.dd').nestable('collapseAll');
+}
+
+function update_sort_category_html(category, list_categories) {
+    for (var i in category) {
+        var active = category[i].config.id == user_data.current_category ? "active" : "";
+        if (category[i].hasOwnProperty("category") && category[i].category.length > 0) {
+            list_categories += "<li class=\"dd-item\" data-id=\"" + category[i].config.id + "\"><div class=\"dd-handle\">" + category[i].config.name + "</div><ol class=\"dd-list\">";
+            if (category[i].category.length) {
+                list_categories += update_sort_category_html(category[i].category, "");
+            }
+            list_categories += "</ol></li>";
+        } else {
+            list_categories += "<li class=\"dd-item\" data-id=\"" + category[i].config.id + "\"><div class=\"dd-handle\">" + category[i].config.name + "</div></li>";
+        }
+    }
+    return list_categories;
+}
+
 function save_data_in_firebase(callback) {
     var userId = firebase.auth().currentUser.uid;
     var copy_user_data = JSON.parse(JSON.stringify(user_data));
@@ -861,12 +883,11 @@ function get_word_from_vacabulary(id) {
 function all_task() {
     $(".friday_04_07_0,.friday_04_07_1").hide();
     get_storage(function (result) {
-
         var next_lesson = new Date(parseInt(result.config.time_last_traning));
         var date_next_lesson = /*moment(next_lesson).format('DD-MM-YYYY')+*/" at " + moment(next_lesson).format('HH:mm:ss');
-
         var pageSize = result.config.pageSize ? result.config.pageSize : 25;
         var pageNumber = result.config.pageNumber ? result.config.pageNumber : 1;
+        var height_table = popup ? $(window).height() - 67 : $(window).height() - 72;
         $(".all_task .build_task_table").bootstrapTable({
             data: result ? result.vocabulary : "",
             columns: [{
@@ -941,7 +962,7 @@ function all_task() {
             pageList: [10, 25, 50, 'All'],
             pageNumber: pageNumber,
             cookieIdTable: "all_task",
-            height: 529,
+            height: height_table,
             onPageChange: function onPageChange() {
                 result.config.pageSize = this.pageSize;
                 result.config.pageNumber = this.pageNumber;
@@ -1068,7 +1089,7 @@ function build_menu() {
     $(".p8").remove();
 
     var outerDiv = build_menu_html(user_data.category, "", 0);
-    outerDiv = '<ul class="nav navbar-nav p8">' + outerDiv + '</ul>';
+    outerDiv = "<ul class=\"nav navbar-nav p8\">" + outerDiv + "</ul>";
 
     $(".thursday_07_02_17").prepend(outerDiv);
 }
@@ -1078,14 +1099,14 @@ function build_menu_html(category, list_categories, deep) {
         var active = category[i].config.id == user_data.current_category ? "active" : "";
         if (category[i].hasOwnProperty("category") && category[i].category.length > 0) {
             var deep_class = deep == 0 ? "dropdown" : "dropdown-submenu";
-            var caret = deep == 0 ? '<span class="caret"></span>' : "";
-            list_categories += '<li class="' + deep_class + ' ' + active + '"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-name="' + category[i].config.id + '">' + category[i].config.name + caret + '</a><ul class="dropdown-menu">';
+            var caret = deep == 0 ? "<span class=\"caret\"></span>" : "";
+            list_categories += "<li class=\"" + deep_class + " " + active + "\"><a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\" data-name=\"" + category[i].config.id + "\">" + category[i].config.name + caret + "</a><ul class=\"dropdown-menu\">";
             if (category[i].category.length) {
                 list_categories += build_menu_html(category[i].category, "", deep + 1);
             }
-            list_categories += '</ul></li>';
+            list_categories += "</ul></li>";
         } else {
-            list_categories += '<li class="' + active + '"><a href="#" data-name="' + category[i].config.id + '">' + category[i].config.name + '</a></li>';
+            list_categories += "<li class=\"" + active + "\"><a href=\"#\" data-name=\"" + category[i].config.id + "\">" + category[i].config.name + "</a></li>";
         }
     }
     return list_categories;
@@ -1125,7 +1146,7 @@ function update_category_in_select_list() {
     for (var i = 0; i < all_cat.length; i++) {
         if (all_cat[i].config.id != current_category.config.id) {
             var selected = all_cat[i].config.id == current_category.config.parent_id ? "selected" : "";
-            $("#category_list,#category_list_create").append('<option ' + selected + ' class="tuesday_04_13_5" value="' + all_cat[i].config.id + '">' + all_cat[i].config.name + '</option>');
+            $("#category_list,#category_list_create").append("<option " + selected + " class=\"tuesday_04_13_5\" value=\"" + all_cat[i].config.id + "\">" + all_cat[i].config.name + "</option>");
         }
     }
     $("#category_list,#category_list_create").selectpicker('refresh');

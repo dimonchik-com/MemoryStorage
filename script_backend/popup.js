@@ -1,8 +1,12 @@
 "use strict";
 
-var db, user_data;
-var current_open_page={};
+var db, user_data, current_open_page={}, popup=0;
 $( document ).ready(function() {
+
+    if($(window).width()<200) {
+        $(".p0").css({"width":"800px","height":"600px"})
+        popup=1;
+    }
 
     firebase.initializeApp({
         apiKey: 'AIzaSyCMRbZuQQmVc610R3GGb3pGqF81VAyIL7E',
@@ -60,34 +64,6 @@ $( document ).ready(function() {
                     number_repeat:get_constant("number_repeat"),
                     position_template: "bottom_right",
                     time_last_traning:new Date().getTime(),
-                    delay_traning:get_constant("delay_traning"),
-                    delay_traning_second:get_constant("delay_traning_second"),
-                    way_traning:get_constant("way_traning"),
-                    training_mode:1,
-                    stop_next_word:0
-                },
-                category:[
-
-                ]
-            },
-            {
-                vocabulary:[
-
-                ],
-                config:{
-                    range_area:{
-                        start:0,
-                        end:0
-                    },
-                    dir_sorting:0,
-                    id:2,
-                    parent_id:0,
-                    name:"Other",
-                    dir_translation:"source_translation",
-                    template_word:"id_word",
-                    time_break:get_constant("time_break"),
-                    number_repeat:get_constant("number_repeat"),
-                    position_template: "bottom_right",
                     delay_traning:get_constant("delay_traning"),
                     delay_traning_second:get_constant("delay_traning_second"),
                     way_traning:get_constant("way_traning"),
@@ -287,8 +263,6 @@ $( document ).ready(function() {
 	$("body").on("click", ".p8 a",function () {
 		var name_tab=$(this).attr("data-name");
 
-		console.log(name_tab);
-
         user_data.current_category=name_tab;
 
         if(user_data.current_category!=user_data.current_select_category) {
@@ -297,18 +271,27 @@ $( document ).ready(function() {
             $(".wednesday_24_01").hide();
         }
 
-        if(name_tab==2) {
-            $("a[data-name=2]").next().find("li:first a").click();
-            return false;
-        }
+        // if(name_tab==2) {
+        //     $("a[data-name=2]").next().find("li:first a").click();
+        //     return false;
+        // }
         set_storage(function () {
-            $(".config,.new_category,.all_task,.p11").hide();
+            $(".config,.new_category,.all_task,.p11,.sunday_02_11_2").hide();
             $(".all_task .bootstraptable").bootstrapTable('destroy');
 
             $(".all_task").show();
             all_task();
         },1,5);
 	});
+
+    $("body").on("click", ".saturday_02_11_1",function () {
+        $(".config,.new_category,.all_task,.p11").hide();
+        $(".all_task .bootstraptable").bootstrapTable('destroy');
+        update_sort_category();
+        $(".sunday_02_11_2").show();
+
+        return false;
+    });
 
     $("body").on("click", ".wednesday_24_01", function () {
         user_data.current_select_category=user_data.current_category;
@@ -492,8 +475,6 @@ $( document ).ready(function() {
 
         var select_category=$("#category_list").val();
 
-        console.log(user_data.category);
-
         if(select_category!=result.config.parent_id) {
             var parent_category=get_parent_categoty(result.config.parent_id);
             var splice_element;
@@ -614,11 +595,11 @@ $( document ).ready(function() {
     });
 
     $(document).on("mouseenter", ".p8 li", function(e) {
-        $(this).find('ul').show();
+        $(this).find('ul:first').show();
     });
 
     $(document).on("mouseleave", ".p8 li", function(e) {
-        $(this).find('ul').hide();
+        $(this).find('ul:first').hide();
     });
 
     $("body").on("click",".monday_06_01", function () {
@@ -706,6 +687,7 @@ $( document ).ready(function() {
         var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow '+wednesday+'"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
         return html;
     }
+
 });
 
 function set_new_time() {
@@ -808,7 +790,7 @@ function get_storage(callback) {
 	});
 }
 
-function set_storage(callback, update_content_script=1, id_callback){
+function set_storage(callback, update_content_script=1, id_callback) {
     var current_category=get_current_category();
     if(current_category) {
         current_category.vocabulary.sort(function (a, b) {
@@ -824,6 +806,39 @@ function set_storage(callback, update_content_script=1, id_callback){
             return callback();
         }
     });
+}
+
+function update_sort_category() {
+    $('.dd').removeData("nestable");
+    $(".sunday_02_11_3").html("");
+    var html=update_sort_category_html(user_data.category,"");
+    var height_table=popup?$(window).height()-67:$(window).height()-72;
+    $(".sunday_02_11_2").css({"height":height_table+"px"});
+    $(".sunday_02_11_3").append(`<ol class="dd-list">${html}</ol>`);
+
+    $('.dd').nestable({
+        group: 1
+    }).on('change', function () {
+        var data=$('.dd').nestable('serialize');
+        console.log(data);
+    });
+    $('.dd').nestable('collapseAll');
+}
+
+function update_sort_category_html(category, list_categories) {
+    for(var i in category) {
+        var active=(category[i].config.id==user_data.current_category) ? "active": "";
+        if(category[i].hasOwnProperty("category") && category[i].category.length>0) {
+            list_categories+=`<li class="dd-item" data-id="${category[i].config.id}"><div class="dd-handle">${category[i].config.name}</div><ol class="dd-list">`;
+            if (category[i].category.length) {
+                list_categories+=update_sort_category_html(category[i].category,"");
+            }
+            list_categories+=`</ol></li>`;
+        } else {
+            list_categories+=`<li class="dd-item" data-id="${category[i].config.id}"><div class="dd-handle">${category[i].config.name}</div></li>`;
+        }
+    }
+    return list_categories;
 }
 
 function save_data_in_firebase(callback) {
@@ -873,12 +888,11 @@ function get_word_from_vacabulary(id) {
 function all_task() {
     $(".friday_04_07_0,.friday_04_07_1").hide();
     get_storage(function (result) {
-
             var next_lesson=new Date(parseInt(result.config.time_last_traning));
             var date_next_lesson=/*moment(next_lesson).format('DD-MM-YYYY')+*/" at "+moment(next_lesson).format('HH:mm:ss');
-
             var pageSize=(result.config.pageSize)?result.config.pageSize:25;
             var pageNumber=(result.config.pageNumber)?result.config.pageNumber:1;
+            var height_table=popup?$(window).height()-67:$(window).height()-72;
             $(".all_task .build_task_table").bootstrapTable({
             	data:(result)?result.vocabulary:"",
                 columns: [
@@ -961,7 +975,7 @@ function all_task() {
                 pageList: [10, 25, 50, 'All'],
                 pageNumber:pageNumber,
                 cookieIdTable: "all_task",
-				height: 529,
+				height: height_table,
                 onPageChange:function(){
                     result.config.pageSize=this.pageSize;
                     result.config.pageNumber=this.pageNumber;

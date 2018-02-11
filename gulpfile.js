@@ -10,7 +10,7 @@ gulp.task('clean', function() {
     return del(['bunch.js']);
 });
 
-var paths_firebase=["script_frontend/firebase.js","script_frontend/md5.js","frontend.js"];
+var paths_firebase=["script_frontend/md5.js","frontend.js"];
 var paths_frontend=["script_frontend/content_script.js","common_functions/common.js"];
 var paths_backend=["script_backend/popup.js","common_functions/common.js"];
 
