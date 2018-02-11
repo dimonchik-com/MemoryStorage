@@ -12,7 +12,7 @@ gulp.task('clean', function() {
 
 var paths_firebase=["script_frontend/firebase.js","script_frontend/md5.js","frontend.js"];
 var paths_frontend=["script_frontend/content_script.js","common_functions/common.js"];
-var paths_backend=["script_backend/jquery-sortable.js","script_backend/popup.js","common_functions/common.js"];
+var paths_backend=["script_backend/popup.js","common_functions/common.js"];
 
 gulp.task('scripts_firebase', function() {
     return gulp.src(paths_frontend)
@@ -31,6 +31,9 @@ gulp.task('scripts_frontend', ['clean','scripts_firebase'], function() {
 
 gulp.task('scripts_backend', function() {
     return gulp.src(paths_backend)
+        .pipe(babel({
+            presets: ['env']
+        }))
         .pipe(concat('popup.js'))
         .pipe(gulp.dest(""));
 });

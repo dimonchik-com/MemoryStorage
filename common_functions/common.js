@@ -19,7 +19,7 @@ function time_reaction_get_everage_value(time_reaction) {
         var sum = time_reaction.reduce(function (a, b) {
             return a + parseFloat(b.time);
         }, 0);
-        data = sum / time_reaction.length;
+        var data = sum / time_reaction.length;
         data = data.toFixed(2);
         return data;
     }
@@ -96,7 +96,7 @@ function get_category_by_id(id,category) {
 }
 
 function get_all_categories(category, list_categories) {
-    for(i in category) {
+    for(var i in category) {
         list_categories.push(category[i]);
         if(category[i].hasOwnProperty("category")) {
             if (category[i].category.length) {
@@ -129,4 +129,13 @@ function eventFire(el, etype){
     var evObj = document.createEvent('Events');
     evObj.initEvent(etype, true, false);
     el.dispatchEvent(evObj);
+}
+
+function isEmptyObject(obj) {
+    for(var prop in obj) {
+        if(obj.hasOwnProperty(prop))
+            return false;
+    }
+
+    return JSON.stringify(obj) === JSON.stringify({});
 }
