@@ -47,12 +47,6 @@
 .thirsday_08_06_01{position: absolute; top: 60px; font-size: 13px;}
 .wednesday_05_04_10{position: relative;}
 .friday_09_06_01{right: 0; position: absolute; top: -25px;}
-.monday_06_01{    position: absolute;
-    right: 0;
-    top: 19px;
-    margin: 0 100px 0 0;
-    color: #337ab7;
-    font-size: 16px; cursor: pointer;}
 .sunday_07_09{cursor: pointer;}
 .sunday_07_09_02 td{vertical-align: top;}
 .sunday_07_09_03{margin: 2px 0 0 0;}
@@ -71,6 +65,13 @@
 .saturday_02_11_1{margin: 0 0 0 2px;}
 .dropdown-menu>li>a{padding: 3px 15px;}
 .sunday_02_11_2{display: none; overflow: auto;}
+.tuesday_02_13_0{position: absolute;
+    top: 0px;
+    right: 0px;
+    margin: 15px 100px 0 0;
+    font-size: 15px;}
+.tuesday_02_13_0 a{margin: 0 2px 0 0;}
+.tuesday_02_13_1{margin: 0 0 0 7px; position: relative; top: -2px;}
 
 .dropdown-submenu {
     position: relative;
