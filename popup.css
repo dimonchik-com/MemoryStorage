@@ -60,7 +60,12 @@
     position: relative;}
 .wednesday_05_04_08 label{margin-bottom: 6px;}
 .wednesday_24_01{display: none; margin-left: 5px; top: 2px; color: #000;}
-.wednesday_24_01:hover{color: #337ab7}
+.wednesday_24_01{color: #b70b0b;
+    font-size: 16px;
+    position: relative;
+    top: 3px;
+    margin-right: 5px!important;}
+.wednesday_24_01:hover{color: black;}
 .tuesday_04_13_4{width: 100%;}
 .saturday_02_11_1{margin: 0 0 0 2px;}
 .dropdown-menu>li>a{padding: 3px 15px;}
@@ -68,7 +73,7 @@
 .tuesday_02_13_0{position: absolute;
     top: 0px;
     right: 0px;
-    margin: 15px 100px 0 0;
+    margin: 16px 100px 0 0;
     font-size: 15px;}
 .tuesday_02_13_0 a{margin: 0 2px 0 0;}
 .tuesday_02_13_1{margin: 0 0 0 7px; position: relative; top: -2px;}

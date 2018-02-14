@@ -469,7 +469,7 @@ $(document).ready(function () {
         var select_category = $("#category_list").val();
 
         if (select_category != result.config.parent_id) {
-            var parent_category = get_parent_categoty(result.config.parent_id);
+            var parent_category = get_parent_category(result.config.parent_id);
             var splice_element;
             for (var i in parent_category.category) {
                 if (parent_category.category[i].config.id == result.config.id) {
@@ -501,7 +501,7 @@ $(document).ready(function () {
         $(".new_category").show();
         $(".tuesday_04_13_0").val("");
 
-        update_category_in_select_list();
+        update_category_in_select_list(false);
 
         return false;
     });
@@ -510,10 +510,13 @@ $(document).ready(function () {
         var name_category = $(".new_category .tuesday_04_13_0").val();
         var parent_category = $("#category_list_create").val();
 
+        console.log(parent_category);
+
         if (!name_category.length) {
             $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
-            var parent_category = get_parent_categoty(parent_category);
+            var parent_category = get_parent_category(parent_category);
+            console.log(parent_category);
             var blank_category = {
                 vocabulary: [],
                 category: [],
@@ -1018,7 +1021,7 @@ function config_tab() {
     var range = get_range();
     var result = get_current_category();
 
-    update_category_in_select_list();
+    update_category_in_select_list(true);
 
     var slider = $("#range_03").data("ionRangeSlider");
     if (slider) {
@@ -1064,7 +1067,7 @@ function config_tab() {
     });
 }
 
-function get_parent_categoty(parent_category) {
+function get_parent_category(parent_category) {
     var ref;
     if (parent_category == 0) {
         if (!user_data.hasOwnProperty("category")) {
@@ -1072,14 +1075,8 @@ function get_parent_categoty(parent_category) {
         }
         ref = { category: user_data.category, id_category: 0 };
     } else {
-        for (var i in user_data.category) {
-            if (parent_category == user_data.category[i].config.id) {
-                if (!user_data.category[i].hasOwnProperty("category")) {
-                    user_data.category[i].category = [];
-                }
-                ref = { category: user_data.category[i].category, id_category: user_data.category[i].config.id };
-            }
-        }
+        var cat = get_category_by_id(parent_category, user_data.category);
+        ref = { category: cat.category, id_category: cat.config.id };
     }
 
     return ref;
@@ -1137,17 +1134,16 @@ function delete_current_category() {
     }, 1, 20);
 }
 
-function update_category_in_select_list() {
+function update_category_in_select_list(show_current) {
     var all_cat = get_all_categories(user_data.category, []);
 
     var current_category = get_current_category(user_data.current_category);
 
     $(".tuesday_04_13_5").remove();
     for (var i = 0; i < all_cat.length; i++) {
-        if (all_cat[i].config.id != current_category.config.id) {
-            var selected = all_cat[i].config.id == current_category.config.parent_id ? "selected" : "";
-            $("#category_list,#category_list_create").append("<option " + selected + " class=\"tuesday_04_13_5\" value=\"" + all_cat[i].config.id + "\">" + all_cat[i].config.name + "</option>");
-        }
+        if (all_cat[i].config.id == current_category.config.id && show_current) continue;
+        var selected = all_cat[i].config.id == current_category.config.parent_id ? "selected" : "";
+        $("#category_list,#category_list_create").append("<option " + selected + " class=\"tuesday_04_13_5\" value=\"" + all_cat[i].config.id + "\">" + all_cat[i].config.name + "</option>");
     }
     $("#category_list,#category_list_create").selectpicker('refresh');
 }
