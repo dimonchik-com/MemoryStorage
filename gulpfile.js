@@ -34,7 +34,7 @@ gulp.task('scripts_backend', function() {
         .pipe(babel({
             presets: ['env']
         }))
-        .pipe(concat('popup.js'))
+        .pipe(concat('popup_bunch.js'))
         .pipe(gulp.dest(""));
 });
 

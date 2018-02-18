@@ -401,7 +401,7 @@ function EnglishTip(vocabulary, config) {
         config.time_last_traning=next_time_lesson;
 
         // update time in rest categories
-        var all_category=get_all_category();
+        var all_category=get_all_categories(user_data.category,[]);
 
         for(var i in all_category) {
             var time=all_category[i].config.time_break?all_category[i].config.time_break:30;

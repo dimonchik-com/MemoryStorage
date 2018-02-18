@@ -380,7 +380,7 @@ function EnglishTip(vocabulary, config) {
         config.time_last_traning = next_time_lesson;
 
         // update time in rest categories
-        var all_category = get_all_category();
+        var all_category = get_all_categories(user_data.category, []);
 
         for (var i in all_category) {
             var time = all_category[i].config.time_break ? all_category[i].config.time_break : 30;
@@ -783,24 +783,6 @@ function time_reaction_get_everage_value(time_reaction) {
     }
 }
 
-function get_all_category() {
-    var category = [];
-    if (user_data.category.length) {
-        for (var i in user_data.category) {
-            category.push(user_data.category[i]);
-
-            if (user_data.category[i].hasOwnProperty("category")) {
-                if (user_data.category[i].category.length) {
-                    for (var i_two in user_data.category[i].category) {
-                        category.push(user_data.category[i].category[i_two]);
-                    }
-                }
-            }
-        }
-    }
-    return category;
-}
-
 function getFormattedDate(date) {
     var month = date.getMonth() + 1;
     var day = date.getDate();
@@ -861,6 +843,21 @@ function get_all_categories(category, list_categories) {
         if (category[i].hasOwnProperty("category")) {
             if (category[i].category.length) {
                 get_all_categories(category[i].category, list_categories);
+            }
+        }
+    }
+    return list_categories;
+}
+
+function sort_new_user_data(category, list_categories, new_all_category) {
+    for (var i in category) {
+        var copy_category = JSON.parse(JSON.stringify(new_all_category[category[i].id]));
+        copy_category.category = [];
+        list_categories.push(copy_category);
+        if (category[i].hasOwnProperty("children")) {
+            if (category[i].children.length) {
+                var new_category_list = sort_new_user_data(category[i].children, copy_category.category, new_all_category);
+                copy_category.category = new_category_list;
             }
         }
     }

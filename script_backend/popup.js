@@ -293,6 +293,43 @@ $( document ).ready(function() {
         return false;
     });
 
+    $("body").on("click", "#nestable-menu button[data-action='expand-all']", function () {
+        $('.dd').nestable('expandAll');
+        return false;
+    });
+
+    $("body").on("click", "#nestable-menu button[data-action='collapse-all']", function () {
+        $('.dd').nestable('collapseAll');
+        return false;
+    });
+
+    $("body").on("click", "#nestable-menu button[data-action='cancel']", function () {
+        $(".p8 a[data-name=" + user_data.current_category + "]").click();
+        return false;
+    });
+
+    $("body").on("click", "#nestable-menu button[data-action='save_new']", function () {
+        var ob=$('.dd').nestable('serialize');
+        console.log(ob);
+
+        let all_category=get_all_categories(user_data.category,[]);
+        let new_all_category=[];
+        all_category.map((elem)=>{
+            new_all_category[elem.config.id]=elem;
+        });
+
+        let new_user_data=sort_new_user_data(ob,[],new_all_category);
+        user_data.category=new_user_data;
+
+        set_storage(function () {
+            build_menu();
+            $(".p8 a[data-name="+user_data.current_category+"]").click();
+            $(".tuesday_04_13_0").val("");
+        },1,8);
+
+        return false;
+    });
+
     $("body").on("click", ".wednesday_24_01", function () {
         user_data.current_select_category=user_data.current_category;
         $(".wednesday_24_01").hide();
@@ -517,8 +554,6 @@ $( document ).ready(function() {
         var name_category=$(".new_category .tuesday_04_13_0").val();
         var parent_category=$("#category_list_create").val();
 
-        console.log(parent_category);
-
         if(!name_category.length) {
             $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
@@ -700,7 +735,7 @@ function set_new_time() {
 }
 
 function set_new_time_all(time_now) {
-    var result=get_all_category();
+    var result=get_all_categories(user_data.category,[]);
 
     for(var i in result) {
         var time=result[i].config.time_break?result[i].config.time_break:30;
