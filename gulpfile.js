@@ -46,7 +46,7 @@ gulp.task('archive', () =>
             "memorytraining-16.png",
             "memorytraining-48.png",
             "popup.css",
-            "popup.js",
+            "popup_bunch.js",
             "popup.html",
             "bunch.js",
             "node_modules/bootstrap/dist/fonts/*",

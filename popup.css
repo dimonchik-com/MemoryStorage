@@ -131,7 +131,19 @@
     -moz-animation: spin 2s infinite linear;
     -o-animation: spin 2s infinite linear;
     animation: spin 2s infinite linear;
+    text-decoration:none !important;
 }
+
+.stylish {
+    background-color: yellow;
+}
+
+.stylish1 {
+    background-color: transparent;
+    transition: background-color 1s;
+}
+
+.gly-spin:hover{text-decoration:none !important;}
 @-moz-keyframes spin {
     0% {
         -moz-transform: rotate(0deg);

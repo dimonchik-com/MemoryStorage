@@ -644,6 +644,7 @@ $( document ).ready(function() {
         synchronize_data(function () {
 
         });
+        return false;
     });
 
     $("body").on("click",".wednesday_7_12_01",function () {
@@ -654,6 +655,21 @@ $( document ).ready(function() {
             set_new_time_all(1);
         }
         return false;
+    });
+
+    $("body").on("click",".cp",function(){
+        let content=$(this).text();
+        (function(){let __temp = document.createElement('input');document.body.appendChild(__temp),__temp.value=content,__temp.select(),document.execCommand("copy"),__temp.remove()})();
+        $(this).animate({backgroundColor:'#4E1402'}, 300);
+
+        var myRow = $(this);
+
+        myRow.addClass('stylish');
+
+        setTimeout(function() {
+             myRow.addClass('stylish1');
+        }, 100);
+
     });
 
     function synchronize_data(callback, force_overwriting=false) {
@@ -971,7 +987,8 @@ function all_task() {
                                 data="-";
                             }
                             return '<a href="#" class="wednesday_05_04_07" id="'+all_data.id+'">'+data+'</a>';
-						}
+						},
+                        class: 'cp'
 					},
 					{
 						field: 'reaction',
