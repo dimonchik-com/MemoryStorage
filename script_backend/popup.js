@@ -1,6 +1,6 @@
 "use strict";
 
-var db, user_data, current_open_page={}, popup=0;
+var db, user_data, current_open_page={}, popup=0, snapshot;
 $( document ).ready(function() {
 
     if($(window).width()<200) {
@@ -28,7 +28,8 @@ $( document ).ready(function() {
                         time_reaction:[],
                         iteration:0,
                         total_iteration:0,
-                        status_learn:0
+                        status_learn:0,
+                        cat_id:1
                     },
                     {
                         id:2,
@@ -37,7 +38,8 @@ $( document ).ready(function() {
                         time_reaction:[],
                         iteration:0,
                         total_iteration:0,
-                        status_learn:0
+                        status_learn:0,
+                        cat_id:1
                     },
                     {
                         id:3,
@@ -46,7 +48,8 @@ $( document ).ready(function() {
                         time_reaction:[],
                         iteration:0,
                         total_iteration:0,
-                        status_learn:0
+                        status_learn:0,
+                        cat_id:1
                     }
                 ],
                 config:{
@@ -189,7 +192,8 @@ $( document ).ready(function() {
         $(this).addClass("sunday_07_09 glyphicon glyphicon-ok").attr({"title":"Learned"});
 
         var id=$(this).parent().parent().find(".thursday_27_04_1").attr("id");
-        var word=get_word_from_vacabulary(id);
+        var cat_id=$(this).parent().parent().find(".thursday_27_04_1").attr("cat_id");
+        var word=get_word_from_vacabulary(id,cat_id);
 
         if(word) {
             word.status_learn=1;
@@ -202,7 +206,8 @@ $( document ).ready(function() {
         $(this).addClass("tuesday_07_11_01").attr({"title":"Not learned"});
 
         var id=$(this).parent().parent().find(".thursday_27_04_1").attr("id");
-        var word=get_word_from_vacabulary(id);
+        var cat_id=$(this).parent().parent().find(".thursday_27_04_1").attr("cat_id");
+        var word=get_word_from_vacabulary(id,cat_id);
 
         if(word) {
             word.status_learn=0;
@@ -239,7 +244,8 @@ $( document ).ready(function() {
                 time_reaction:[],
                 iteration:0,
 				total_iteration:0,
-                status_learn:0
+                status_learn:0,
+                cat_id:result.config.id
 			});
 
             user_data.time_last_activity=new Date().getTime();
@@ -416,8 +422,10 @@ $( document ).ready(function() {
             word="";
         }
         var id=$(this).attr("id");
+        var cat_id=$(this).attr("cat_id");
         word=escapeHtml(word);
-        var html=get_tooltip(id, word, (ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday);
+
+        var html=get_tooltip(id, word, (ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday, cat_id);
         $(".p0").append(html);
         return false;
     });
@@ -429,12 +437,15 @@ $( document ).ready(function() {
 
     $("body").on("click",".editable-submit", function () {
         var id=$(".wednesday_05_04_09").attr("id");
+        var cat_id=$(".wednesday_05_04_09").attr("cat_id");
         var val=$(".wednesday_05_04_09").val();
 
         var copy_val=(val)?val:"-";
         $(current_click_element).text(copy_val);
 
-        update_word_in_vacabulary(id, val, current_click_class, false);
+        console.log(cat_id);
+
+        update_word_in_vacabulary(id, val, current_click_class, false, cat_id);
 
         $(".wednesday_05_04_06").remove();
         return false;
@@ -737,8 +748,8 @@ $( document ).ready(function() {
         }
     }
 
-    function get_tooltip(id, word, top, left, wednesday) {
-        var html='<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:'+top+'px; left:'+left+'px; display: block;"><div class="arrow '+wednesday+'"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="'+word+'" style="padding-right: 24px;" id="'+id+'"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>';
+    function get_tooltip(id, word, top, left, wednesday, cat_id) {
+        var html=`<div class="popover editable-container editable-popup fade top in wednesday_05_04_06" style="top:${top}px; left:${left}px; display: block;"><div class="arrow ${wednesday}"></div><h3 class="popover-title">Enter username</h3><div class="popover-content"> <div><div class="editableform-loading" style="display: none;"></div><form class="form-inline editableform" style=""><div class="control-group form-group"><div><div class="editable-input" style="position: relative;"><input type="text" class="form-control input-sm wednesday_05_04_09" value="${word}" style="padding-right: 24px;" id="${id}" cat_id="${cat_id}"></div><div class="editable-buttons"><button type="submit" class="btn btn-primary btn-sm editable-submit"><i class="glyphicon glyphicon-ok"></i></button><button type="button" class="btn btn-default btn-sm editable-cancel"><i class="glyphicon glyphicon-remove"></i></button></div></div><div class="editable-error-block help-block" style="display: none;"></div></div></form></div></div></div>`;
         return html;
     }
 
@@ -834,7 +845,12 @@ function startSignIn() {
 function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
         if(result && result.hasOwnProperty("english_tip") && result.english_tip) {
+            setTimeout(()=>{
+                snapshot = Defiant.getSnapshot(result.english_tip.category);
+            },2000);
+
             user_data=result.english_tip;
+
             build_menu();
             return callback(get_current_category());
         } else {
@@ -853,6 +869,13 @@ function set_storage(callback, update_content_script=1, id_callback) {
     }
 
     user_data.update_content_script=update_content_script;
+
+    // var all_cat=get_all_categories(user_data.category,[]);
+    // all_cat.map((element)=>{
+    //     element.vocabulary.map((word)=>{
+    //         word.cat_id=element.config.id;
+    //     });
+    // });
 
     // console.log("update date "+new Date());
     chrome.storage.local.set({'english_tip': user_data}, function(status) {
@@ -913,8 +936,8 @@ function save_data_in_firebase(callback) {
     });
 }
 
-function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
-    var word=get_word_from_vacabulary(id);
+function update_word_in_vacabulary(id, val, current_click_class, rebut=true, cat_id) {
+    var word=get_word_from_vacabulary(id, cat_id);
 
     if(word[current_click_class]==val || !word) {
         return true;
@@ -929,8 +952,8 @@ function update_word_in_vacabulary(id, val, current_click_class, rebut=true) {
     set_storage(()=>{},1,16);
 }
 
-function get_word_from_vacabulary(id) {
-    var result=get_current_category();
+function get_word_from_vacabulary(id, cat_id) {
+    var result=get_category_by_id(cat_id,user_data.category);
     for(var i in result.vocabulary) {
         if(result.vocabulary[i].id==id) {
             return result.vocabulary[i];
@@ -962,8 +985,8 @@ function all_task() {
                         sortable: true,
                         align: 'center',
                         editable: true,
-                        formatter:function (data) {
-                            return '<a href="#" class="thursday_27_04_1" id="'+data+'">'+data+'</a>';
+                        formatter:function (data, all_data) {
+                            return `<a href="#" class="thursday_27_04_1" id="${data}" cat_id="${all_data.cat_id}">${data}</a>`;
                         }
                     },
                     {
@@ -986,7 +1009,7 @@ function all_task() {
 						    if(data.replace(/\s/g,'')==""){
                                 data="-";
                             }
-                            return '<a href="#" class="wednesday_05_04_07" id="'+all_data.id+'">'+data+'</a>';
+                            return `<a href="#" class="wednesday_05_04_07" id="${all_data.id}" cat_id="${all_data.cat_id}">${data}</a>`;
 						},
                         class: 'cp'
 					},
@@ -1031,6 +1054,14 @@ function all_task() {
                 pageNumber:pageNumber,
                 cookieIdTable: "all_task",
 				height: height_table,
+                customSearch:function (text) {
+                    if(text) {
+                        var found_ru = JSON.search(snapshot, `//*[contains(ru, "${text}")]`);
+                        var found_en = JSON.search(snapshot, `//*[contains(en, "${text}")]`);
+                        var concat = found_ru.concat(found_en);
+                        this.data = concat;
+                    }
+                },
                 onPageChange:function(){
                     result.config.pageSize=this.pageSize;
                     result.config.pageNumber=this.pageNumber;

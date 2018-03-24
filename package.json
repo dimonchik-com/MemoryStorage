@@ -39,6 +39,7 @@
     "bootstrap-select": "^1.12.4",
     "bootstrap-table": "^1.11.2",
     "convert-layout": "^0.5.0",
+    "defiant": "^1.4.5",
     "del": "^2.2.2",
     "esutils": "^2.0.2",
     "gulp": "^3.9.1",
