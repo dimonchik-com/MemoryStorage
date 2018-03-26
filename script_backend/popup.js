@@ -680,7 +680,11 @@ $( document ).ready(function() {
         setTimeout(function() {
              myRow.addClass('stylish1');
         }, 100);
+    });
 
+    $(".monday_26_03_0").on("click",()=>{
+        saveJson(user_data);
+        return false;
     });
 
     function synchronize_data(callback, force_overwriting=false) {
@@ -998,7 +1002,7 @@ function all_task() {
                             if(data.replace(/\s/g,'')==""){
                                 data="-";
                             }
-                            return '<a href="#" class="wednesday_05_04_05" id="'+all_data.id+'">'+data+'</a>';
+                            return `<a href="#" class="wednesday_05_04_05" id="${all_data.id}" cat_id="${all_data.cat_id}">${data}</a>`;
                         }
                     },
 					{
@@ -1056,9 +1060,20 @@ function all_task() {
 				height: height_table,
                 customSearch:function (text) {
                     if(text) {
-                        var found_ru = JSON.search(snapshot, `//*[contains(ru, "${text}")]`);
-                        var found_en = JSON.search(snapshot, `//*[contains(en, "${text}")]`);
-                        var concat = found_ru.concat(found_en);
+                        if(!snapshot)
+                        snapshot = Defiant.getSnapshot(user_data.category);
+                        let found_ru = JSON.search(snapshot, `//*[contains(ru, "${text}")]`);
+                        let found_en = JSON.search(snapshot, `//*[contains(en, "${text}")]`);
+                        let concat = found_ru.concat(found_en);
+                        let list_id=[];
+                        concat=concat.filter((item)=>{
+                            if(list_id.indexOf(item.id)==-1) {
+                                list_id.push(item.id);
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        });
                         this.data = concat;
                     }
                 },
@@ -1303,3 +1318,19 @@ chrome.windows.getCurrent(function(win)
 
     });
 });
+
+var saveJson = function(obj) {
+    var str = JSON.stringify(obj,null,4);
+
+    var blob = new Blob([str], {
+        type: 'application/json'
+    });
+
+    var url = URL.createObjectURL( blob );
+    var link = document.createElement( 'a' );
+    link.setAttribute( 'href', url );
+    link.setAttribute( 'download', 'data.json' );
+    var event = document.createEvent( 'MouseEvents' );
+    event.initMouseEvent( 'click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
+    link.dispatchEvent( event );
+}
