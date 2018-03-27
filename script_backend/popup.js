@@ -6,6 +6,8 @@ $( document ).ready(function() {
     if($(window).width()<200) {
         $(".p0").css({"width":"800px","height":"600px"})
         popup=1;
+    } else {
+        $(".monday_26_03_0").show();
     }
 
     firebase.initializeApp({
@@ -569,7 +571,6 @@ $( document ).ready(function() {
             $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
             var parent_category=get_parent_category(parent_category);
-            console.log(parent_category);
             var blank_category={
                 vocabulary:[],
                 category:[],
@@ -1329,7 +1330,7 @@ var saveJson = function(obj) {
     var url = URL.createObjectURL( blob );
     var link = document.createElement( 'a' );
     link.setAttribute( 'href', url );
-    link.setAttribute( 'download', 'data.json' );
+    link.setAttribute( 'download', `MemoryStorage-${('0'+(new Date().getMonth()+1)).slice(-2)}.${new Date().getDate() + 1}.${new Date().getFullYear() + 1}.json` );
     var event = document.createEvent( 'MouseEvents' );
     event.initMouseEvent( 'click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
     link.dispatchEvent( event );
