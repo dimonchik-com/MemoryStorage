@@ -38,7 +38,6 @@ function EnglishTip(vocabulary, config) {
         var wednesday = document.getElementById('wednesday_29_03_1');
 
         if (tuesday && target.id != "tuesday_03_10_0" && document.getElementById('tuesday_03_10_0')) {
-            console.log(1);
             create_world(false, true);
         }
 
@@ -369,7 +368,7 @@ function EnglishTip(vocabulary, config) {
         remove_element(["wednesday_29_03_1", "wednesday_29_03_0"]);
         create_world(true, true);
 
-        var delay_traning = config.delay_traning ? parseInt(config.delay_traning) : 0;
+        var delay_traning = config.delay_traning ? parseInt(config.delay_traning) : 1;
         var delay_traning_second = config.delay_traning_second ? config.delay_traning_second : get_constant("delay_traning_second");
 
         if (delay_traning) {
