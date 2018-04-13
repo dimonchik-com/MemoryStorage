@@ -82,7 +82,7 @@ $( document ).ready(function() {
         ],
         top_id:3,
         time_last_activity:new Date().getTime(),
-        update_content_script:1,
+        update_content_script:1, // need or not update content_script
         status_enable:1
     };
 
@@ -238,31 +238,7 @@ $( document ).ready(function() {
             }
 
             if(error) return false;
-
-            result.vocabulary.push({
-                id:new_id,
-				en:new_word,
-				ru:new_translate,
-                time_reaction:[],
-                iteration:0,
-				total_iteration:0,
-                status_learn:0,
-                cat_id:result.config.id
-			});
-
-            user_data.time_last_activity=new Date().getTime();
-            user_data.save_data_when_open=1;
-
-            // update count
-            var range=get_range();
-            if(result.config.range_area.end==(range.max_index-1)){
-                result.config.range_area.end=range.max_index;
-            }
-            set_storage(function(){
-				$(".p12 input").val("");
-                $(".p11").hide();
-                $(".p8 a[data-name="+user_data.current_category+"]").click();
-			},1,4);
+            create_new_word(result,new_id,new_word,new_translate);
 		});
 		return false;
 	});
@@ -375,12 +351,12 @@ $( document ).ready(function() {
 			list_remove_task.push(name_domain);
 		});
 
-		bootbox.confirm("Are you sure you want to delete the tasks?", function(action) {
+		bootbox.confirm("Are you sure you want to delete the word?", function(action) {
 			if(action) {
 				get_storage(function (result) {
 				    var i=result.vocabulary.length;
                     while(i--) {
-                        if(list_remove_task.indexOf(result.vocabulary[i].id)!=-1 || !result.vocabulary[i].id) {
+                        if(list_remove_task.indexOf(String(result.vocabulary[i].id))!=-1 || !result.vocabulary[i].id) {
                             result.vocabulary.splice(i,1);
                         }
                     }
@@ -570,36 +546,7 @@ $( document ).ready(function() {
         if(!name_category.length) {
             $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
-            var parent_category=get_parent_category(parent_category);
-            var blank_category={
-                vocabulary:[],
-                category:[],
-                config:{
-                    range_area:{start:0,end:0},
-                    dir_sorting:0,
-                    id:user_data.top_id++,
-                    parent_id:parent_category.id_category,
-                    name:name_category,
-                    position_template: "bottom_right",
-                    time_break: 30,
-                    number_repeat: 10,
-                    dir_translation: "source_translation",
-                    template_word: "id_word",
-                    time_reaction: 5,
-                    time_reps:50,
-                    train_learned_words:0,
-                    time_last_traning:new Date().getTime()
-                }
-            };
-
-            parent_category.category.push(blank_category);
-
-            user_data.current_category=blank_category.config.id;
-            set_storage(function () {
-                build_menu();
-                $(".p8 a[data-name="+user_data.current_category+"]").click();
-                $(".tuesday_04_13_0").val("");
-            },1,8);
+            create_category(parseInt(parent_category),name_category);
         }
         return false;
     });
@@ -688,6 +635,33 @@ $( document ).ready(function() {
         return false;
     });
 
+    function create_new_word(result,new_id,new_word,new_translate) {
+        result.vocabulary.push({
+            id:new_id,
+            en:new_word,
+            ru:new_translate,
+            time_reaction:[],
+            iteration:0,
+            total_iteration:0,
+            status_learn:0,
+            cat_id:result.config.id
+        });
+
+        user_data.time_last_activity=new Date().getTime();
+        user_data.save_data_when_open=1;
+
+        // update count
+        var range=get_range();
+        if(result.config.range_area.end==(range.max_index-1)){
+            result.config.range_area.end=range.max_index;
+        }
+        set_storage(function(){
+            $(".p12 input").val("");
+            $(".p11").hide();
+            $(".p8 a[data-name="+user_data.current_category+"]").click();
+        },1,4);
+    }
+    
     function synchronize_data(callback, force_overwriting=false) {
         $(".monday_06_01").addClass("gly-spin");
         if (firebase.auth().currentUser) {
@@ -759,6 +733,39 @@ $( document ).ready(function() {
     }
 
 });
+
+function create_category(parent_category_id,name_category) {
+    var parent_category=get_parent_category(parent_category_id);
+    var blank_category={
+        vocabulary:[],
+        category:[],
+        config:{
+            range_area:{start:0,end:0},
+            dir_sorting:0,
+            id:user_data.top_id++,
+            parent_id:parent_category.id_category,
+            name:name_category,
+            position_template: "bottom_right",
+            time_break: 30,
+            number_repeat: 10,
+            dir_translation: "source_translation",
+            template_word: "id_word",
+            time_reaction: 5,
+            time_reps:50,
+            train_learned_words:0,
+            time_last_traning:new Date().getTime()
+        }
+    };
+
+    parent_category.category.push(blank_category);
+
+    user_data.current_category=blank_category.config.id;
+    set_storage(function () {
+        build_menu();
+        $(".p8 a[data-name="+user_data.current_category+"]").click();
+        $(".tuesday_04_13_0").val("");
+    },1,8);
+}
 
 function set_new_time() {
     var result=get_current_category();
