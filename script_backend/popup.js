@@ -84,6 +84,7 @@ $( document ).ready(function() {
         time_last_activity:new Date().getTime(),
         update_content_script:1, // need or not update content_script
         status_enable:1
+        // save_data_when_open - flag for understand must we save changes after open pop-up automatically or not
     };
 
     get_storage(function () {
