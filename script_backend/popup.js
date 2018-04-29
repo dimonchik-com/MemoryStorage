@@ -73,7 +73,9 @@ $( document ).ready(function() {
                     delay_traning_second:get_constant("delay_traning_second"),
                     way_traning:get_constant("way_traning"),
                     training_mode:1,
-                    stop_next_word:0
+                    stop_next_word:0,
+                    visible:1, // visible cat or not,
+                    visible_id: 0 // next id in list
                 },
                 category:[
 
@@ -224,25 +226,39 @@ $( document ).ready(function() {
             var new_id=$("input[name=new_id]").val();
             var new_word=$("input[name=new_word]").val();
             var new_translate=$("input[name=new_translate]").val();
+            var type=$("select[name=saturday_04_18_0]").val();
 
-            var error=0;
-            for(var i in result.vocabulary) {
-                if(result.vocabulary[i].id==new_id) {
-                    $(".friday_04_07_0").show();
-                    error=1;
-                }
+            if(type==0) {
+                var error = 0;
+                for (var i in result.vocabulary) {
+                    if (result.vocabulary[i].id == new_id) {
+                        $(".friday_04_07_0").show();
+                        error = 1;
+                    }
 
-                if(result.vocabulary[i].en==new_word) {
-                    $(".friday_04_07_1").show();
-                    error=1;
+                    if (result.vocabulary[i].en == new_word) {
+                        $(".friday_04_07_1").show();
+                        error = 1;
+                    }
                 }
+                if(error) return false;
+                create_new_word(result,new_id,new_word,new_translate);
+            } else {
+                var result=get_current_category();
+                create_category(parseInt(result.config.id), new_word, 0, new_id);
             }
-
-            if(error) return false;
-            create_new_word(result,new_id,new_word,new_translate);
 		});
 		return false;
 	});
+
+    $("body").on("change", "select[name=saturday_04_18_0]",function () {
+        var value=parseInt($(this).val());
+        if(value){
+            $("input[name=new_translate]").parent().hide();
+        } else {
+            $("input[name=new_translate]").parent().show();
+        }
+    });
 
 	// build different task by action
 	$("body").on("click", ".p8 a",function () {
@@ -346,28 +362,50 @@ $( document ).ready(function() {
 
 	// remove several task
 	$("body").on("click",".p19", function () {
-		var list_remove_task=[];
-		$(".build_task_table input[type='checkbox']:checked, .build_task_table input[type='checkbox']:checked").each(function(){
-			var name_domain=$(this).closest("tr").find(".thursday_27_04_1").attr("id");
-			list_remove_task.push(name_domain);
+		var list_remove_word=[];
+		$(".build_task_table input[type='checkbox']:checked").each(function(){
+			var name_domain=$(this).closest("tr").find(".thursday_27_04_1:not([is_cat=1])").attr("id");
+			if(name_domain) {
+                list_remove_word.push(name_domain);
+            }
 		});
 
-		bootbox.confirm("Are you sure you want to delete the word?", function(action) {
+		var list_remove_subcategory=[];
+        $(".build_task_table input[type='checkbox']:checked").each(function(){
+            var name_domain=$(this).closest("tr").find(".thursday_27_04_1[is_cat=1]").attr("cat_id");
+            if(name_domain) {
+                list_remove_subcategory.push(parseInt(name_domain));
+            }
+        });
+
+		bootbox.confirm("Are you sure you want to delete the element?", function(action) {
 			if(action) {
 				get_storage(function (result) {
-				    var i=result.vocabulary.length;
-                    while(i--) {
-                        if(list_remove_task.indexOf(String(result.vocabulary[i].id))!=-1 || !result.vocabulary[i].id) {
-                            result.vocabulary.splice(i,1);
+				    if(list_remove_word.length) {
+                        var i = result.vocabulary.length;
+                        while (i--) {
+                            if (list_remove_word.indexOf(String(result.vocabulary[i].id)) != -1 || !result.vocabulary[i].id) {
+                                result.vocabulary.splice(i, 1);
+                            }
+                        }
+                    } else if(list_remove_subcategory.length) {
+                        var i = result.category.length;
+                        while (i--) {
+                            result.category.map((element, index)=>{
+                                if(list_remove_subcategory.indexOf(element.config.id)!=-1) {
+                                    result.category.splice(i, 1);
+                                }
+                            });
                         }
                     }
 
-                    user_data.time_last_activity=new Date().getTime();
-                    user_data.save_data_when_open=1;
+                    user_data.time_last_activity = new Date().getTime();
+                    user_data.save_data_when_open = 1;
                     set_storage(function () {
                         $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
                         $(".p19").hide();
-                    },1,6);
+                    }, 1, 6);
+
 				});
 			}
 		});
@@ -547,7 +585,7 @@ $( document ).ready(function() {
         if(!name_category.length) {
             $(".tuesday_04_13_0").parent().addClass("has-error");
         } else {
-            create_category(parseInt(parent_category),name_category);
+            create_category(parseInt(parent_category), name_category, 1, 0);
         }
         return false;
     });
@@ -656,6 +694,7 @@ $( document ).ready(function() {
         if(result.config.range_area.end==(range.max_index-1)){
             result.config.range_area.end=range.max_index;
         }
+
         set_storage(function(){
             $(".p12 input").val("");
             $(".p11").hide();
@@ -735,32 +774,36 @@ $( document ).ready(function() {
 
 });
 
-function create_category(parent_category_id,name_category) {
+function create_category(parent_category_id, name_category, visible, new_id) {
     var parent_category=get_parent_category(parent_category_id);
     var blank_category={
         vocabulary:[],
         category:[],
         config:{
-            range_area:{start:0,end:0},
-            dir_sorting:0,
-            id:user_data.top_id++,
-            parent_id:parent_category.id_category,
-            name:name_category,
+            range_area: {start:0,end:0},
+            dir_sorting: 0,
+            id: user_data.top_id++,
+            parent_id: parent_category.id_category,
+            name: name_category,
             position_template: "bottom_right",
             time_break: 30,
             number_repeat: 10,
             dir_translation: "source_translation",
             template_word: "id_word",
             time_reaction: 5,
-            time_reps:50,
-            train_learned_words:0,
-            time_last_traning:new Date().getTime()
+            time_reps: 50,
+            train_learned_words: 0,
+            time_last_traning: new Date().getTime(),
+            visible: visible,
+            visible_id: new_id
         }
     };
 
     parent_category.category.push(blank_category);
 
-    user_data.current_category=blank_category.config.id;
+    if(!visible) {
+        user_data.current_category = blank_category.config.id;
+    }
     set_storage(function () {
         build_menu();
         $(".p8 a[data-name="+user_data.current_category+"]").click();
@@ -932,6 +975,14 @@ function update_sort_category_html(category, list_categories) {
 }
 
 function save_data_in_firebase(callback) {
+
+    var all_category=get_all_categories(user_data.category,[]);
+    for(var i in all_category) {
+        if(!all_category[i].config.hasOwnProperty("visible")) {
+            all_category[i].config.visible = 1;
+        }
+    }
+
     var userId = firebase.auth().currentUser.uid;
     var copy_user_data=JSON.parse(JSON.stringify(user_data));
     delete copy_user_data.first_load;
@@ -983,8 +1034,28 @@ function all_task() {
             var pageSize=(result.config.pageSize)?result.config.pageSize:25;
             var pageNumber=(result.config.pageNumber)?result.config.pageNumber:1;
             var height_table=popup?$(window).height()-67:$(window).height()-72;
+
+            var result=get_current_category();
+
+            var copy_result=JSON.parse(JSON.stringify(result));
+
+            if(copy_result.category) {
+                copy_result.category.map((item) => {
+                    if(item.config.visible==0) {
+                        copy_result.vocabulary.push({
+                            cat_id:item.config.id,
+                            en:item.config.name,
+                            ru:"",
+                            id:item.config.visible_id,
+                            is_cat:1,
+                            total_iteration:"-"
+                        });
+                    }
+                });
+            }
+
             $(".all_task .build_task_table").bootstrapTable({
-            	data:(result)?result.vocabulary:"",
+            	data:(copy_result)?copy_result.vocabulary:"",
                 columns: [
                     {
                         field: 'state',
@@ -999,7 +1070,8 @@ function all_task() {
                         align: 'center',
                         editable: true,
                         formatter:function (data, all_data) {
-                            return `<a href="#" class="thursday_27_04_1" id="${data}" cat_id="${all_data.cat_id}">${data}</a>`;
+                            let is_cat=all_data.is_cat?1:0;
+                            return `<a href="#" class="thursday_27_04_1" id="${data}" cat_id="${all_data.cat_id}" is_cat="${all_data.is_cat}">${data}</a>`;
                         }
                     },
                     {
@@ -1011,7 +1083,8 @@ function all_task() {
                             if(data.replace(/\s/g,'')==""){
                                 data="-";
                             }
-                            return `<a href="#" class="wednesday_05_04_05" id="${all_data.id}" cat_id="${all_data.cat_id}">${data}</a>`;
+                            let is_cat=all_data.is_cat?1:0;
+                            return `<a href="#" class="wednesday_05_04_05" id="${all_data.id}" cat_id="${all_data.cat_id?all_data.cat_id:""}" is_cat="${is_cat}">${data}</a>`;
                         }
                     },
 					{
@@ -1110,7 +1183,7 @@ function all_task() {
                $(".fixed-table-body").scrollTop(result.config.scrollTop);
            }
 
-           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create word</button> <button type="button" class="btn btn-danger p19">Delete</button>');
+           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
            $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start '+date_next_lesson+' <a href="#" class="thirsday_08_06_02">skip and reset</a>, <a href="#" class="wednesday_7_12_01">train now</a></div>');
     });
@@ -1219,8 +1292,10 @@ function build_menu() {
 
 function build_menu_html(category, list_categories, deep) {
     for(var i in category) {
+        if(!category[i].config.visible) continue;
         var active=(category[i].config.id==user_data.current_category) ? "active": "";
-        if(category[i].hasOwnProperty("category") && category[i].category.length>0) {
+
+        if(category[i].hasOwnProperty("category") && category[i].category.filter(e=>e.config.visible==1).length) {
             var deep_class=(deep==0)?"dropdown":"dropdown-submenu";
             var caret=(deep==0)?`<span class="caret"></span>`:"";
             list_categories+=`<li class="${deep_class} ${active}"><a href="#" class="dropdown-toggle" data-toggle="dropdown" data-name="${category[i].config.id}">${category[i].config.name}${caret}</a><ul class="dropdown-menu">`;
@@ -1268,7 +1343,7 @@ function update_category_in_select_list(show_current) {
 
     $(".tuesday_04_13_5").remove();
     for(var i=0; i<all_cat.length; i++) {
-        if(all_cat[i].config.id==current_category.config.id && show_current) continue;
+        if(all_cat[i].config.id==current_category.config.id && show_current || all_cat[i].config.visible==0) continue;
         var selected=(all_cat[i].config.id==current_category.config.parent_id)?"selected":"";
         $("#category_list,#category_list_create").append(`<option ${selected} class="tuesday_04_13_5" value="${all_cat[i].config.id}">${all_cat[i].config.name}</option>`);
     }
