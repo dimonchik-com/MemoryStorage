@@ -262,27 +262,8 @@ $( document ).ready(function() {
 
 	// build different task by action
 	$("body").on("click", ".p8 a",function () {
-		var name_tab=$(this).attr("data-name");
-
-        user_data.current_category=name_tab;
-
-        if(user_data.current_category!=user_data.current_select_category) {
-            $(".wednesday_24_01").show();
-        } else {
-            $(".wednesday_24_01").hide();
-        }
-
-        // if(name_tab==2) {
-        //     $("a[data-name=2]").next().find("li:first a").click();
-        //     return false;
-        // }
-        set_storage(function () {
-            $(".config,.new_category,.all_task,.p11,.sunday_02_11_2").hide();
-            $(".all_task .bootstraptable").bootstrapTable('destroy');
-
-            $(".all_task").show();
-            all_task();
-        },1,5);
+		var name_tab=parseInt($(this).attr("data-name"));
+        start_build_frame(name_tab);
 	});
 
     $("body").on("click", ".saturday_02_11_1",function () {
@@ -424,6 +405,14 @@ $( document ).ready(function() {
         current_click_class=$(this).hasClass("wednesday_05_04_05")?"en":"ru";
         current_click_element=this;
 
+        var cat_id=$(this).attr("cat_id");
+
+        if(parseInt($(this).attr("is_cat"))) {
+            user_data.current_category = cat_id;
+            start_build_frame(cat_id);
+            return true;
+        }
+
         var offset_left=130, wednesday="";
         if($(this).hasClass("thursday_27_04_1")) {
             offset_left=70;
@@ -439,7 +428,6 @@ $( document ).ready(function() {
             word="";
         }
         var id=$(this).attr("id");
-        var cat_id=$(this).attr("cat_id");
         word=escapeHtml(word);
 
         var html=get_tooltip(id, word, (ofsset.top-75), (ofsset.left+w/2-offset_left), wednesday, cat_id);
@@ -460,7 +448,13 @@ $( document ).ready(function() {
         var copy_val=(val)?val:"-";
         $(current_click_element).text(copy_val);
 
-        console.log(cat_id);
+        console.log([
+            id,
+            val,
+            current_click_class,
+            false,
+            cat_id
+        ]);
 
         update_word_in_vacabulary(id, val, current_click_class, false, cat_id);
 
@@ -774,6 +768,28 @@ $( document ).ready(function() {
 
 });
 
+function start_build_frame(name_tab) {
+    user_data.current_category=name_tab;
+
+    if(user_data.current_category!=user_data.current_select_category) {
+        $(".wednesday_24_01").show();
+    } else {
+        $(".wednesday_24_01").hide();
+    }
+
+    // if(name_tab==2) {
+    //     $("a[data-name=2]").next().find("li:first a").click();
+    //     return false;
+    // }
+    set_storage(function () {
+        $(".config,.new_category,.all_task,.p11,.sunday_02_11_2").hide();
+        $(".all_task .bootstraptable").bootstrapTable('destroy');
+
+        $(".all_task").show();
+        all_task();
+    },1,5);
+}
+
 function create_category(parent_category_id, name_category, visible, new_id) {
     var parent_category=get_parent_category(parent_category_id);
     var blank_category={
@@ -804,6 +820,7 @@ function create_category(parent_category_id, name_category, visible, new_id) {
     if(!visible) {
         user_data.current_category = blank_category.config.id;
     }
+
     set_storage(function () {
         build_menu();
         $(".p8 a[data-name="+user_data.current_category+"]").click();
@@ -902,10 +919,17 @@ function get_storage(callback) {
 	chrome.storage.local.get('english_tip', function (result) {
         if(result && result.hasOwnProperty("english_tip") && result.english_tip) {
             setTimeout(()=>{
-                snapshot = Defiant.getSnapshot(result.english_tip.category);
+                var all_cat=get_all_categories(result.english_tip.category,[]);
+                all_cat=all_cat.map(function (item) {
+                    delete item.config.last_word;
+                    return item;
+                });
+                snapshot = Defiant.getSnapshot(all_cat);
             },2000);
 
             user_data=result.english_tip;
+
+            console.log(user_data);
 
             build_menu();
             return callback(get_current_category());
@@ -1142,8 +1166,14 @@ function all_task() {
 				height: height_table,
                 customSearch:function (text) {
                     if(text) {
-                        if(!snapshot)
-                        snapshot = Defiant.getSnapshot(user_data.category);
+                        if(!snapshot) {
+                            var all_cat=get_all_categories(user_data.category,[]);
+                            all_cat=all_cat.map(function (item) {
+                                delete item.config.last_word;
+                                return item;
+                            });
+                            snapshot = Defiant.getSnapshot(all_cat);
+                        }
                         let found_ru = JSON.search(snapshot, `//*[contains(ru, "${text}")]`);
                         let found_en = JSON.search(snapshot, `//*[contains(en, "${text}")]`);
                         let concat = found_ru.concat(found_en);
@@ -1354,7 +1384,7 @@ function start_play() {
     $(".wednesday_05_04_01").hide();
     $(".p0,.p5").show();
     $(".p0").addClass("wednesday_05_04_03");
-    $(".p8 a[data-name="+user_data.current_category+"]").click();
+    start_build_frame(user_data.current_category);
     $(".thursday_11_05_01 a[value="+user_data.status_enable+"]").click();
 }
 
