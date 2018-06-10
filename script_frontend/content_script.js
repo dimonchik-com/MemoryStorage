@@ -349,8 +349,14 @@ function EnglishTip(vocabulary, config) {
         var translate_word = "";
         if (config.dir_translation == "source_translation") {
             translate_word = config.last_word.ru;
+            if(config.template_word=="only_id") {
+                translate_word=config.last_word.en.trim()+" "+translate_word;
+            }
         } else if (config.dir_translation == "translation_source" || config.dir_translation == "source_source") {
             translate_word = config.last_word.en;
+            if(config.template_word=="only_id") {
+                translate_word=config.last_word.ru.trim()+" "+translate_word;
+            }
         }
 
         if (translate_word.length > 0) {
@@ -374,6 +380,11 @@ function EnglishTip(vocabulary, config) {
 
             var width_background = document.getElementById("wednesday_29_03_0").offsetWidth;
             var translate_word = config.last_word[word_direction];
+
+            if(config.template_word=="only_id") {
+                var word_direction_revers=word_direction=="en"?"ru":"en";
+                translate_word=config.last_word[word_direction_revers].trim()+" "+translate_word;
+            }
 
             var fail_word = create('<div id="wednesday_29_03_5" style="min-width:' + width_background + 'px;">' + translate_word + '</div>');
 
