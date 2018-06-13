@@ -136,3 +136,13 @@ function isEmptyObject(obj) {
 
     return JSON.stringify(obj) === JSON.stringify({});
 }
+
+function get_category_nav(cat,ar) {
+    if(cat.config.parent_id!=0){
+        var parent_cat=get_category_by_id(cat.config.parent_id,user_data.category);
+        ar.push(parent_cat);
+        return get_category_nav(parent_cat,ar);
+    } else {
+        return ar.reverse();
+    }
+}

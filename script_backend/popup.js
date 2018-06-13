@@ -1,6 +1,8 @@
 "use strict";
 
+
 var db, user_data, current_open_page={}, popup=0, snapshot;
+
 $( document ).ready(function() {
 
     if($(window).width()<200) {
@@ -407,7 +409,7 @@ $( document ).ready(function() {
 
         var cat_id=$(this).attr("cat_id");
 
-        if(parseInt($(this).attr("is_cat"))) {
+        if(parseInt($(this).attr("is_cat")) && $(this).hasClass("wednesday_05_04_05")) {
             user_data.current_category = cat_id;
             start_build_frame(cat_id);
             return true;
@@ -544,10 +546,15 @@ $( document ).ready(function() {
                     break;
                 }
             }
-            var select_category_object=get_category_by_id(select_category,user_data.category);
 
-            select_category_object.category.push(splice_element);
-            splice_element.config.parent_id=select_category;
+            if(parseInt(select_category)) {
+                var select_category_object = get_category_by_id(parseInt(select_category), user_data.category);
+
+                select_category_object.category.push(splice_element);
+                splice_element.config.parent_id = select_category;
+            } else {
+                result.config.parent_id = 0;
+            }
 
             user_data.time_last_activity=new Date().getTime();
         }
@@ -1078,6 +1085,7 @@ function all_task() {
                 });
             }
 
+            var cat_arr=[];
             $(".all_task .build_task_table").bootstrapTable({
             	data:(copy_result)?copy_result.vocabulary:"",
                 columns: [
@@ -1115,7 +1123,12 @@ function all_task() {
 						field: 'ru',
 						title: 'Value',
 						align: 'center',
-						formatter :function (data, all_data) {
+						formatter :function (data, all_data, index) {
+                            let is_cat=all_data.is_cat?1:0;
+                            if(is_cat) {
+                                cat_arr.push({"index":index,data:all_data});
+                                return '';
+                            }
 						    if(data.replace(/\s/g,'')==""){
                                 data="-";
                             }
@@ -1128,6 +1141,10 @@ function all_task() {
 						title: 'Time',
 						align: 'center',
 						formatter :function (data, all_data) {
+                            let is_cat=all_data.is_cat?1:0;
+                            if(is_cat) {
+                                return '';
+                            }
 						    if(all_data.time_reaction!=undefined) {
                                 data=time_reaction_get_everage_value(all_data.time_reaction);
                             }
@@ -1138,7 +1155,11 @@ function all_task() {
                         field: 'total_iteration',
                         title: 'Count',
                         align: 'center',
-                        formatter :function (data) {
+                        formatter :function (data,all_data) {
+                            let is_cat=all_data.is_cat?1:0;
+                            if(is_cat) {
+                                return '';
+                            }
                             return data;
                         }
                     },
@@ -1146,7 +1167,11 @@ function all_task() {
                         field: 'status_learn',
                         title: 'Status',
                         align: 'center',
-                        formatter :function (data) {
+                        formatter :function (data,all_data) {
+                            let is_cat=all_data.is_cat?1:0;
+                            if(is_cat) {
+                                return '';
+                            }
                             if(data) {
                                 data="<span class='sunday_07_09 glyphicon glyphicon-ok'></span>";
                             } else {
@@ -1206,6 +1231,24 @@ function all_task() {
                         }, 0, 18);
                     }, 500));
 
+                },
+                onAll:function (eve, all) {
+                    // console.log(eve);
+                    // if(eve=="reset-view.bs.table") {
+                    //     console.log(all);
+                    // }
+                },
+                onPostBody: function (data, cc) {
+            	    setTimeout(function () {
+                        cat_arr.map((elem)=>{
+                            $(".all_task .build_task_table").bootstrapTable('mergeCells', {
+                                index: elem.index,
+                                field: 'ru',
+                                colspan: 4
+                            });
+                        });
+                        $(".all_task .build_task_table").bootstrapTable('resetView');
+                    },100);
                 }
             });
 
@@ -1213,9 +1256,21 @@ function all_task() {
                $(".fixed-table-body").scrollTop(result.config.scrollTop);
            }
 
-           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
            $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default saturday_04_02">Config</button>');
+           $(".fixed-table-toolbar").append('<button type="button" class="btn btn-default p10">Create</button> <button type="button" class="btn btn-danger p19">Delete</button>');
            $(".fixed-table-toolbar").append('<div class="thirsday_08_06_01">The next lesson start '+date_next_lesson+' <a href="#" class="thirsday_08_06_02">skip and reset</a>, <a href="#" class="wednesday_7_12_01">train now</a></div>');
+
+           var navigation_cat=get_category_nav(result,[result]);
+           var st=[];
+           navigation_cat.map((elem, index)=>{
+               var name=elem.config.name.charAt(0).toUpperCase()+elem.config.name.slice(1).toLowerCase();
+               if(index!=navigation_cat.length-1) {
+                   st.push(`<a href="">${name}</a>`);
+               } else {
+                   st.push(name);
+               }
+           });
+           $(".fixed-table-toolbar").append('<div class="wednesday_13_06_01">'+st.join(" -> ")+'</div>');
     });
 }
 
@@ -1372,6 +1427,7 @@ function update_category_in_select_list(show_current) {
     var current_category=get_current_category(user_data.current_category);
 
     $(".tuesday_04_13_5").remove();
+    $("#category_list,#category_list_create").append(`<option class="tuesday_04_13_5" value="0">Top level</option>`);
     for(var i=0; i<all_cat.length; i++) {
         if(all_cat[i].config.id==current_category.config.id && show_current || all_cat[i].config.visible==0) continue;
         var selected=(all_cat[i].config.id==current_category.config.parent_id)?"selected":"";

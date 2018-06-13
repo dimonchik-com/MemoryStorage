@@ -5,7 +5,10 @@
 .p4{padding: 5px; margin: 0 0 0px 0; font-size: 16px;}
 .p-error{border: 1px solid red;}
 .p0,.p5,.all_task,.all_likes,.all_black_list,.config{display: none;}
-.p10,.p19{position: relative;top: 11px;}
+.p10,.p19{position: relative;
+    top: 14px;
+    float: right;
+    margin: 0 7px 0 0;}
 .p11{display: none;}
 .p13{margin: 0 2px 0 0;}
 .all_task .build_task_table td+td{max-width: 200px;}
@@ -25,7 +28,7 @@
 .container-fluid{padding-left: 5px; padding-right: 0px;}
 .saturday_04_01{display: inline-block; margin: 16px 0 0 5px;}
 .saturday_04_01:hover{text-underline: none;}
-.saturday_04_02{float: right; position: relative; top: 10px; margin: 0 6px 0 0;}
+.saturday_04_02{float: right; position: relative; top: 14px; margin: 0 6px 0 0;}
 .saturday_04_03{margin-right: 0px;}
 .saturday_04_04{position: absolute; left: 0px; margin: 0 0px 0 130px; min-width: 115px;}
 .p8{margin: 0px 0px 0px 0px;}
@@ -44,7 +47,10 @@
 .thursday_11_05_01 a{text-decoration: underline; margin: 0 0px 0 5px; cursor: pointer;}
 .thursday_11_05_02{text-decoration: none !important; cursor: default !important; color:#333 !important;}
 .thursday_11_05_02:hover{color:#333 !important;}
-.thirsday_08_06_01{position: absolute; top: 60px; font-size: 13px;}
+.thirsday_08_06_01{position: absolute;
+    top: 96px;
+    font-size: 13px;
+    left: 10px;}
 .wednesday_05_04_10{position: relative;}
 .friday_09_06_01{right: 0; position: absolute; top: -25px;}
 .sunday_07_09{cursor: pointer;}
@@ -77,6 +83,14 @@
     font-size: 15px;}
 .tuesday_02_13_0 a{margin: 0 2px 0 0;}
 .tuesday_02_13_1{margin: 0 0 0 7px; position: relative; top: -2px;}
+.wednesday_13_06_01{font-size: 13px;
+    position: relative;
+    top: -13px;
+    left: 3px;
+    border-bottom: 1px solid #ddd;
+    padding: 0 0 2px 0;
+}
+.wednesday_05_04_04 .fixed-table-toolbar .bs-bars, .wednesday_05_04_04 .fixed-table-toolbar .columns, .wednesday_05_04_04 .fixed-table-toolbar .search{margin-top: 14px; margin-bottom: 6px;}
 
 .dropdown-submenu {
     position: relative;
