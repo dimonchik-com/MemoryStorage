@@ -704,35 +704,6 @@ function EnglishTip(vocabulary, config) {
         }
     }
 
-    function convert_qwerty() {
-        var map = { q: "й", w: "ц", e: "у", r: "к", t: "е", y: "н", u: "г", i: "ш", o: "щ", p: "з", "[": "х", "{": "Х", "]": "ъ", "}": "Ъ", "|": "/", "`": "ё", "~": "Ё", a: "ф", s: "ы", d: "в", f: "а", g: "п", h: "р", j: "о", k: "л", l: "д", ";": "ж", ":": "Ж", "'": "э", '"': "Э", z: "я", x: "ч", c: "с", v: "м", b: "и", n: "т", m: "ь", ",": "б", "<": "Б", ".": "ю", ">": "Ю", "/": ".", "?": ",", "@": '"', "#": "№", $: ";", "^": ":", "&": "?" };
-
-        function replace(map) {
-            return function (str) {
-                return str.split('').map(function (i) {
-                    return map[i] || i;
-                }).join('');
-            };
-        }
-
-        var reverse = {};
-        var full = {};
-
-        for (var key in map) {
-            var value = map[key];
-            full[key] = value;
-            reverse[value] = key;
-
-            var upper = key.toUpperCase();
-            if (upper !== key) {
-                full[upper] = value.toUpperCase();
-                reverse[full[upper]] = upper;
-            }
-        }
-
-        return { fromEn: replace(full), toEn: replace(reverse) };
-    }
-
     function create_traning_zero() {
         if (!document.getElementById("memory_traning_zero")) {
             var frag = create('<div id="memory_traning_zero"></div>');
@@ -923,4 +894,33 @@ function get_category_nav(cat, ar) {
     } else {
         return ar.reverse();
     }
+}
+
+function convert_qwerty() {
+    var map = { q: "й", w: "ц", e: "у", r: "к", t: "е", y: "н", u: "г", i: "ш", o: "щ", p: "з", "[": "х", "{": "Х", "]": "ъ", "}": "Ъ", "|": "/", "`": "ё", "~": "Ё", a: "ф", s: "ы", d: "в", f: "а", g: "п", h: "р", j: "о", k: "л", l: "д", ";": "ж", ":": "Ж", "'": "э", '"': "Э", z: "я", x: "ч", c: "с", v: "м", b: "и", n: "т", m: "ь", ",": "б", "<": "Б", ".": "ю", ">": "Ю", "/": ".", "?": ",", "@": '"', "#": "№", $: ";", "^": ":", "&": "?" };
+
+    function replace(map) {
+        return function (str) {
+            return str.split('').map(function (i) {
+                return map[i] || i;
+            }).join('');
+        };
+    }
+
+    var reverse = {};
+    var full = {};
+
+    for (var key in map) {
+        var value = map[key];
+        full[key] = value;
+        reverse[value] = key;
+
+        var upper = key.toUpperCase();
+        if (upper !== key) {
+            full[upper] = value.toUpperCase();
+            reverse[full[upper]] = upper;
+        }
+    }
+
+    return { fromEn: replace(full), toEn: replace(reverse) };
 }
