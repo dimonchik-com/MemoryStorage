@@ -662,7 +662,10 @@ $( document ).ready(function() {
         myRow.addClass('stylish');
 
         setTimeout(function() {
-             myRow.addClass('stylish1');
+            myRow.addClass('stylish1');
+            setTimeout(function() {
+                myRow.removeClass('stylish stylish1');
+            }, 500);
         }, 100);
     });
 
@@ -696,11 +699,12 @@ $( document ).ready(function() {
 
     $(".wednesday_20_06_3").click(function( event ) {
         if(new_file_upload) {
-            $(".wednesday_20_06_3").attr("disabled", "disabled");
+            $(".wednesday_20_06_3").prop('disabled', false);
             user_data = new_file_upload;
             save_data_in_firebase(function () {
                 $(".wednesday_05_04_04").show();
                 $(".wednesday_20_06_1").hide();
+                $(".wednesday_20_06_3").prop('disabled', true);
                 start_build_frame(user_data.current_category);
             });
         }
@@ -1158,7 +1162,8 @@ function all_task() {
                                 }
                                 let is_cat=all_data.is_cat?1:0;
                                 return `<a href="#" class="wednesday_05_04_05" id="${all_data.id}" cat_id="${all_data.cat_id?all_data.cat_id:""}" is_cat="${is_cat}">${data}</a>`;
-                            }
+                            },
+                            class: 'cp'
                         },
                         {
                             field: 'ru',
