@@ -307,6 +307,7 @@
 .tuesday_19_06_01 li{display: inline-block; border: 1px solid #ddd; padding: 10px; text-align: center;}
 .tuesday_19_06_01 li:hover{cursor: pointer; background: #f5f5f5;}
 .tuesday_19_06_02{border-top: 1px solid #ddd; padding: 10px 0 0 0;}
-.wednesday_20_06_0{top:2px;}
-.wednesday_20_06_1{display: none; padding: 0px 0 0 10px; display: none;}
+.wednesday_20_06_0{top:2px;display: none;}
+.wednesday_20_06_1{display: none; padding: 0px 0 0 10px; }
 .wednesday_20_06_3{margin: 14px 0 0 0;}
+.friday_22_06_0{display: none;}

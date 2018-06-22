@@ -86,6 +86,7 @@ $( document ).ready(function() {
         ],
         top_id:3,
         time_last_activity:new Date().getTime(),
+        time_save_data_in_firebase:new Date().getTime(), // time last save data in firebase
         update_content_script:1, // need or not update content_script
         status_enable:1
         // save_data_when_open - flag for understand must we save changes after open pop-up automatically or not
@@ -95,7 +96,7 @@ $( document ).ready(function() {
             start_play();
 
             setTimeout(function () {
-                if (user_data.save_data_when_open) {
+                if (user_data.save_data_when_open && new Date().getTime()>(parseInt(user_data.time_save_data_in_firebase)+60*60*24*1000)) { // если прошло 24 часа с момента сохранения данных на сервере
                     $(".monday_06_01").click();
                 }
             }, 1000);
@@ -316,7 +317,7 @@ $( document ).ready(function() {
 
     $("body").on("click", ".wednesday_24_01", function () {
         user_data.current_select_category=user_data.current_category;
-        $(".wednesday_24_01").hide();
+        $(".wednesday_24_01,.friday_22_06_0").hide();
         set_storage(function () {
             $(".config,.new_category,.all_task,.p11").hide();
             $(".all_task .bootstraptable").bootstrapTable('destroy');
@@ -324,6 +325,11 @@ $( document ).ready(function() {
             $(".all_task").show();
             all_task();
         },1,5);
+        return false;
+    });
+
+    $("body").on("click", ".friday_22_06_0", function () {
+        start_build_frame(user_data.current_select_category);
         return false;
     });
 
@@ -746,6 +752,7 @@ $( document ).ready(function() {
     
     function synchronize_data(callback, force_overwriting=false) {
         $(".monday_06_01").addClass("gly-spin");
+
         if (firebase.auth().currentUser) {
             var userId = firebase.auth().currentUser.uid;
 
@@ -776,7 +783,7 @@ $( document ).ready(function() {
                         //console.log(data_from_firebase);
                         //console.log(user_data);
 
-                        data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
+                        // data_from_firebase_categoty.config.time_last_traning=data_from_user_data.config.time_last_traning;
 
                         //console.log(data_from_firebase_categoty.config.time_last_traning);
                         //console.log(data_from_user_data.config.time_last_traning);
@@ -820,9 +827,9 @@ function start_build_frame(name_tab) {
     user_data.current_category=name_tab;
 
     if(user_data.current_category!=user_data.current_select_category) {
-        $(".wednesday_24_01").show();
+        $(".wednesday_24_01,.friday_22_06_0").show();
     } else {
-        $(".wednesday_24_01").hide();
+        $(".wednesday_24_01,.friday_22_06_0").hide();
     }
 
     // if(name_tab==2) {
@@ -866,7 +873,7 @@ function create_category(parent_category_id, name_category, visible, new_id) {
     parent_category.category.push(blank_category);
 
     if(!visible) {
-        user_data.current_category = blank_category.config.id;
+        // user_data.current_category = blank_category.config.id;
     }
 
     set_storage(function () {
@@ -1064,6 +1071,7 @@ function save_data_in_firebase(callback) {
     delete copy_user_data.save_data_when_open;
 
     copy_user_data.time_last_activity=new Date().getTime();
+    copy_user_data.time_save_data_in_firebase=new Date().getTime();
     db.collection("users").doc(userId).set(copy_user_data).then(function() {
         set_storage(function(){
             callback(copy_user_data);
