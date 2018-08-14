@@ -65,7 +65,10 @@ gulp.task('archive', () =>
             "node_modules/bootstrap-table/dist/bootstrap-table.min.css",
             "node_modules/bootstrap/dist/js/bootstrap.min.js",
             "node_modules/bootbox/bootbox.min.js",
-            "node_modules/moment/min/moment.min.js"
+            "node_modules/moment/min/moment.min.js",
+            "node_modules/defiant/dist/defiant.min.js",
+            "node_modules/Nestable/jquery.nestable.js",
+            "node_modules/bootstrap-select/dist/css/bootstrap-select.css"
         ]).pipe(archiver('MemoryStorage.zip',{compress:true,category_merge:false}))
             .pipe(gulp.dest(''));
     },2000)

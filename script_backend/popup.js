@@ -94,9 +94,8 @@ $( document ).ready(function() {
 
     get_storage(function () {
             start_play();
-
             setTimeout(function () {
-                if (user_data.save_data_when_open && new Date().getTime()>(parseInt(user_data.time_save_data_in_firebase)+60*60*24*1000)) { // если прошло 24 часа с момента сохранения данных на сервере
+                if (user_data.save_data_when_open && new Date().getTime()>(parseInt(user_data.time_save_data_in_firebase)+60*60*24*1e3)) { // если прошло 24 часа с момента сохранения данных на сервере
                     $(".monday_06_01").click();
                 }
             }, 1000);
@@ -1072,6 +1071,7 @@ function save_data_in_firebase(callback) {
 
     copy_user_data.time_last_activity=new Date().getTime();
     copy_user_data.time_save_data_in_firebase=new Date().getTime();
+    user_data.time_save_data_in_firebase=new Date().getTime();
     db.collection("users").doc(userId).set(copy_user_data).then(function() {
         set_storage(function(){
             callback(copy_user_data);
