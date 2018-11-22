@@ -17,15 +17,14 @@ function EnglishTip(vocabulary, config) {
     document.addEventListener("visibilitychange", function() {
         if (document.hidden){
             setTimeout(function(){
-                // var  tuesday_16_05_01= document.getElementById('tuesday_16_05_01');
+                // var tuesday_16_05_01 = document.getElementById('tuesday_16_05_01');
                 // if(tuesday_16_05_01) {
                     update_data_from_storage();
                 // }
 
-                // setTimeout(function(){
+                // setTimeout(function() {
                 //     save_data(1);
                 // },500);
-
             },500);
         }
     });

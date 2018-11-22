@@ -55,6 +55,7 @@ gulp.task('archive', () =>
             "node_modules/bootstrap/dist/css/bootstrap-theme.min.css",
             "node_modules/jquery/dist/jquery.js",
             "node_modules/bootstrap-table/dist/bootstrap-table.js",
+            "node_modules/async/dist/async.js",
             "node_modules/bootstrap-select/dist/js/bootstrap-select.js",
             "node_modules/bootstrap-select/dist/css/bootstrap-select.min.css",
             "node_modules/bootstrap-table/dist/extensions/cookie/bootstrap-table-cookie.js",

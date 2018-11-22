@@ -1,7 +1,7 @@
 "use strict";
 
 
-var db, user_data, current_open_page={}, popup=0, snapshot;
+var db, user_data, current_open_page={}, popup=0, snapshot, result_data_firebase;
 
 $( document ).ready(function() {
 
@@ -109,13 +109,10 @@ $( document ).ready(function() {
 
     firebase.auth().onAuthStateChanged(function(user) {
         if (user && !user_data.first_load && !$(".p4:visible").length) {
-            var userId = firebase.auth().currentUser.uid;
-
-            var docRef = db.collection("users").doc(userId);
-
-            docRef.get().then(function(doc) {
-                if (doc.exists) {
-                    user_data=doc.data();
+            let userId = firebase.auth().currentUser.uid;
+            get_data_from_firebase(userId,(data)=>{
+                if (data!="not find") {
+                    user_data=data;
                 } else { // create new users
                     user_data.displayName=user.displayName;
                     user_data.email=user.email;
@@ -123,13 +120,14 @@ $( document ).ready(function() {
 
                     });
                 }
+
+                console.log(user_data);
+
                 user_data.first_load=1;
                 set_storage(function () {
                     build_menu();
                     start_play();
                 },1,1);
-            }).catch(function(error) {
-                console.log("Error getting document:", error);
             });
         }
     });
@@ -168,6 +166,10 @@ $( document ).ready(function() {
             }, true);
         }
 	});
+
+	// setTimeout(()=>{
+    //     $(".p5 .p6").click();
+    // },2e3);
 
 	// add new task
 	$("body").on("click",".p10", function () {
@@ -755,18 +757,15 @@ $( document ).ready(function() {
         if (firebase.auth().currentUser) {
             var userId = firebase.auth().currentUser.uid;
 
-            var docRef = db.collection("users").doc(userId);
-
-            docRef.get().then(function(doc) {
-                if (doc.exists) {
-
-                    var data_from_firebase=doc.data();
+            get_data_from_firebase(userId,(data)=>{
+                if (data!="not find") {
+                    var data_from_firebase=data;
 
                     if(!data_from_firebase) {
                         callback();
                     }
 
-                    if(user_data.time_last_activity>=data_from_firebase.time_last_activity) { // if local data more recent then server data
+                    if(user_data.time_last_activity >= data_from_firebase.time_last_activity || !data_from_firebase.hasOwnProperty("time_last_activity")) { // if local data more recent then server data
                         save_data_in_firebase(function (res) {
                             $(".monday_06_01").removeClass("gly-spin");
                             callback();
@@ -802,10 +801,12 @@ $( document ).ready(function() {
                     }
 
                 } else {
+                    save_data_in_firebase(function (res) {
+                        $(".monday_06_01").removeClass("gly-spin");
+                        callback();
+                    });
                     console.log("No such document!");
                 }
-            }).catch(function(error) {
-                console.log("Error getting document:", error);
             });
 
         } else { // if not data on server
@@ -983,8 +984,6 @@ function get_storage(callback) {
 
             user_data=result.english_tip;
 
-            console.log(user_data);
-
             build_menu();
             return callback(get_current_category());
         } else {
@@ -1071,14 +1070,37 @@ function save_data_in_firebase(callback) {
 
     copy_user_data.time_last_activity=new Date().getTime();
     copy_user_data.time_save_data_in_firebase=new Date().getTime();
-    user_data.time_save_data_in_firebase=new Date().getTime();
+
+    let new_category_array=[];
+    copy_user_data.category.map((element)=>{
+        if(!new_category_array.length) {
+            new_category_array.push([element]);
+        } else if(lengthInUtf8Bytes(JSON.stringify(new_category_array[new_category_array.length-1]))+lengthInUtf8Bytes(JSON.stringify(element))>25e4) {
+            new_category_array.push([element]);
+        } else {
+            new_category_array[new_category_array.length-1].push(element);
+        }
+    });
+
+    for(let i=1; i<new_category_array.length; i++) {
+        db.collection("users").doc(userId+"-catdata-"+i).set({data:new_category_array[i]});
+    }
+
+    copy_user_data.category=new_category_array[0];
     db.collection("users").doc(userId).set(copy_user_data).then(function() {
         set_storage(function(){
+            user_data.time_save_data_in_firebase=new Date().getTime();
             callback(copy_user_data);
         },1,15);
     }).catch(function(error) {
         console.error("Error writing document: ", error);
     });
+
+    function lengthInUtf8Bytes(str) {
+        // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
+        var m = encodeURIComponent(str).match(/%[89ABab]/g);
+        return str.length + (m ? m.length : 0);
+    }
 }
 
 function update_word_in_vacabulary(id, val, current_click_class, rebut=true, cat_id) {
@@ -1515,6 +1537,39 @@ function start_play() {
     $(".thursday_11_05_01 a[value="+user_data.status_enable+"]").click();
 }
 
+function get_data_from_firebase(userId, callback) {
+    let list_id=[userId];
+    for(let i=1; i<10; i++) {
+        list_id.push(`${userId}-catdata-${i}`);
+    }
+
+    result_data_firebase=[];
+    async.mapSeries(list_id, resolveAfter2Seconds, (err,res)=>{
+        if(result_data_firebase.length) {
+            console.log(result_data_firebase);
+            result_data_firebase.map((element, index) => {
+                if (index >= 1) {
+                    result_data_firebase[0].category = result_data_firebase[0].category.concat(element.data);
+                }
+            });
+            console.log(result_data_firebase[0]);
+            callback(result_data_firebase[0]);
+        } else {
+            callback("not find");
+        }
+    });
+}
+
+function resolveAfter2Seconds(element, callback) {
+    let docRef = db.collection("users").doc(element);
+    docRef.get().then((doc) => {
+        result_data_firebase.push(doc.data());
+        callback(null);
+    }).catch((err)=>{
+        callback(element);
+    });
+}
+
 function reloadWindow(win) {
     chrome.tabs.getAllInWindow(win.id, (tabs) => {
         for (var i in tabs) {
@@ -1574,10 +1629,10 @@ var saveJson = function(obj) {
     var event = document.createEvent( 'MouseEvents' );
     event.initMouseEvent( 'click', true, true, window, 1, 0, 0, 0, 0, false, false, false, false, 0, null);
     link.dispatchEvent( event );
-}
+};
 
 function b64DecodeUnicode(str) {
     return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
     }).join(''))
-}
+};
