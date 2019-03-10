@@ -81,5 +81,3 @@ gulp.task('watch', function() {
 });
 
 gulp.task('default',['scripts_frontend','scripts_backend','watch','archive']);
-
-

@@ -1,7 +1,5 @@
 "use strict";
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var user_data;
 
 function EnglishTip(vocabulary, config) {
@@ -603,7 +601,7 @@ function EnglishTip(vocabulary, config) {
                     }
                 });
             } catch (err) {
-                console.log("MemoryTraning: save_data - error 1");
+                alert("MemoryTraning: save_data - error 1");
                 location.reload();
             }
 
@@ -682,10 +680,10 @@ function EnglishTip(vocabulary, config) {
 
         setTimeout(function () {
             if (count_data_from_storage < time_count_data_from_storage + 1) {
-                console.log("MemoryTraning: save_data - error 2");
+                alert("MemoryTraning: save_data - error 2");
                 location.reload();
             }
-        }, 500);
+        }, 5000);
     }
 
     function get_number_repeat(config, vocabulary) {
@@ -791,7 +789,6 @@ function getFormattedDate(date) {
 
 function get_current_category() {
     var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "backend";
-
 
     var id = parseInt(from == "front" && user_data.current_select_category ? user_data.current_select_category : user_data.current_category);
 

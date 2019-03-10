@@ -48,7 +48,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-merge": "^0.1.1",
     "gulp-util": "^3.0.8",
-    "gulp-zip": "4.0.0",
+    "gulp-zip": "git@github.com:dimonchik-com/gulp-zip.git",
     "invariant": "^2.2.2",
     "ion-rangeslider": "^2.1.7",
     "jsesc": "^2.5.1",

@@ -1,15 +1,15 @@
 "use strict";
 
 function get_constant(name) {
-    var constant={
-        time_reaction:5,
-        time_reps:50,
-        minimum_elements_for_training:3,
-        delay_traning_second:"30-240",
-        delay_traning:1,
-        way_traning:0,
-        time_break:30,
-        number_repeat:10
+    var constant = {
+        time_reaction: 5,
+        time_reps: 50,
+        minimum_elements_for_training: 3,
+        delay_traning_second: "30-240",
+        delay_traning: 1,
+        way_traning: 0,
+        time_break: 30,
+        number_repeat: 10
     };
     return constant[name];
 }
@@ -38,36 +38,38 @@ function getFormattedDate(date) {
     min = (min < 10 ? "0" : "") + min;
     sec = (sec < 10 ? "0" : "") + sec;
 
-    var str = date.getFullYear() + "-" + month + "-" + day + " " +  hour + ":" + min + ":" + sec;
+    var str = date.getFullYear() + "-" + month + "-" + day + " " + hour + ":" + min + ":" + sec;
 
     return str;
 }
 
-function get_current_category(from="backend") {
+function get_current_category() {
+    var from = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : "backend";
 
-    var id=parseInt((from=="front" && user_data.current_select_category)?user_data.current_select_category:user_data.current_category);
 
-    var link_category=get_category_by_id(id,user_data.category);
+    var id = parseInt(from == "front" && user_data.current_select_category ? user_data.current_select_category : user_data.current_category);
 
-    if(!link_category.hasOwnProperty('vocabulary')) {
-        link_category.vocabulary=[];
+    var link_category = get_category_by_id(id, user_data.category);
+
+    if (!link_category.hasOwnProperty('vocabulary')) {
+        link_category.vocabulary = [];
     }
 
     return link_category;
 }
 
-function get_category_by_id(id,category) {
-    if(category.length) {
-        if(id==0) return {category:category};
+function get_category_by_id(id, category) {
+    if (category.length) {
+        if (id == 0) return { category: category };
         for (var i in category) {
-            if(category[i].config.id==id) {
+            if (category[i].config.id == id) {
                 return category[i];
             }
 
-            if(category[i].hasOwnProperty("category")) {
+            if (category[i].hasOwnProperty("category")) {
                 if (category[i].category.length) {
-                    var link_category=get_category_by_id(id,category[i].category);
-                    if(link_category) {
+                    var link_category = get_category_by_id(id, category[i].category);
+                    if (link_category) {
                         return link_category;
                     }
                 }
@@ -78,11 +80,11 @@ function get_category_by_id(id,category) {
 }
 
 function get_all_categories(category, list_categories) {
-    for(var i in category) {
+    for (var i in category) {
         list_categories.push(category[i]);
-        if(category[i].hasOwnProperty("category")) {
+        if (category[i].hasOwnProperty("category")) {
             if (category[i].category.length) {
-                get_all_categories(category[i].category,list_categories);
+                get_all_categories(category[i].category, list_categories);
             }
         }
     }
@@ -90,14 +92,14 @@ function get_all_categories(category, list_categories) {
 }
 
 function sort_new_user_data(category, list_categories, new_all_category) {
-    for(var i in category) {
-        let copy_category=JSON.parse(JSON.stringify(new_all_category[category[i].id]));
-        copy_category.category=[];
+    for (var i in category) {
+        var copy_category = JSON.parse(JSON.stringify(new_all_category[category[i].id]));
+        copy_category.category = [];
         list_categories.push(copy_category);
-        if(category[i].hasOwnProperty("children")) {
+        if (category[i].hasOwnProperty("children")) {
             if (category[i].children.length) {
-                let new_category_list = sort_new_user_data(category[i].children,copy_category.category,new_all_category);
-                copy_category.category=new_category_list;
+                var new_category_list = sort_new_user_data(category[i].children, copy_category.category, new_all_category);
+                copy_category.category = new_category_list;
             }
         }
     }
@@ -105,8 +107,8 @@ function sort_new_user_data(category, list_categories, new_all_category) {
 }
 
 function getRandomInt(min, max) {
-    max=parseInt(max);
-    min=parseInt(min);
+    max = parseInt(max);
+    min = parseInt(min);
     return Math.floor(min + Math.random() * (max + 1 - min));
 }
 
