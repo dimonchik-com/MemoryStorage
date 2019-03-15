@@ -81,12 +81,6 @@
               <input name="action" value="create_task" type="hidden">
 
               <div class="form-group">
-                <label for="name">ID:</label>
-                <input type="name" class="form-control" id="name" name="new_id">
-                <div class="friday_04_07_0">Duplicate</div>
-              </div>
-
-              <div class="form-group">
                 <label for="type_network">Source:</label>
                 <input type="name" class="form-control" id="name" name="new_word">
                 <div class="friday_04_07_1">Duplicate</div>
@@ -180,11 +174,11 @@
                   </div>
                 </td>
                 <td>
-                  <div class="form-group">
-                    <label for="way_traning">Way of training?</label>
-                    <select class="form-control friday_04_07_4" name="way_traning">
-                      <option value="0" selected>Repeat words</option>
-                      <option value="1">Writing words</option>
+                  <div class="form-group" style="padding-right: 5px;">
+                    <label for="type_network">Stop show next word in not training mode?</label>
+                    <select class="form-control friday_04_07_4" name="stop_next_word">
+                      <option value="0" selected>No</option>
+                      <option value="1">Yes</option>
                     </select>
                   </div>
                 </td>
@@ -293,21 +287,6 @@
                       <input type="text" class="form-control" name="delay_traning_second" value="" placeholder="0-60"></input>
                     </div>
                   </div>
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <div class="form-group" style="padding-right: 5px;">
-                    <label for="type_network">Stop show next word in not training mode?</label>
-                    <select class="form-control friday_04_07_4" name="stop_next_word">
-                      <option value="0" selected>No</option>
-                      <option value="1">Yes</option>
-                    </select>
-                  </div>
-                </td>
-                <td>
-
                 </td>
               </tr>
 
