@@ -404,11 +404,11 @@ $(document).ready(function () {
 
         var offset_left = 130,
             wednesday = "";
-        if ($(this).hasClass("wednesday_05_04_05")) {
-            offset_left = 70;
-            wednesday = " wednesday_03_05_1 ";
-            current_click_class = "id";
-        }
+        // if ($(this).hasClass("wednesday_05_04_05")) {
+        //     offset_left = 70;
+        //     wednesday = " wednesday_03_05_1 ";
+        //     current_click_class = "id";
+        // }
 
         $(".wednesday_05_04_06").remove();
         var ofsset = $(this).parent().offset();
@@ -699,6 +699,9 @@ $(document).ready(function () {
 
     function create_new_word(result, new_word, new_translate) {
         let new_id=get_new_id();
+
+        console.log(["get_new_id",new_id]);
+
         result.vocabulary.push({
             id: new_id,
             en: new_word,
@@ -1090,8 +1093,9 @@ function update_word_in_vacabulary(id, val, current_click_class) {
     if (word[current_click_class] == val || !word) {
         return true;
     }
-
+    console.log(word, current_click_class, val);
     word[current_click_class] = val;
+    console.log(word);
     user_data.time_last_activity = new Date().getTime();
 
     if (rebut) {
@@ -1603,6 +1607,7 @@ function get_new_id() {
             }
         });
         max_id = parseInt(max_id.id) + 1;
+        max_id = isNaN(max_id)?0:max_id;
     } else {
         max_id = 0;
     }
