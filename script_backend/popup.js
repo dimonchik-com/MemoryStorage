@@ -5,15 +5,18 @@ var db,
     current_open_page = {},
     popup = 0,
     snapshot,
-    result_data_firebase;
+    result_data_firebase,
+    size_window;
 
 $(document).ready(function () {
 
     if ($(window).width() < 200) {
         $(".p0").css({ "width": "800px", "height": "600px" });
         popup = 1;
+        size_window="small";
     } else {
         $(".monday_26_03_0,.wednesday_20_06_3").show();
+        size_window="big";
     }
 
     firebase.initializeApp({
@@ -90,12 +93,11 @@ $(document).ready(function () {
     get_storage(function () {
         start_play();
         setTimeout(function () {
-            if (user_data.save_data_when_open && new Date().getTime() > parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3) {
-                // если прошло 24 часа с момента сохранения данных на сервере
+            if (user_data.save_data_when_open || new Date().getTime() > parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3) { // если прошло 24 часа с момента сохранения данных на сервере
                 console.log("Save data to server");
                 $(".monday_06_01").click();
             } else {
-                console.log("Next synchronization: " + parseInt((parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3 - new Date().getTime()) / 1000 / 60) + "  ");
+                console.log("Next synchronization: " + parseInt((parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3 - new Date().getTime()) / 1000 / 60) + "  minutes");
             }
         }, 1000);
     });
@@ -402,13 +404,7 @@ $(document).ready(function () {
             return true;
         }
 
-        var offset_left = 130,
-            wednesday = "";
-        // if ($(this).hasClass("wednesday_05_04_05")) {
-        //     offset_left = 70;
-        //     wednesday = " wednesday_03_05_1 ";
-        //     current_click_class = "id";
-        // }
+        var offset_left = 130, wednesday = "";
 
         $(".wednesday_05_04_06").remove();
         var ofsset = $(this).parent().offset();
@@ -732,7 +728,11 @@ $(document).ready(function () {
     function synchronize_data(callback) {
         var force_overwriting = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
 
-        $(".monday_06_01").addClass("gly-spin");
+        if($(".monday_06_01").hasClass("gly-spin")) {
+            return 1;
+        } else {
+            $(".monday_06_01").addClass("gly-spin");
+        }
 
         if (firebase.auth().currentUser) {
             var userId = firebase.auth().currentUser.uid;
@@ -1035,6 +1035,18 @@ function update_sort_category_html(category, list_categories) {
 
 function save_data_in_firebase(callback) {
 
+    var userId = firebase.auth().currentUser.uid;
+
+    var docRef = db.collection("users").doc(userId);
+    docRef.get().then(function (doc) {
+        let time_user_data=doc.data();
+        if(parseInt(time_user_data.time_save_data_in_firebase/1e3+30)>new Date().getTime()/1e3) {
+
+        }
+    }).catch(function (err) {
+        callback(element);
+    });
+
     var all_category = get_all_categories(user_data.category, []);
     for (var i in all_category) {
         if (!all_category[i].config.hasOwnProperty("visible")) {
@@ -1042,7 +1054,6 @@ function save_data_in_firebase(callback) {
         }
     }
 
-    var userId = firebase.auth().currentUser.uid;
     var copy_user_data = JSON.parse(JSON.stringify(user_data));
     delete copy_user_data.first_load;
 
@@ -1063,9 +1074,11 @@ function save_data_in_firebase(callback) {
         }
     });
 
-    for (var _i = 1; _i < new_category_array.length; _i++) {
+    for (let _i = 1; _i < new_category_array.length; _i++) {
         db.collection("users").doc(userId + "-catdata-" + _i).set({ data: new_category_array[_i] });
     }
+
+    db.collection("users").doc(userId + "-catdata-" + new_category_array.length).delete();
 
     copy_user_data.category = new_category_array[0];
     db.collection("users").doc(userId).set(copy_user_data).then(function () {
@@ -1093,9 +1106,8 @@ function update_word_in_vacabulary(id, val, current_click_class) {
     if (word[current_click_class] == val || !word) {
         return true;
     }
-    console.log(word, current_click_class, val);
+
     word[current_click_class] = val;
-    console.log(word);
     user_data.time_last_activity = new Date().getTime();
 
     if (rebut) {
@@ -1144,8 +1156,6 @@ function all_task() {
         }
 
         $(".tuesday_19_06_02").hide();
-
-        console.log(copy_result);
 
         var cat_arr = [];
         $(".all_task .build_task_table").bootstrapTable({
@@ -1429,7 +1439,7 @@ function build_menu() {
 
 function build_menu_html(category, list_categories, deep) {
     for (var i in category) {
-        if (!category[i].config.visible) continue;
+        if (!category[i] || !category[i].config.visible) continue;
         var active = category[i].config.id == user_data.current_category ? "active" : "";
 
         if (category[i].hasOwnProperty("category") && category[i].category.filter(function (e) {
@@ -1506,13 +1516,11 @@ function get_data_from_firebase(userId, callback) {
     result_data_firebase = [];
     async.mapSeries(list_id, resolveAfter2Seconds, function (err, res) {
         if (result_data_firebase.length) {
-            console.log(result_data_firebase);
             result_data_firebase.map(function (element, index) {
                 if (index >= 1) {
                     result_data_firebase[0].category = result_data_firebase[0].category.concat(element.data);
                 }
             });
-            console.log(result_data_firebase[0]);
             callback(result_data_firebase[0]);
         } else {
             callback("not find");

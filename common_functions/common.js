@@ -81,6 +81,7 @@ function get_category_by_id(id, category) {
 
 function get_all_categories(category, list_categories) {
     for (var i in category) {
+        if(!category[i]) continue;
         list_categories.push(category[i]);
         if (category[i].hasOwnProperty("category")) {
             if (category[i].category.length) {
