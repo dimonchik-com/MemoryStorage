@@ -59,7 +59,7 @@ function get_current_category() {
 }
 
 function get_category_by_id(id, category) {
-    if (category.length) {
+    if (category) {
         if (id == 0) return { category: category };
         for (var i in category) {
             if (category[i].config.id == id) {

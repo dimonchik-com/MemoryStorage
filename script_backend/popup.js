@@ -6,17 +6,15 @@ var db,
     popup = 0,
     snapshot,
     result_data_firebase,
-    size_window;
+    flag_get_data_from_firebase;
 
 $(document).ready(function () {
 
     if ($(window).width() < 200) {
         $(".p0").css({ "width": "800px", "height": "600px" });
         popup = 1;
-        size_window="small";
     } else {
         $(".monday_26_03_0,.wednesday_20_06_3").show();
-        size_window="big";
     }
 
     firebase.initializeApp({
@@ -87,13 +85,12 @@ $(document).ready(function () {
         time_save_data_in_firebase: new Date().getTime(), // time last save data in firebase
         update_content_script: 1, // need or not update content_script
         status_enable: 1
-        // save_data_when_open - flag for understand must we save changes after open pop-up automatically or not
     };
 
     get_storage(function () {
         start_play();
         setTimeout(function () {
-            if (user_data.save_data_when_open || new Date().getTime() > parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3) { // если прошло 24 часа с момента сохранения данных на сервере
+            if (new Date().getTime() > parseInt(user_data.time_save_data_in_firebase) + 60 * 60 * 24 * 1e3) { // если прошло 24 часа с момента сохранения данных на сервере
                 console.log("Save data to server");
                 $(".monday_06_01").click();
             } else {
@@ -369,7 +366,6 @@ $(document).ready(function () {
                     }
 
                     user_data.time_last_activity = new Date().getTime();
-                    user_data.save_data_when_open = 1;
                     set_storage(function () {
                         if (list_remove_word.length) {
                             $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
@@ -696,8 +692,6 @@ $(document).ready(function () {
     function create_new_word(result, new_word, new_translate) {
         let new_id=get_new_id();
 
-        console.log(["get_new_id",new_id]);
-
         result.vocabulary.push({
             id: new_id,
             en: new_word,
@@ -710,7 +704,6 @@ $(document).ready(function () {
         });
 
         user_data.time_last_activity = new Date().getTime();
-        user_data.save_data_when_open = 1;
 
         // update count
         var range = get_range();
@@ -1037,16 +1030,6 @@ function save_data_in_firebase(callback) {
 
     var userId = firebase.auth().currentUser.uid;
 
-    var docRef = db.collection("users").doc(userId);
-    docRef.get().then(function (doc) {
-        let time_user_data=doc.data();
-        if(parseInt(time_user_data.time_save_data_in_firebase/1e3+30)>new Date().getTime()/1e3) {
-
-        }
-    }).catch(function (err) {
-        callback(element);
-    });
-
     var all_category = get_all_categories(user_data.category, []);
     for (var i in all_category) {
         if (!all_category[i].config.hasOwnProperty("visible")) {
@@ -1056,9 +1039,6 @@ function save_data_in_firebase(callback) {
 
     var copy_user_data = JSON.parse(JSON.stringify(user_data));
     delete copy_user_data.first_load;
-
-    delete user_data.save_data_when_open;
-    delete copy_user_data.save_data_when_open;
 
     copy_user_data.time_last_activity = new Date().getTime();
     copy_user_data.time_save_data_in_firebase = new Date().getTime();
@@ -1508,6 +1488,9 @@ function start_play() {
 }
 
 function get_data_from_firebase(userId, callback) {
+    if(flag_get_data_from_firebase) return 1;
+    flag_get_data_from_firebase=1;
+
     var list_id = [userId];
     for (var i = 1; i < 10; i++) {
         list_id.push(userId + "-catdata-" + i);
@@ -1521,6 +1504,9 @@ function get_data_from_firebase(userId, callback) {
                     result_data_firebase[0].category = result_data_firebase[0].category.concat(element.data);
                 }
             });
+            setTimeout(function () {
+                flag_get_data_from_firebase=0;
+            },1e3);
             callback(result_data_firebase[0]);
         } else {
             callback("not find");
