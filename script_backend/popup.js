@@ -330,9 +330,10 @@ $(document).ready(function () {
 
         var list_remove_word = [];
         $(".build_task_table input[type='checkbox']:checked").each(function () {
-            var name_domain = $(this).closest("tr").find(".wednesday_05_04_05:not([is_cat=1])").attr("id");
-            if (name_domain) {
-                list_remove_word.push(name_domain);
+            var id = $(this).closest("tr").find(".wednesday_05_04_05:not([is_cat=1])").attr("id");
+            var cat_id = $(this).closest("tr").find(".wednesday_05_04_05:not([is_cat=1])").attr("cat_id");
+            if (id) {
+                list_remove_word.push({id:id, cat_id:parseInt(cat_id)});
             }
         });
 
@@ -348,12 +349,15 @@ $(document).ready(function () {
             if (action) {
                 get_storage(function (result) {
                     if (list_remove_word.length) {
-                        var i = result.vocabulary.length;
-                        while (i--) {
-                            if (list_remove_word.indexOf(String(result.vocabulary[i].id)) != -1 || !result.vocabulary[i].id) {
-                                result.vocabulary.splice(i, 1);
+                        list_remove_word.map(function (value) {
+                            var select_category_object = get_category_by_id(parseInt(value.cat_id), user_data.category);
+                            var i = select_category_object.vocabulary.length;
+                            while (i--) {
+                                if (String(select_category_object.vocabulary[i].id) == value.id || !select_category_object.vocabulary[i].id) {
+                                    select_category_object.vocabulary.splice(i, 1);
+                                }
                             }
-                        }
+                        });
                     } else if (list_remove_subcategory.length) {
                         var i = result.category.length;
                         while (i--) {
@@ -365,10 +369,15 @@ $(document).ready(function () {
                         }
                     }
 
+
                     user_data.time_last_activity = new Date().getTime();
                     set_storage(function () {
                         if (list_remove_word.length) {
                             $(".all_task .build_task_table").bootstrapTable("load", result.vocabulary);
+                            setTimeout(function () {
+                                $(".all_task .build_task_table").bootstrapTable("flash_search");
+                                $(".wednesday_05_04_04 .search input").keyup();
+                            },1e2);
                         } else if (list_remove_subcategory.length) {
                             start_build_frame(user_data.current_category);
                         }
