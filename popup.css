@@ -92,7 +92,7 @@
     border-bottom: 1px solid #ddd;
     padding: 0 0 2px 0;
 }
-.wednesday_05_04_04 .fixed-table-toolbar .bs-bars, .wednesday_05_04_04 .fixed-table-toolbar .columns, .wednesday_05_04_04 .fixed-table-toolbar .search{margin-top: 14px; margin-bottom: 6px;}
+.wednesday_05_04_04 .bootstrap-table .fixed-table-toolbar .bs-bars,.wednesday_05_04_04 .bootstrap-table .fixed-table-toolbar .search,.wednesday_05_04_04 .bootstrap-table .fixed-table-toolbar .columns{margin-top: 14px; margin-bottom: 6px;float: right}
 
 .dropdown-submenu {
     position: relative;
@@ -311,3 +311,9 @@
 .wednesday_20_06_1{display: none; padding: 0px 0 0 10px; }
 .wednesday_20_06_3{margin: 14px 0 0 0;}
 .friday_22_06_0{display: none;}
+.fixed-table-pagination .float-left{float: left;}
+.fixed-table-pagination .float-right{float: right;}
+.wednesday_05_04_04 .fixed-table-header .table-bordered{border-right: none; border-top: none;}
+.wednesday_05_04_04 .fixed-table-header .table-bordered th:last-child{border-right: none;}
+.wednesday_05_04_04 .fixed-table-header{border-top: 1px solid #ddd; border-right: 1px solid #ddd;}
+.wednesday_05_04_04 .fixed-table-header .table-bordered th{border-top: none;}

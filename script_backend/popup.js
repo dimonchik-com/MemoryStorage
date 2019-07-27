@@ -1146,9 +1146,10 @@ function all_task() {
 
         $(".tuesday_19_06_02").hide();
 
+        let all_data=copy_result ? copy_result.vocabulary : "";
         var cat_arr = [];
         $(".all_task .build_task_table").bootstrapTable({
-            data: copy_result ? copy_result.vocabulary : "",
+            data: all_data,
             columns: [{
                 field: 'state',
                 checkbox: true,
@@ -1226,14 +1227,15 @@ function all_task() {
                 }
             }],
             search: true,
+            showSearchButton:false,
             pagination: true,
             pageSize: pageSize,
-            showRefresh: true,
+            showRefresh: false,
             pageList: [10, 25, 50, 'All'],
             pageNumber: pageNumber,
             cookieIdTable: "all_task",
             height: height_table,
-            customSearch: function customSearch(text) {
+            customSearch: function customSearch(data,text) {
                 if (text) {
                     if (!snapshot) {
                         var all_cat = get_all_categories(user_data.category, []);
@@ -1257,8 +1259,9 @@ function all_task() {
                             return false;
                         }
                     });
-                    this.data = concat;
+                    return concat;
                 }
+                return all_data;
             },
             onPageChange: function onPageChange() {
                 result.config.pageSize = this.pageSize;
@@ -1557,12 +1560,17 @@ chrome.windows.getCurrent(function (win) {
     chrome.tabs.getAllInWindow(win.id, function (tabs) {
         var find_memory_traning = 0;
         for (var i in tabs) {
-            var tab = tabs[i];
-            chrome.tabs.sendMessage(tab.id, { are_you_smart: 1 }, function (response) {
-                if (response) {
-                    if (response.hasOwnProperty("yes_i_smart")) {
-                        find_memory_traning = 1;
-                    }
+
+            chrome.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
+                if (changeInfo.status == 'complete') {
+                    chrome.tabs.onUpdated.removeListener(listener);
+                    chrome.tabs.sendMessage(tabId, { are_you_smart: 1 }, function (response) {
+                        if (response) {
+                            if (response.hasOwnProperty("yes_i_smart")) {
+                                find_memory_traning = 1;
+                            }
+                        }
+                    });
                 }
             });
         }

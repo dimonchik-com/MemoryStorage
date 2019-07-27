@@ -544,7 +544,7 @@ function EnglishTip(vocabulary, config) {
         if (config.last_word.time_reaction) {
             var length = config.last_word.time_reaction.length;
             while (length--) {
-                if (_typeof(config.last_word.time_reaction[length]) != "object") {
+                if (typeof(config.last_word.time_reaction[length]) != "object") {
                     config.last_word.time_reaction.splice(length, 1);
                 }
             }
