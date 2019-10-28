@@ -76,7 +76,8 @@ $(document).ready(function () {
                 training_mode: 1,
                 stop_next_word: 0,
                 visible: 1, // visible cat or not,
-                visible_id: 0 // next id in list
+                visible_id: 0, // next id in list
+                way_traning:get_constant("way_traning")
             },
             category: []
         }],
@@ -488,6 +489,9 @@ $(document).ready(function () {
 
         var name_category = $('.wednesday_05_04_08 input[name=name_category]').val();
         result.config.name = name_category;
+
+        var way_traning=parseInt($('.wednesday_05_04_08 select[name=way_traning]').val());
+        result.config.way_traning=way_traning;
 
         // Gear disabled on this site
         if (training_mode == 2 && current_open_page.domain.match(/\./)) {
@@ -1376,6 +1380,7 @@ function config_tab() {
     $('.wednesday_05_04_08 select[name=delay_traning]').val(result.config.hasOwnProperty("delay_traning") ? result.config.delay_traning : get_constant("delay_traning"));
     $('.wednesday_05_04_08 input[name=delay_traning_second]').val(result.config.delay_traning_second);
     $('.wednesday_05_04_08 input[name=name_category]').val(result.config.name);
+    $('.wednesday_05_04_08 select[name=way_traning]').val(result.config.hasOwnProperty("way_traning")?result.config.way_traning:get_constant("way_traning"));
 
     if (parseInt(result.config.training_mode) == 0) {
         $('.wednesday_05_04_08 select[name=training_mode]').val(result.config.training_mode);
